@@ -1,0 +1,13 @@
+{
+  "format": 1,
+  "_note": "Le registre de tous les mockups de Sindry, tous projets confondus : il fait foi pour les numéros. Les mockups M40 et suivants y sont déposés avec leur numéro d'origine ; un nouveau mockup prend le numéro max(plancher, plus grand n) + 1. Règles : mockups/README.md.",
+  "plancher": 46,
+  "projets": {
+    "app": "Sindry App",
+    "os": "Sindry OS",
+    "game": "Sindry Game",
+    "scripts": "Sindry Script",
+    "icones": "Sindry Icons"
+  },
+  "maquettes": []
+}

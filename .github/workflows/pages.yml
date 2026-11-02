@@ -1,0 +1,56 @@
+# Le site de la médiathèque, sur GitHub Pages : construit par
+# outils/construire-site.mjs (sans dépendance), qui écrit manifest.json et ajoute
+# leur badge aux mockups du registre.
+#
+# Reconstruit à chaque poussée sur main : tout ce que contient le dépôt est montré.
+#
+# À activer une fois dans le dépôt : Settings > Pages > Source : GitHub Actions.
+name: Site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Une publication à la fois, sans interrompre celle en cours.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  construire:
+    runs-on: ubuntu-latest
+    steps:
+      # Tout l'historique : la date de chaque fichier est celle de son dernier commit.
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      # --strict : un registre invalide (numéro en double, fichier introuvable)
+      # n'est pas publié, et le site en ligne reste celui d'avant.
+      - name: Construire le site
+        run: node outils/construire-site.mjs --strict --out _site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  publier:
+    needs: construire
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publication.outputs.page_url }}
+    steps:
+      - id: publication
+        uses: actions/deploy-pages@v4

@@ -1,2 +1,5 @@
 # Planche d'aperçu, faite pour vérifier les icônes : elle ne se publie pas.
 apercu.png
+
+# Le site construit par outils/construire-site.mjs.
+_site/

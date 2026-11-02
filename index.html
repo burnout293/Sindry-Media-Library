@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Médiathèque de Sindry</title>
+  <meta name="description" content="Les mockups, icônes et images de tous les projets Sindry, au même endroit.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" type="image/png" href="mockups/_ressources/marque.png">
+  <link rel="stylesheet" href="accueil/style.css">
+  <script>
+    // Le thème choisi s'applique avant l'affichage : pas d'éclair blanc.
+    try { var t = localStorage.getItem('mediatheque.theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <script src="accueil/app.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="top-in">
+      <a class="brand" href="./">
+        <img src="mockups/_ressources/marque.png" width="30" height="30" alt="">
+        <span>Sindry <span class="brand-sub">Médiathèque</span></span>
+      </a>
+      <nav class="nav" id="nav" aria-label="Sections"></nav>
+      <button class="theme-btn" id="theme" type="button" aria-live="polite">Thème : auto</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-h">
+      <h1>La médiathèque de Sindry</h1>
+      <p>Les mockups, les icônes et les images de tous les projets Sindry, au même endroit et
+        accessibles depuis n'importe où.</p>
+      <ul class="stats" id="stats" aria-label="Contenu"></ul>
+      <div class="search">
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="recherche" type="search" placeholder="Chercher un mockup, une icône, une image…" autocomplete="off" aria-label="Chercher">
+        <kbd>/</kbd>
+      </div>
+    </section>
+
+    <div id="sections">
+      <p class="etat" id="chargement">Chargement du contenu…</p>
+    </div>
+  </main>
+
+  <footer class="pied">
+    <div class="pied-in">
+      <p>
+        <a id="lien-depot" href="https://github.com/burnout293/Sindry-Media-Library">Le dépôt sur GitHub</a> ·
+        <a href="https://github.com/burnout293/Sindry-Media-Library/blob/main/mockups/README.md">Déposer un mockup</a> ·
+        <a href="https://github.com/burnout293/Sindry-Media-Library#droits--à-lire">Droits des icônes</a>
+      </p>
+      <p class="pied-note" id="version"></p>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
