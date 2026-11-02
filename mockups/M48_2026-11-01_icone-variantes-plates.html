@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M48 · Icône, variantes plates</title>
+<!--
+  Mockup M48: flat and monochrome versions of Sindry's icon, after the user's
+  brief: the icon's gear (8 teeth), and two separate little flames outside it,
+  at about 1:15 and 2:30 on a clock face centred on the gear. Seven variants,
+  all drawn by the same small generator (gear contour, flame outlines, then
+  each flame slid out along its hour until it clears the teeth), so the sliders
+  apply to all of them and every icon can be saved as an SVG. Code in English,
+  visible text in French.
+-->
+<style>
+@font-face { font-family: 'Inter'; font-weight: 100 900; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Sindry Mono'; font-weight: 400; src: url('_ressources/sindry-mono-400.woff2') format('woff2'); }
+:root {
+  --bg: #F6F4EF; --surface: #FFFFFF; --border: #DCD7CC; --text: #141A24; --text-2: #5C6778; --acc: #E2640F;
+  --light: #F6F4EF; --dark: #0B0F16;
+  --ui: 'Inter', 'Segoe UI', system-ui, sans-serif; --mono: 'Sindry Mono', Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.5 var(--ui); }
+button, input { font: inherit; color: inherit; }
+
+.top { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); }
+.brand { display: flex; gap: 10px; align-items: center; }
+.brand img { width: 32px; height: 32px; }
+.brand h1 { margin: 0; font-size: 15px; }
+.brand p { margin: 0; color: var(--text-2); font-size: 12px; }
+.ctl { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.grp { display: flex; align-items: center; gap: 7px; }
+.grp > span { font-size: 10.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: .07em; }
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 5px 10px; font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button:hover { color: var(--text); }
+.seg button.on { background: var(--acc); color: var(--bg); }
+
+main { max-width: 1040px; margin: 0 auto; padding: 20px 16px 90px; display: grid; gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+.sec-h { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-bottom: 12px; }
+.sec-h h2 { margin: 0; font-size: 15px; }
+.sec-h p { margin: 0; flex-basis: 100%; color: var(--text-2); font-size: 12.5px; }
+.tag { font: 700 11px var(--mono); color: var(--acc); border: 1px solid var(--border); border-radius: 6px; padding: 0 6px; }
+.btn { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn:hover { border-color: var(--acc); }
+
+/* The brief. */
+.brief { display: grid; grid-template-columns: 132px 1fr; gap: 16px 22px; align-items: start; }
+.brief figure { margin: 0; text-align: center; color: var(--text-2); font-size: 11.5px; }
+.brief figure img { width: 120px; height: 120px; display: block; margin: 0 auto 4px; }
+.checks { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+.checks li { display: grid; grid-template-columns: 18px 1fr; gap: 6px; }
+.checks li::before { content: '✓'; color: #2E9E5B; font-weight: 700; }
+.checks b { font-weight: 600; }
+.checks span { color: var(--text-2); }
+.sliders { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; padding-top: 12px; border-top: 1px solid var(--border); }
+.sliders label { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-2); }
+.sliders input { width: 130px; accent-color: var(--acc); }
+.sliders output { font: 11px var(--mono); color: var(--text); min-width: 54px; }
+.legend { color: var(--text-2); font-size: 12px; }
+.legend i { display: inline-block; width: 18px; border-top: 2px dashed #2F7DF6; vertical-align: middle; margin-right: 4px; }
+
+/* Side by side. */
+.cmp-wrap { overflow-x: auto; }
+.cmp { display: grid; grid-template-columns: 104px repeat(8, minmax(64px, 1fr)); min-width: 680px; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.cmp > div { display: grid; place-items: center; min-height: 40px; padding: 8px 4px; border-top: 1px solid var(--border); }
+.cmp > .h { border-top: 0; font-size: 11.5px; font-weight: 600; text-align: center; line-height: 1.25; }
+.cmp > .h small { display: block; font: 700 10.5px var(--mono); color: var(--acc); }
+.cmp > .lab { justify-items: start; font-size: 11px; color: var(--text-2); padding-left: 10px; }
+.cmp > .l { background: var(--light); }
+.cmp > .d { background: var(--dark); }
+.cmp > .pick { box-shadow: inset 0 0 0 2px var(--acc); }
+.cmp svg, .cmp img { display: block; }
+.cmp .none { color: var(--text-2); font-size: 11px; }
+
+/* One variant. */
+.pick-btn { margin-left: auto; }
+.pick-btn.on { background: var(--acc); color: var(--bg); border-color: transparent; }
+.card.picked { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc); }
+.pv { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.pv figure { margin: 0; display: grid; gap: 5px; }
+.pv figcaption { font-size: 11px; color: var(--text-2); text-align: center; }
+.box { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--border); display: grid; place-items: center; padding: 7%; }
+.box.l { background: var(--light); }
+.box.d { background: var(--dark); border-color: var(--dark); }
+.box svg { width: 100%; height: 100%; display: block; }
+.sizes { display: grid; gap: 8px; margin-top: 12px; }
+.srow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+.srow > b { width: 84px; font-size: 11px; font-weight: 500; color: var(--text-2); }
+.strip { display: flex; align-items: flex-end; gap: 12px; padding: 8px 12px; border-radius: 8px; }
+.strip.l { background: #F3F3F3; border: 1px solid var(--border); }
+.strip.d { background: #202020; border: 1px solid #202020; }
+.strip svg { display: block; }
+.foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 12px; }
+.foot .note { color: var(--text-2); font-size: 12px; margin-right: auto; }
+
+/* Still to decide. */
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th, td { text-align: left; vertical-align: top; padding: 7px 8px; border-top: 1px solid var(--border); }
+th { font-size: 11px; color: var(--text-2); font-weight: 600; border-top: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.pill { display: inline-block; font-size: 11px; padding: 0 8px; border-radius: 99px; border: 1px solid var(--border); color: var(--text-2); white-space: nowrap; }
+.pill.ask { border-color: var(--acc); color: var(--acc); }
+
+@media (max-width: 720px) {
+  .brief { grid-template-columns: 1fr; }
+  .pv { grid-template-columns: repeat(2, 1fr); }
+  .srow > b { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div data-maquette-badge style="position:fixed;left:10px;bottom:10px;z-index:2147483647;pointer-events:none;font:650 12px/1.2 'Segoe UI',system-ui,sans-serif;color:#fff;background:rgba(18,12,26,.9);border:1px solid rgba(255,255,255,.22);padding:6px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.35)">M48 · 01/11/2026 21:31 · Icône, variantes plates</div>
+<header class="top">
+  <div class="brand">
+    <img src="_ressources/marque.png" alt="Sindry" draggable="false">
+    <div><h1>Icône, variantes plates</h1><p>Engrenage à 8 dents, deux flammes séparées à 1 h 15 et 2 h 30</p></div>
+  </div>
+  <div class="ctl">
+    <div class="grp"><span>Couleurs</span><div class="seg" data-set="pal">
+      <button data-val="braise">Braise</button><button data-val="feu">Feu</button><button data-val="ormag">Or et magenta</button></div></div>
+    <div class="grp"><span>Encre mono</span><div class="seg" data-set="ink">
+      <button data-val="encre">Encre</button><button data-val="braise">Orange</button><button data-val="prune">Prune</button></div></div>
+    <div class="grp"><span>Fond</span><div class="seg" data-set="tile">
+      <button data-val="0">Aucun</button><button data-val="1">Tuile</button></div></div>
+    <div class="grp"><span>Repère</span><div class="seg" data-set="guide">
+      <button data-val="1">Heures</button><button data-val="0">Masqué</button></div></div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="sec-h"><span class="tag">M48</span><h2>Ce que tu as demandé</h2></div>
+    <div class="brief">
+      <figure><img src="_ressources/marque.png" alt="Icône actuelle" draggable="false">Icône actuelle</figure>
+      <ul class="checks">
+        <li><div><b>Engrenage à 8 dents</b> <span>— celui de l'icône : proportions relevées sur l'image pour le jeu caché (M45), coins adoucis.</span></div></li>
+        <li><div><b>Deux flammes séparées</b> <span>— chacune comme la flamme d'une bougie, avec un cœur plus clair.</span></div></li>
+        <li><div><b>À l'extérieur de la roue</b> <span>— chaque flamme glisse le long de son heure jusqu'à ne plus toucher aucune dent.</span></div></li>
+        <li><div><b>À 1 h 15 et 2 h 30</b> <span>— soit 37,5° et 75° depuis midi ; le centre de chaque flamme est sur son rayon.</span></div></li>
+        <li><div><b>Plat et monochrome</b> <span>— aplats sans dégradé ni ombre, et une version d'une seule couleur (cœur des flammes et anneau évidés).</span></div></li>
+      </ul>
+      <div class="sliders">
+        <label>Taille des flammes <input type="range" id="size" min="0.7" max="1.4" step="0.01"><output for="size"></output></label>
+        <label>Écart à la roue <input type="range" id="gap" min="-0.04" max="0.16" step="0.005"><output for="gap"></output></label>
+        <label>Flamme de 2 h 30 <input type="range" id="ratio" min="0.6" max="1" step="0.01"><output for="ratio"></output></label>
+        <button class="btn" id="reset">Valeurs d'origine</button>
+        <span class="legend"><i></i>repère : rayons de 1 h 15 et 2 h 30</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><h2>Côte à côte</h2><p>Les sept variantes aux tailles où une icône vit vraiment : barre des tâches (24 et 16 px), raccourci (48 px). <b>Retenues :</b> <span id="picks">aucune pour l'instant</span>.</p></div>
+    <div class="cmp-wrap"><div class="cmp" id="cmp"></div></div>
+  </section>
+
+  <div id="variants" style="display: grid; gap: 18px;"></div>
+
+  <section class="card">
+    <div class="sec-h"><h2>À trancher</h2></div>
+    <table>
+      <thead><tr><th>Point</th><th>Proposé ici</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>La variante</td><td>A à G, ou un mélange (par exemple les flammes de C sur la roue de F).</td><td><span class="pill ask">à choisir</span></td></tr>
+        <tr><td>L'orientation</td><td>Droites comme une bougie (A, E, F), dans l'axe de leur heure (B, D), ou entre les deux (C, G).</td><td><span class="pill ask">à choisir</span></td></tr>
+        <tr><td>Les tailles</td><td>La flamme de 1 h 15 un peu plus grande ; celle de 2 h 30 à 78 % (réglable en haut).</td><td><span class="pill">à valider</span></td></tr>
+        <tr><td>La roue</td><td>Les trois gris de l'icône (corps, anneau, moyeu) ; F n'a qu'un trou, pour les petites tailles.</td><td><span class="pill">à valider</span></td></tr>
+        <tr><td>Le monochrome</td><td>Cœur des flammes évidé, anneau évidé, moyeu plein : les trois tons de l'icône ramenés à deux.</td><td><span class="pill">à valider</span></td></tr>
+        <tr><td>La tuile</td><td>Un carré arrondi (fond Braise ardente), pour l'installeur et les petites tailles sur fond chargé.</td><td><span class="pill">à valider</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<svg id="probe" aria-hidden="true" style="position: absolute; width: 0; height: 0; overflow: hidden"><path/></svg>
+
+<script>
+(() => {
+const $ = (s) => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const TAU = Math.PI * 2, DEG = Math.PI / 180;
+// The gear of Sindry's icon, as measured for M45 on the original image: 8 teeth,
+// roots at 0.82 of the tip radius, a darker ring from 0.34 to 0.57, one tooth
+// straight up at rest. R is the tip radius, in drawing units.
+const R = 100, TEETH = 8, ROOT = 0.82, RING = 0.57, HUB = 0.34, TIP_HALF = 0.148, ROOT_HALF = 0.279;
+const HOURS = [37.5, 75];                       // 1:15 and 2:30, in degrees clockwise from noon
+const ANCHOR = 0.4;                             // a flame's visual centre, up its axis, as a share of its height
+const ASPECT = { candle: 0.46, tongue: 0.5, drop: 0.56 };   // width / height of each flame shape
+const LINE = 11;                                // stroke of the line variant
+
+const GEAR = { body: '#A9B1C1', ring: '#6F788B', hub: '#D7DCE5' };
+const PALETTES = {
+  braise: { f1: ['#FD7D26', '#FEC923'], f2: ['#FD7D26', '#FEC923'] },
+  feu:    { f1: ['#F8304B', '#FD9E21'], f2: ['#F8304B', '#FD9E21'] },
+  ormag:  { f1: ['#FD9E21', '#FEC923'], f2: ['#DC1178', '#FD5632'] },
+};
+const INKS = { encre: '#141A24', braise: '#E2640F', prune: '#89088B' };
+const DARK = '#0F0A14', WHITE = '#F7F1FA';
+
+const VARIANTS = [
+  { id: 'A', name: 'Bougies', gear: 'icon', rot: 0, shape: 'candle', turn: 0, leans: [0.1, -0.12], clear: 0.07, scale: 1,
+    desc: 'Les deux flammes montent droit, comme sur une bougie, posées tout près des dents. La plus calme.' },
+  { id: 'B', name: 'Rayons', gear: 'icon', rot: 0, shape: 'candle', turn: 1, leans: [0, 0], clear: 0.06, scale: 1,
+    desc: 'Chaque flamme pointe dans l\'axe de son heure : la roue semble les projeter. Plus vive, un peu soleil.' },
+  { id: 'C', name: 'Vent', gear: 'icon', rot: 0, shape: 'tongue', turn: 0.5, leans: [-0.55, -0.5], clear: 0.06, scale: 1.08,
+    desc: 'Couchées à mi-chemin, la pointe qui se redresse : deux langues de feu, l\'écho du tourbillon de l\'icône actuelle.' },
+  { id: 'D', name: 'Sur les dents', gear: 'icon', rot: -11.25, hours: [33.75, 78.75], shape: 'candle', turn: 1, leans: [0, 0], clear: 0.035, scale: 0.95,
+    desc: 'La roue tourne de 11° pour que chaque flamme coiffe une dent, comme deux bougies.',
+    note: 'Écart assumé : 1 h 07 et 2 h 37 — les dents tombent tous les 45°, tes deux heures sont à 37,5° l\'une de l\'autre.' },
+  { id: 'E', name: 'Braises', gear: 'icon', rot: 0, shape: 'candle', turn: 0, leans: [0.12, -0.14], clear: 0.26, scale: 0.78,
+    desc: 'Plus petites et détachées de la roue par un vrai vide : deux étincelles qui s\'échappent.' },
+  { id: 'F', name: 'Géométrique', gear: 'hole', rot: 0, shape: 'drop', turn: 0, leans: [0, 0], clear: 0.07, scale: 1,
+    desc: 'Une goutte parfaite (un cercle et une pointe) et une roue à simple trou, sans moyeu : la plus lisible en 16 px.' },
+  { id: 'G', name: 'Trait', gear: 'icon', rot: 0, shape: 'tongue', turn: 0.5, leans: [-0.55, -0.5], clear: 0.1, scale: 1.08, line: true,
+    desc: 'Le dessin au trait, comme le rendu Trait du jeu caché : élégant en grand.',
+    note: 'À réserver à 32 px et plus : en 16 px, le trait ne fait plus qu\'un demi-pixel.' },
+];
+
+const DEFAULTS = { pal: 'braise', ink: 'encre', tile: '0', guide: '1', size: 1, gap: 0, ratio: 0.78 };
+const KEY = 'sindry.m48', KEY_PICKS = 'sindry.m48.picks';
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const keep = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private window */ } };
+const S = { ...DEFAULTS, ...load(KEY, {}) };
+// ?pal=ormag&tile=1… opens the page on a given choice.
+for (const [k, val] of new URLSearchParams(location.search)) if (k in DEFAULTS) S[k] = typeof DEFAULTS[k] === 'number' ? +val : val;
+const picks = new Set(load(KEY_PICKS, []));
+
+/* ---------- Paths as point lists, so they can be moved before they become strings ---------- */
+// ['M',x,y] ['L',x,y] ['Q',x1,y1,x,y] ['C',x1,y1,x2,y2,x,y] ['A',r,large,sweep,x,y] ['Z']
+const n2 = (v) => +v.toFixed(2);
+function toD(cmds) {
+  return cmds.map(([k, ...v]) => k === 'A'
+    ? `A${n2(v[0])} ${n2(v[0])} 0 ${v[1]} ${v[2]} ${n2(v[3])} ${n2(v[4])}`
+    : k + v.map(n2).join(' ')).join('');
+}
+// Turn by `rot` (radians, clockwise on screen) about the origin, then shift.
+function move(cmds, rot, tx, ty) {
+  const c = Math.cos(rot), s = Math.sin(rot);
+  const p = (x, y) => [x * c - y * s + tx, x * s + y * c + ty];
+  return cmds.map(([k, ...v]) => {
+    if (k === 'Z') return ['Z'];
+    if (k === 'A') return ['A', v[0], v[1], v[2], ...p(v[3], v[4])];
+    const out = [k];
+    for (let i = 0; i < v.length; i += 2) out.push(...p(v[i], v[i + 1]));
+    return out;
+  });
+}
+const polar = (r, a) => [r * Math.sin(a), -r * Math.cos(a)];   // a: clockwise from noon
+const circle = (r) => [['M', r, 0], ['A', r, 1, 1, -r, 0], ['A', r, 1, 1, r, 0], ['Z']];
+
+// The icon's gear: straight flanks, tips and roots on circles, every corner
+// softened by a small quadratic fillet of `fr` units.
+function gearContour(rot, fr = 4) {
+  const step = TAU / TEETH, rr = R * ROOT, out = [];
+  const toward = (p, q, d) => { const l = Math.hypot(q[0] - p[0], q[1] - p[1]); return [p[0] + (q[0] - p[0]) * d / l, p[1] + (q[1] - p[1]) * d / l]; };
+  for (let i = 0; i < TEETH; i++) {
+    const a = rot + i * step;
+    const v1 = polar(rr, a - ROOT_HALF), v2 = polar(R, a - TIP_HALF), v3 = polar(R, a + TIP_HALF), v4 = polar(rr, a + ROOT_HALF);
+    const n1 = polar(rr, a + step - ROOT_HALF), nt = polar(R, a + step - TIP_HALF);   // the next tooth's first corners
+    if (!i) out.push(['M', ...toward(v1, v2, fr)]);
+    out.push(['L', ...toward(v2, v1, fr)], ['Q', ...v2, ...polar(R, a - TIP_HALF + fr / R)],
+      ['A', R, 0, 1, ...polar(R, a + TIP_HALF - fr / R)], ['Q', ...v3, ...toward(v3, v4, fr)],
+      ['L', ...toward(v4, v3, fr)], ['Q', ...v4, ...polar(rr, a + ROOT_HALF + fr / rr)],
+      ['A', rr, 0, 1, ...polar(rr, a + step - ROOT_HALF - fr / rr)], ['Q', ...n1, ...toward(n1, nt, fr)]);
+  }
+  out.push(['Z']);
+  return out;
+}
+
+/* ---------- Flames, base at the origin, tip up at height h ---------- */
+// A candle flame; `lean` is the tip's offset, as a share of the width.
+function candle(h, w, lean = 0) {
+  const x = w / 2, t = lean * w;
+  return [['M', t, -h], ['C', t + 0.1 * w, -0.72 * h, x, -0.56 * h, x, -0.3 * h], ['C', x, -0.09 * h, 0.27 * w, 0, 0, 0],
+    ['C', -0.27 * w, 0, -x, -0.09 * h, -x, -0.3 * h], ['C', -x, -0.56 * h, t - 0.22 * w, -0.7 * h, t, -h], ['Z']];
+}
+// A tongue of fire: the tip curls towards -x, that side hollow, the other full.
+function tongue(h, w, lean = -0.5) {
+  const x = w / 2, t = lean * w;
+  return [['M', t, -h], ['C', t + 0.42 * w, -0.84 * h, 1.05 * x, -0.58 * h, x, -0.3 * h], ['C', x, -0.09 * h, 0.27 * w, 0, 0, 0],
+    ['C', -0.27 * w, 0, -x, -0.09 * h, -x, -0.3 * h], ['C', -x, -0.5 * h, -0.02 * w, -0.64 * h, t, -h], ['Z']];
+}
+// A perfect drop: a circle, and two tangents meeting at the tip.
+function drop(h, w) {
+  const r = w / 2, al = Math.acos(r / (h - r)), px = r * Math.sin(al), py = -r - r * Math.cos(al);
+  return [['M', 0, -h], ['L', px, py], ['A', r, 1, 1, -px, py], ['Z']];
+}
+const SHAPES = { candle, tongue, drop };
+
+// Points along an outline, measured by the browser on a hidden path.
+const probe = $('#probe path');
+function samples(cmds, n = 120) {
+  probe.setAttribute('d', toD(cmds));
+  const len = probe.getTotalLength();
+  return Array.from({ length: n }, (_, i) => { const p = probe.getPointAtLength(len * i / n); return [p.x, p.y]; });
+}
+
+// Puts a flame on its hour: turned by `psi`, its visual centre on the ray at
+// `theta`, slid out along that ray until no point is closer than `clear` to
+// the teeth's circle.
+function place(cmds, h, theta, psi, clear) {
+  const c = Math.cos(psi), s = Math.sin(psi);
+  const pts = samples(cmds).map(([x, y]) => [x * c - y * s, x * s + y * c]);
+  const a = [h * ANCHOR * s, -h * ANCHOR * c], u = polar(1, theta);
+  const nearest = (d) => Math.min(...pts.map(([x, y]) => Math.hypot(x - a[0] + d * u[0], y - a[1] + d * u[1])));
+  let lo = 0, hi = 4 * R;
+  for (let i = 0; i < 32; i++) { const mid = (lo + hi) / 2; if (nearest(mid) >= R + clear) hi = mid; else lo = mid; }
+  return [hi * u[0] - a[0], hi * u[1] - a[1]];
+}
+
+function build(v) {
+  const h1 = 1.2 * R * v.scale * S.size, clear = Math.max(0.01, v.clear + S.gap) * R + (v.line ? LINE : 0);
+  const flames = (v.hours || HOURS).map((hour, i) => {
+    const th = hour * DEG, h = i ? h1 * S.ratio : h1, w = h * ASPECT[v.shape], psi = th * v.turn;
+    const outer = SHAPES[v.shape](h, w, v.leans[i]);
+    const core = move(SHAPES[v.shape](h * 0.5, w * 0.5, v.leans[i]), 0, 0, -(v.shape === 'drop' ? 0.1 : 0.07) * h);
+    const [tx, ty] = place(outer, h, th, psi, clear);
+    return { outer: move(outer, psi, tx, ty), core: move(core, psi, tx, ty) };
+  });
+  // The drawing's extent: the gear's tip circle and the flames' outlines.
+  const pad = v.line ? LINE / 2 : 0;
+  let box = [-R - pad, -R - pad, R + pad, R + pad];
+  for (const f of flames) for (const [x, y] of samples(f.outer)) {
+    box = [Math.min(box[0], x - pad), Math.min(box[1], y - pad), Math.max(box[2], x + pad), Math.max(box[3], y + pad)];
+  }
+  return { v, gear: gearContour(v.rot * DEG), flames, box };
+}
+
+/* ---------- Drawing ---------- */
+// o: { mode: 'flat' | 'mono', ink, tile (its fill, or null), guide, px }
+function svg(b, o) {
+  const [x0, y0, x1, y1] = b.box, side = Math.max(x1 - x0, y1 - y0) * (o.tile ? 1.42 : 1.08);
+  const left = (x0 + x1 - side) / 2, top = (y0 + y1 - side) / 2;
+  let s = `<svg xmlns="${NS}" viewBox="${[left, top, side, side].map(n2).join(' ')}"${o.px ? ` width="${o.px}" height="${o.px}"` : ''}>`;
+  if (o.tile) s += `<rect x="${n2(left)}" y="${n2(top)}" width="${n2(side)}" height="${n2(side)}" rx="${n2(side * 0.22)}" fill="${o.tile}"/>`;
+  s += glyph(b, o);
+  if (o.guide) s += guide(side);
+  return s + '</svg>';
+}
+
+function glyph(b, o) {
+  const { v } = b, gearD = toD(b.gear), pal = PALETTES[S.pal];
+  if (v.line) {
+    const ink = o.mode === 'mono' ? o.ink : null, tone = (i) => ink ? [ink, ink] : pal[`f${i + 1}`];
+    let s = `<g fill="none" stroke-width="${LINE}" stroke-linejoin="round" stroke-linecap="round">`
+      + `<path d="${gearD}${toD(circle(0.42 * R))}" stroke="${ink || GEAR.ring}"/>`;
+    b.flames.forEach((f, i) => { s += `<path d="${toD(f.outer)}" stroke="${tone(i)[0]}"/><path d="${toD(f.core)}" fill="${tone(i)[1]}" stroke="none"/>`; });
+    return s + '</g>';
+  }
+  const holes = v.gear === 'hole' ? toD(circle(0.4 * R)) : toD(circle(RING * R)) + toD(circle(HUB * R));
+  if (o.mode === 'mono') {
+    // The icon's three tones brought down to two: body and hub full, ring hollow.
+    let s = `<path fill="${o.ink}" fill-rule="evenodd" d="${gearD}${holes}"/>`;
+    for (const f of b.flames) s += `<path fill="${o.ink}" fill-rule="evenodd" d="${toD(f.outer)}${toD(f.core)}"/>`;
+    return s;
+  }
+  let s = v.gear === 'hole'
+    ? `<path fill="${GEAR.body}" fill-rule="evenodd" d="${gearD}${holes}"/>`
+    : `<path fill="${GEAR.body}" d="${gearD}"/><path fill="${GEAR.ring}" d="${toD(circle(RING * R))}"/><path fill="${GEAR.hub}" d="${toD(circle(HUB * R))}"/>`;
+  b.flames.forEach((f, i) => { const [c0, c1] = pal[`f${i + 1}`]; s += `<path fill="${c0}" d="${toD(f.outer)}"/><path fill="${c1}" d="${toD(f.core)}"/>`; });
+  return s;
+}
+
+// The two hours asked for, as dashed rays from the gear's centre.
+function guide(side) {
+  const sw = side / 220, col = '#2F7DF6';
+  let s = `<g fill="none" stroke="${col}" stroke-width="${n2(sw * 1.3)}" opacity=".9">`
+    + `<circle r="${R}" stroke-dasharray="${n2(sw * 2)} ${n2(sw * 4)}" opacity=".6"/>`;
+  for (const hd of HOURS) { const [x, y] = polar(R * 2.6, hd * DEG); s += `<line x1="0" y1="0" x2="${n2(x)}" y2="${n2(y)}" stroke-dasharray="${n2(sw * 6)} ${n2(sw * 4)}"/>`; }
+  return s + `<circle r="${n2(sw * 2.6)}" fill="${col}" stroke="none"/></g>`;
+}
+
+/* ---------- Page ---------- */
+const SIZES = [64, 48, 32, 24, 16];
+const ink = () => INKS[S.ink], tiled = () => S.tile === '1';
+// The four large views of a variant: colours on light and dark, ink, white.
+const views = () => [
+  { cap: 'Couleurs · fond clair', bg: 'l', o: { mode: 'flat', tile: tiled() ? DARK : null } },
+  { cap: 'Couleurs · fond sombre', bg: 'd', o: { mode: 'flat', tile: tiled() ? '#FFFFFF' : null } },
+  { cap: 'Mono · encre', bg: 'l', o: tiled() ? { mode: 'mono', ink: '#FFFFFF', tile: ink() } : { mode: 'mono', ink: ink() } },
+  { cap: 'Mono · blanc', bg: 'd', o: tiled() ? { mode: 'mono', ink: DARK, tile: WHITE } : { mode: 'mono', ink: WHITE } },
+];
+
+function renderCards(builds) {
+  $('#variants').innerHTML = builds.map((b) => {
+    const { v } = b, on = picks.has(v.id), vw = views();
+    const big = vw.map((w, i) => `<figure><div class="box ${w.bg}">${svg(b, { ...w.o, guide: S.guide === '1' && i < 2 })}</div><figcaption>${w.cap}</figcaption></figure>`).join('');
+    const strip = (w) => `<div class="strip ${w.bg}">${SIZES.map((px) => svg(b, { ...w.o, px })).join('')}</div>`;
+    return `<section class="card${on ? ' picked' : ''}" id="v-${v.id}">
+      <div class="sec-h"><span class="tag">${v.id}</span><h2>${v.name}</h2>
+        <button class="btn pick-btn${on ? ' on' : ''}" data-pick="${v.id}">${on ? '★ Retenue' : '☆ Je retiens'}</button>
+        <p>${v.desc}</p></div>
+      <div class="pv">${big}</div>
+      <div class="sizes">
+        <div class="srow"><b>Couleurs</b>${strip(vw[0])}${strip(vw[1])}</div>
+        <div class="srow"><b>Monochrome</b>${strip(vw[2])}${strip(vw[3])}</div>
+      </div>
+      <div class="foot"><span class="note">${v.note || ''}</span>
+        <button class="btn" data-save="${v.id}" data-mode="flat">SVG couleurs</button>
+        <button class="btn" data-save="${v.id}" data-mode="mono">SVG mono</button></div>
+    </section>`;
+  }).join('');
+}
+
+function renderCompare(builds) {
+  const vw = views(), img = (px) => `<img src="_ressources/marque.png" width="${px}" height="${px}" alt="">`;
+  const rows = [
+    { lab: '48 px · clair', bg: 'l', px: 48, o: vw[0].o, cur: true },
+    { lab: '48 px · mono', bg: 'l', px: 48, o: vw[2].o },
+    { lab: '24 px · sombre', bg: 'd', px: 24, o: vw[1].o, cur: true },
+    { lab: '16 px · sombre', bg: 'd', px: 16, o: vw[1].o, cur: true },
+    { lab: '16 px · mono', bg: 'l', px: 16, o: vw[2].o },
+  ];
+  let h = '<div class="h"></div><div class="h"><small>—</small>Actuelle</div>'
+    + builds.map((b) => `<div class="h${picks.has(b.v.id) ? ' pick' : ''}"><small>${b.v.id}</small>${b.v.name}</div>`).join('');
+  for (const r of rows) {
+    h += `<div class="lab">${r.lab}</div><div class="${r.bg}">${r.cur ? img(r.px) : '<span class="none">—</span>'}</div>`
+      + builds.map((b) => `<div class="${r.bg}${picks.has(b.v.id) ? ' pick' : ''}">${svg(b, { ...r.o, px: r.px })}</div>`).join('');
+  }
+  $('#cmp').innerHTML = h;
+  $('#picks').textContent = picks.size ? VARIANTS.filter((v) => picks.has(v.id)).map((v) => `${v.id} ${v.name}`).join(', ') : 'aucune pour l\'instant';
+}
+
+let builds = [];
+function render() {
+  builds = VARIANTS.map(build);
+  renderCompare(builds);
+  renderCards(builds);
+}
+
+function syncControls() {
+  document.querySelectorAll('.seg[data-set]').forEach((seg) => seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.val === S[seg.dataset.set])));
+  $('#size').value = S.size; $('#gap').value = S.gap; $('#ratio').value = S.ratio;
+  $('output[for=size]').textContent = `${Math.round(S.size * 100)} %`;
+  $('output[for=gap]').textContent = `${S.gap >= 0 ? '+' : '−'}${Math.abs(Math.round(S.gap * 1000) / 10).toString().replace('.', ',')} % R`;
+  $('output[for=ratio]').textContent = `${Math.round(S.ratio * 100)} %`;
+  $('.legend').style.visibility = S.guide === '1' ? '' : 'hidden';
+}
+
+function update() { keep(KEY, S); syncControls(); render(); }
+
+document.querySelectorAll('.seg[data-set]').forEach((seg) => seg.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  S[seg.dataset.set] = b.dataset.val; update();
+}));
+let frame = 0;
+for (const id of ['size', 'gap', 'ratio']) $(`#${id}`).addEventListener('input', (e) => {
+  S[id] = +e.target.value; syncControls();
+  cancelAnimationFrame(frame); frame = requestAnimationFrame(() => { keep(KEY, S); render(); });
+});
+$('#reset').addEventListener('click', () => { S.size = DEFAULTS.size; S.gap = DEFAULTS.gap; S.ratio = DEFAULTS.ratio; update(); });
+
+$('#variants').addEventListener('click', (e) => {
+  const pick = e.target.closest('[data-pick]'), save = e.target.closest('[data-save]');
+  if (pick) {
+    const id = pick.dataset.pick;
+    picks.has(id) ? picks.delete(id) : picks.add(id);
+    keep(KEY_PICKS, [...picks]); render();
+  }
+  if (save) {
+    const b = builds.find((x) => x.v.id === save.dataset.save), mono = save.dataset.mode === 'mono';
+    const text = svg(b, mono ? { mode: 'mono', ink: ink(), px: 1024 } : { mode: 'flat', px: 1024 });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([text], { type: 'image/svg+xml' }));
+    a.download = `sindry-icone-${b.v.id}-${mono ? 'mono' : 'couleurs'}.svg`;
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+});
+
+syncControls();
+render();
+})();
+</script>
+</body>
+</html>

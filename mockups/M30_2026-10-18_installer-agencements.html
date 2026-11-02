@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M30 · Installer : agencements</title>
+<style>
+@font-face { font-family: 'Inter'; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+/* Jetons de Sindry (Plan, clair) — repris de src/styles.css */
+:root {
+  --bg: #F6F4EF; --surface: #FFFFFF; --surface-2: #EFECE5; --surface-3: #E4E0D6; --surface-soft: #FAF9F6;
+  --border: #DCD7CC; --border-2: #B6AE9F; --text: #141A24; --text-2: #5C6778; --text-3: #5F6A7B;
+  --ok: #0E7550; --ok-s: #E6F5EC; --warn: #8F5D0C; --warn-s: #FBF3E2;
+  --acc: #E2640F; --acc-2: #F0782A; --acc-on: #A84A08; --acc-soft: #FCEBDD;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B0F16; --surface: #0F1520; --surface-2: #141C2A; --surface-3: #1B2536; --surface-soft: #0D121B;
+    --border: #2A3445; --border-2: #42506A; --text: #E9EEF5; --text-2: #8C9AAE; --text-3: #8190A5;
+    --ok: #3FD69B; --ok-s: #0C2620; --warn: #FFC24D; --warn-s: #2A2210;
+    --acc: #FD7D26; --acc-2: #FF9447; --acc-on: #FF9A55; --acc-soft: #2A1A10;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B0F16; --surface: #0F1520; --surface-2: #141C2A; --surface-3: #1B2536; --surface-soft: #0D121B;
+  --border: #2A3445; --border-2: #42506A; --text: #E9EEF5; --text-2: #8C9AAE; --text-3: #8190A5;
+  --ok: #3FD69B; --ok-s: #0C2620; --warn: #FFC24D; --warn-s: #2A2210;
+  --acc: #FD7D26; --acc-2: #FF9447; --acc-on: #FF9A55; --acc-soft: #2A1A10;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 'Inter', 'Segoe UI', system-ui, sans-serif; }
+button { font: inherit; background: none; border: 0; cursor: pointer; color: inherit; }
+.ico { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.i12 { width: 12px; height: 12px; } .i14 { width: 14px; height: 14px; }
+
+/* Page */
+.page { max-width: 1240px; margin: 0 auto; padding: 28px 16px 70px; }
+h1 { font-size: 22px; margin: 0 0 4px; letter-spacing: -.01em; }
+.sous { color: var(--text-2); margin: 0 0 20px; max-width: 760px; }
+.barre { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-bottom: 18px; }
+.onglets { display: flex; flex-wrap: wrap; gap: 6px; }
+.onglet { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); font-weight: 650; font-size: 13px; color: var(--text-2); }
+.onglet[aria-pressed="true"] { background: var(--acc); border-color: var(--acc); color: #fff; }
+.onglet .lettre { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; background: var(--surface-2); color: var(--text); margin-right: 6px; font-size: 11.5px; }
+.onglet[aria-pressed="true"] .lettre { background: rgba(255,255,255,.25); color: #fff; }
+.interr { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-2); cursor: pointer; user-select: none; }
+.switch { width: 36px; height: 20px; border-radius: 999px; background: var(--border-2); position: relative; transition: background .15s; }
+.switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.interr input { display: none; }
+.interr input:checked + .switch { background: var(--acc); }
+.interr input:checked + .switch::after { transform: translateX(16px); }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; background: var(--surface); }
+.seg button { padding: 6px 14px; font-size: 13px; font-weight: 650; color: var(--text-2); }
+.seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+
+.grille { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 22px; align-items: start; }
+@media (max-width: 960px) { .grille { grid-template-columns: 1fr; } }
+
+/* Fenêtre Sindry simulée */
+.fen { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); box-shadow: 0 10px 30px rgba(20,26,36,.08); overflow: hidden; }
+.fen-h { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.fen-h .pastille { width: 38px; height: 38px; border-radius: 11px; background: var(--acc-soft); color: var(--acc-on); display: grid; place-items: center; }
+.fen-h .pastille .ico { width: 20px; height: 20px; }
+.fen-h b { display: block; font-size: 15px; }
+.fen-h small { color: var(--text-3); font-size: 12.5px; }
+.fen-c { padding: 14px 16px 6px; max-height: 640px; overflow: auto; }
+.fen-b { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-top: 1px solid var(--border); background: var(--surface-soft); }
+.fen-b .total { flex: 1; font-weight: 650; color: var(--text-2); font-size: 13.5px; }
+.bouton { padding: 9px 18px; border-radius: 10px; background: var(--acc); color: #fff; font-weight: 700; display: inline-flex; gap: 8px; align-items: center; }
+.bouton.off { background: var(--surface-3); color: var(--text-3); cursor: default; }
+
+/* Écran d'analyse — classes reprises de Sindry (an-*) */
+.an-bloc { border: 1px solid var(--border); border-radius: 14px; background: var(--surface-soft); margin-bottom: 12px; overflow: hidden; }
+.an-bloc-h { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; padding: 10px 12px 8px; font-size: 12.5px; font-weight: 700; color: var(--text-2); }
+.an-bh-t { flex: 1 1 180px; min-width: 0; }
+.an-lien { padding: 0; color: var(--acc-on); font-weight: 700; font-size: 12px; white-space: nowrap; }
+.an-total { font-weight: 600; color: var(--text-3); white-space: nowrap; }
+.an-ligne { display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-top: 1px solid var(--border); cursor: pointer; }
+.an-ligne.decoche .an-t b { color: var(--text-2); }
+.an-ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex-shrink: 0; background: var(--surface-2); color: var(--text-2); }
+.an-ico .vraie { width: 20px; height: 20px; border-radius: 5px; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; }
+.an-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.an-t b { font-size: 13.5px; font-weight: 650; }
+.an-t b .role { font-weight: 500; color: var(--text-3); }
+.an-badges { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.an-pub { font-size: 11.5px; color: var(--text-3); }
+.an-v { text-align: right; font-size: 13px; font-weight: 700; min-width: 72px; }
+.an-v small { display: block; font-weight: 500; font-size: 11px; color: var(--text-3); }
+.an-enfants { margin-left: 30px; border-left: 2px solid var(--border); }
+.an-enfants .an-ligne { border-top: 1px dashed var(--border); }
+.an-plier { padding: 0; color: var(--text-3); display: grid; place-items: center; }
+.an-plier .ico { transition: transform .2s; }
+.an-plier.plie .ico { transform: rotate(-90deg); }
+.badge { display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 6px; border: 1px solid transparent; font-size: 11px; font-weight: 650; line-height: 1.5; }
+.badge.neutre { color: var(--text-2); background: var(--surface-2); border-color: var(--border-2); }
+.badge.acc { color: var(--acc-on); background: color-mix(in srgb, var(--acc) 12%, transparent); border-color: color-mix(in srgb, var(--acc) 34%, transparent); }
+.an-note { display: flex; gap: 8px; align-items: flex-start; margin: 4px 12px 10px; padding: 8px 10px; border-radius: 10px; font-size: 12.5px; background: var(--surface-2); color: var(--text-2); }
+.an-note.warn { background: var(--warn-s); color: var(--warn); }
+.an-note .ico { margin-top: 2px; }
+.an-masques { display: flex; gap: 8px; align-items: center; margin: 2px 2px 10px; font-size: 12.5px; color: var(--text-3); }
+.an-tuiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.an-tuile { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 12px 8px 10px; border-radius: 14px; border: 1px solid var(--border); background: var(--surface-soft); text-align: center; cursor: pointer; }
+.an-tuile.coche { border-color: var(--acc); }
+.an-tuile b { font-size: 12.5px; line-height: 1.2; }
+.an-marque { position: absolute; top: 6px; right: 6px; width: 18px; height: 18px; border-radius: 50%; background: var(--acc); color: #fff; display: grid; place-items: center; }
+.an-av { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; color: #06121A; font-size: 17px; }
+.an-tab { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.an-tab th { text-align: left; padding: 7px 10px; color: var(--text-3); font-weight: 650; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.an-tab td { padding: 7px 10px; border-top: 1px solid var(--border); }
+.an-cherche { flex: 0 1 200px; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); font: inherit; font-size: 12.5px; }
+.muted { color: var(--text-3); font-size: 11.5px; }
+input[type="checkbox"] { accent-color: var(--acc); width: 16px; height: 16px; margin: 0; flex-shrink: 0; }
+.simple .xp { display: none !important; }
+
+/* Colonne d'explication */
+.carte { border: 1px solid var(--border); border-radius: 14px; background: var(--surface); padding: 16px 16px 6px; margin-bottom: 14px; }
+.carte h2 { font-size: 15px; margin: 0 0 6px; }
+.carte h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); margin: 14px 0 6px; }
+.carte p { margin: 0 0 10px; color: var(--text-2); font-size: 13px; }
+.pc { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 10px; }
+.pc td { padding: 6px 4px; border-top: 1px solid var(--border); vertical-align: top; }
+.pc td:first-child { width: 22px; font-weight: 800; }
+.pc .plus td:first-child { color: var(--ok); } .pc .moins td:first-child { color: var(--warn); }
+pre { margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); font: 11.5px/1.5 'Cascadia Mono', Consolas, monospace; overflow-x: auto; color: var(--text); }
+.reco { display: inline-block; padding: 2px 9px; border-radius: 999px; background: var(--ok-s); color: var(--ok); font-weight: 750; font-size: 11.5px; margin-left: 6px; vertical-align: 2px; }
+.limite { display: inline-block; padding: 2px 9px; border-radius: 999px; background: var(--warn-s); color: var(--warn); font-weight: 750; font-size: 11.5px; margin-left: 6px; vertical-align: 2px; }
+.legende { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12.5px; color: var(--text-2); margin-top: 10px; align-items: center; }
+.legende span { display: inline-flex; gap: 6px; align-items: center; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>Installer des applications — l'écran d'analyse</h1>
+  <p class="sous">Quatre façons de présenter ~60 applications avec ce que Sindry sait <b>déjà</b> afficher (vues <code>tree</code>, <code>checklist</code>, <code>tiles</code>, <code>table</code>). Le rendu reprend les classes de l'écran d'analyse de Sindry. Données fictives.</p>
+
+  <div class="barre">
+    <div class="onglets" id="onglets"></div>
+    <div class="seg" id="mode"><button data-m="simple">Simple</button><button data-m="expert" aria-pressed="true">Expert</button></div>
+    <label class="interr"><input type="checkbox" id="rapide"><span class="switch"></span>Analyse rapide (QuickList)</label>
+  </div>
+
+  <div class="grille">
+    <div class="fen" id="fen">
+      <div class="fen-h">
+        <span class="pastille"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></span>
+        <div><b>Installer des applications</b><small id="etat"></small></div>
+      </div>
+      <div class="fen-c" id="ecran"></div>
+      <div class="fen-b"><span class="total" id="total"></span><button class="bouton" id="go"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>Installer</button></div>
+    </div>
+    <div id="expli"></div>
+  </div>
+
+  <div class="legende">
+    <span><span class="badge acc">3.0.20 → 3.0.21</span> mise à jour (<code>version=</code> + <code>to=</code>)</span>
+    <span><span class="badge neutre">24.08</span> déjà installée (<code>version=</code>)</span>
+    <span><span class="an-ico"><span class="vraie" style="background:#FD7D26">V</span></span> vraie icône (<code>exe=</code>, si installée)</span>
+    <span><span class="an-ico"><svg class="ico i14" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/></svg></span> absente (<code>kind=app</code>)</span>
+  </div>
+</div>
+
+<div data-maquette-badge style="position:fixed;left:10px;bottom:10px;z-index:2147483647;pointer-events:none;font:650 12px/1.2 'Segoe UI',system-ui,sans-serif;color:#fff;background:rgba(18,12,26,.9);border:1px solid rgba(255,255,255,.22);padding:6px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.35)">M30 · 18/10/2026 10:58 · Installer : agencements</div>
+
+<script>
+const SVG = {
+  pkg: '<svg class="ico i14" viewBox="0 0 24 24"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/></svg>',
+  dossier: '<svg class="ico i14" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>',
+  chevron: '<svg class="ico i14" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
+  check: '<svg class="ico i12" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+  info: '<svg class="ico i14" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+  warn: '<svg class="ico i14" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+};
+const SERIE = ['#FEC923', '#FD9E21', '#FD7D26', '#FD5632', '#F8304B', '#DC1178', '#89088B', '#4AB2E7', '#332BD9', '#775FD7'];
+
+// Rayons et applications. s : u = mise à jour, m = absente, i = installée ; xp = Expert seulement.
+const A = (id, n, p, s, v, to, extra = {}) => ({ id, n, p, s, v, to, ...extra });
+const RAYONS = [
+  { id: 'browsers', fr: 'Navigateurs', apps: [
+    A('firefox', 'Firefox', 'Mozilla', 'u', '131.0', '131.0.3'), A('chrome', 'Google Chrome', 'Google', 'i', '130.0.6723.70'),
+    A('brave', 'Brave', 'Brave Software', 'm'), A('vivaldi', 'Vivaldi', 'Vivaldi Technologies', 'm'), A('librewolf', 'LibreWolf', 'LibreWolf', 'm', '', '', { xp: 1 }) ] },
+  { id: 'media', fr: 'Multimédia', apps: [
+    A('vlc', 'VLC media player', 'VideoLAN', 'u', '3.0.20', '3.0.21', { r: 'Lecteur vidéo' }), A('klite', 'K-Lite Codec Pack', 'Codec Guide', 'm', '', '', { r: 'Codecs' }),
+    A('spotify', 'Spotify', 'Spotify', 'm', '', '', { r: 'Musique' }), A('audacity', 'Audacity', 'Audacity Team', 'm', '', '', { r: 'Montage audio' }),
+    A('handbrake', 'HandBrake', 'HandBrake Team', 'm', '', '', { r: 'Conversion vidéo' }), A('obs', 'OBS Studio', 'OBS Project', 'i', '30.2.3', '', { r: 'Enregistrer l\'écran' }),
+    A('gimp', 'GIMP', 'The GIMP Team', 'm', '', '', { r: 'Retouche photo' }), A('paintnet', 'Paint.NET', 'dotPDN', 'm', '', '', { r: 'Dessin' }),
+    A('mpchc', 'MPC-HC', 'clsid2', 'm', '', '', { xp: 1, r: 'Lecteur vidéo' }) ] },
+  { id: 'office', fr: 'Bureautique et PDF', apps: [
+    A('libreoffice', 'LibreOffice', 'The Document Foundation', 'm', '', '', { r: 'Suite bureautique' }), A('sumatra', 'SumatraPDF', 'Krzysztof Kowalczyk', 'm', '', '', { r: 'Lecteur PDF' }),
+    A('acrobat', 'Adobe Acrobat Reader', 'Adobe', 'i', '24.003.20180', '', { r: 'Lecteur PDF' }), A('npp', 'Notepad++', 'Don Ho', 'u', '8.6.9', '8.7', { r: 'Éditeur de texte' }),
+    A('thunderbird', 'Thunderbird', 'Mozilla', 'm', '', '', { r: 'Courriel' }), A('joplin', 'Joplin', 'Joplin', 'm', '', '', { xp: 1, r: 'Notes' }) ] },
+  { id: 'utils', fr: 'Utilitaires', apps: [
+    A('7zip', '7-Zip', 'Igor Pavlov', 'i', '24.08', '', { r: 'Archives' }), A('everything', 'Everything', 'voidtools', 'm', '', '', { r: 'Recherche de fichiers' }),
+    A('powertoys', 'PowerToys', 'Microsoft', 'm'), A('wiztree', 'WizTree', 'Antibody Software', 'm', '', '', { r: 'Qui prend la place ?' }),
+    A('keepassxc', 'KeePassXC', 'KeePassXC Team', 'm', '', '', { r: 'Mots de passe' }), A('bitwarden', 'Bitwarden', 'Bitwarden', 'm', '', '', { r: 'Mots de passe' }),
+    A('rufus', 'Rufus', 'Pete Batard', 'm', '', '', { r: 'Clé USB démarrable' }), A('greenshot', 'Greenshot', 'Greenshot', 'm', '', '', { xp: 1, r: 'Captures' }) ] },
+  { id: 'chat', fr: 'Communication', apps: [
+    A('discord', 'Discord', 'Discord', 'i', '1.0.9165'), A('zoom', 'Zoom', 'Zoom', 'm'), A('signal', 'Signal', 'Signal', 'm'),
+    A('telegram', 'Telegram', 'Telegram', 'm'), A('teams', 'Microsoft Teams', 'Microsoft', 'm') ] },
+  { id: 'games', fr: 'Jeux', apps: [
+    A('steam', 'Steam', 'Valve', 'i', '2.10.91.91'), A('epic', 'Epic Games Launcher', 'Epic Games', 'm'), A('gog', 'GOG Galaxy', 'GOG', 'm'),
+    A('ea', 'EA app', 'Electronic Arts', 'm'), A('ubisoft', 'Ubisoft Connect', 'Ubisoft', 'm'), A('battlenet', 'Battle.net', 'Blizzard', 'm') ] },
+  { id: 'runtimes', fr: 'Composants Windows', apps: [
+    A('dotnet8', '.NET Desktop Runtime 8', 'Microsoft', 'u', '8.0.8', '8.0.10'), A('vcx64', 'Visual C++ 2015-2022 (64 bits)', 'Microsoft', 'i', '14.40.33810'),
+    A('vcx86', 'Visual C++ 2015-2022 (32 bits)', 'Microsoft', 'm'), A('java', 'Java (Temurin JRE 21)', 'Eclipse Adoptium', 'm'),
+    A('directx', 'DirectX (anciens jeux)', 'Microsoft', 'm', '', '', { xp: 1 }) ] },
+  { id: 'rescue', fr: 'Dépannage', xp: 1, note: 'warn', apps: [
+    A('teamviewer', 'TeamViewer', 'TeamViewer', 'm', '', '', { r: 'Accès à distance' }), A('anydesk', 'AnyDesk', 'AnyDesk Software', 'm', '', '', { r: 'Accès à distance' }),
+    A('rustdesk', 'RustDesk', 'RustDesk', 'm', '', '', { r: 'Accès à distance' }), A('autoruns', 'Autoruns', 'Microsoft Sysinternals', 'm', '', '', { r: 'Démarrage' }),
+    A('procexp', 'Process Explorer', 'Microsoft Sysinternals', 'm', '', '', { r: 'Processus' }), A('hwinfo', 'HWiNFO', 'REALiX', 'm', '', '', { r: 'Matériel' }),
+    A('cdi', 'CrystalDiskInfo', 'Crystal Dew World', 'i', '9.4.4', '', { r: 'Santé des disques' }), A('bsv', 'BlueScreenView', 'NirSoft', 'm', '', '', { r: 'Écrans bleus' }),
+    A('mbam', 'Malwarebytes', 'Malwarebytes', 'm', '', '', { r: 'Anti-malware' }), A('revo', 'Revo Uninstaller', 'VS Revo Group', 'm', '', '', { r: 'Désinstallation' }),
+    A('ventoy', 'Ventoy', 'Ventoy', 'm', '', '', { r: 'Clé USB multi-systèmes' }) ] },
+  { id: 'dev', fr: 'Développeur', xp: 1, apps: [
+    A('git', 'Git', 'The Git Development Community', 'u', '2.46.0', '2.47.0'), A('vscode', 'Visual Studio Code', 'Microsoft', 'i', '1.94.2'),
+    A('pwsh', 'PowerShell 7', 'Microsoft', 'm'), A('wt', 'Windows Terminal', 'Microsoft', 'm'), A('python', 'Python 3.13', 'Python Software Foundation', 'm'),
+    A('node', 'Node.js LTS', 'OpenJS Foundation', 'm') ] },
+];
+RAYONS.forEach((r) => r.apps.forEach((a) => { a.rayon = r; }));
+const TOUTES = RAYONS.flatMap((r) => r.apps);
+const ESSENTIELS = ['7zip', 'vlc', 'firefox', 'chrome', 'libreoffice', 'sumatra', 'npp', 'everything', 'discord', 'steam', 'dotnet8', 'vcx86'];
+
+const ETAT = { agencement: 'B', mode: 'expert', rapide: false, coches: new Set(), plies: new Set(), recherche: '' };
+const etatApp = (a) => (ETAT.rapide ? 'm' : a.s);
+const xpApp = (a) => a.xp || a.rayon.xp;
+function cocherDefaut() {
+  // PRECHECK_UPDATES = $true : seules les mises à jour arrivent cochées.
+  ETAT.coches = new Set(TOUTES.filter((a) => etatApp(a) === 'u').map((a) => a.id));
+}
+// L'ordre dans un rayon : mises à jour, puis absentes, puis installées.
+const RANG = { u: 0, m: 1, i: 2 };
+const trier = (apps) => [...apps].sort((x, y) => RANG[etatApp(x)] - RANG[etatApp(y)]);
+
+function icone(a) {
+  if (etatApp(a) === 'm') return SVG.pkg;
+  return `<span class="vraie" style="background:${SERIE[TOUTES.indexOf(a) % SERIE.length]}">${a.n[0]}</span>`;
+}
+function badges(a) {
+  const s = etatApp(a);
+  return (s === 'u' ? `<span class="badge acc">${a.v} → ${a.to}</span>` : s === 'i' ? `<span class="badge neutre">${a.v}</span>` : '')
+    + `<span class="an-pub">${a.p}</span>`;
+}
+function ligne(a, avecRayon = false) {
+  const c = ETAT.coches.has(a.id);
+  const nom = a.r ? `<span class="role">${a.r} — </span>${a.n}` : a.n;
+  return `<label class="an-ligne${c ? '' : ' decoche'}${xpApp(a) ? ' xp' : ''}">
+    <input type="checkbox" data-app="${a.id}"${c ? ' checked' : ''}>
+    <span class="an-ico">${icone(a)}</span>
+    <span class="an-t"><b>${nom}</b><span class="an-badges">${badges(a)}${avecRayon ? `<span class="an-pub">· ${a.rayon.fr}</span>` : ''}</span></span>
+    <span class="an-v"></span></label>`;
+}
+function entete(titre, apps, cle) {
+  const n = apps.filter((a) => ETAT.coches.has(a.id)).length;
+  return `<div class="an-bloc-h"><span class="an-bh-t">${titre}</span>
+    <button class="an-lien" data-tout="${cle}">Tout cocher</button><button class="an-lien" data-rien="${cle}">Tout décocher</button>
+    <span class="an-total">${n} sur ${apps.length}</span></div>`;
+}
+const GROUPES = {};
+function bloc(titre, apps, cle, contenu, note = '') {
+  GROUPES[cle] = apps;
+  return `<div class="an-bloc${apps.every(xpApp) ? ' xp' : ''}">${entete(titre, apps, cle)}${contenu}${note}</div>`;
+}
+const NOTE_RESCUE = `<div class="an-note warn">${SVG.warn}<span>Un outil d'accès à distance permet à quelqu'un de prendre la main sur ce PC. Ne l'installez que si vous en avez besoin, et ne donnez jamais l'accès à quelqu'un qui vous a appelé.</span></div>`;
+const NOTE_TETE = `<div class="an-note">${SVG.info}<span>Cochez ce que vous voulez installer. Une application déjà présente peut être réinstallée ou mise à jour.</span></div>`;
+const NOTE_RAPIDE = `<div class="an-note warn">${SVG.warn}<span>Analyse rapide : Sindry n'a pas regardé ce qui est déjà installé. Tout est proposé.</span></div>`;
+
+function parent(r, apps, cleBloc) {
+  const n = apps.filter((a) => ETAT.coches.has(a.id)).length;
+  const plie = ETAT.plies.has(`${cleBloc}/${r.id}`);
+  return `<label class="an-ligne${n ? '' : ' decoche'}${r.xp ? ' xp' : ''}">
+    <input type="checkbox" data-parent="${cleBloc}/${r.id}"${n === apps.length ? ' checked' : ''}${n && n < apps.length ? ' data-partiel="1"' : ''}>
+    <span class="an-ico">${SVG.dossier}</span><span class="an-t"><b>${r.fr}</b></span>
+    <span class="an-v"><small>${apps.length} éléments</small></span>
+    <button class="an-plier${plie ? ' plie' : ''}" data-plier="${cleBloc}/${r.id}">${SVG.chevron}</button></label>
+    ${plie ? '' : `<div class="an-enfants${r.xp ? ' xp' : ''}">${apps.map((a) => ligne(a)).join('')}</div>`}`;
+}
+const PARENTS = {};
+function arbre(cleBloc, filtre = () => true) {
+  return RAYONS.map((r) => {
+    const apps = trier(r.apps.filter(filtre));
+    if (!apps.length) return '';
+    PARENTS[`${cleBloc}/${r.id}`] = apps;
+    return parent(r, apps, cleBloc);
+  }).join('');
+}
+
+const AGENCEMENTS = {
+  A: { nom: 'Rayons dépliables', rendu: () => NOTE_TETE + bloc('Applications', TOUTES, 'all', arbre('all')) },
+  B: { nom: 'Un bloc par rayon', rendu: () => NOTE_TETE + RAYONS.map((r) => bloc(r.fr, r.apps, r.id, trier(r.apps).map((a) => ligne(a)).join(''), r.note ? NOTE_RESCUE : '')).join('') },
+  C: { nom: 'Par état', rendu: () => {
+    const maj = TOUTES.filter((a) => etatApp(a) === 'u'), abs = TOUTES.filter((a) => etatApp(a) === 'm'), ins = TOUTES.filter((a) => etatApp(a) === 'i');
+    return NOTE_TETE
+      + (maj.length ? bloc('Mises à jour disponibles', maj, 'maj', maj.map((a) => ligne(a, true)).join('')) : '')
+      + bloc('Pas encore installées', abs, 'abs', arbre('abs', (a) => etatApp(a) === 'm'))
+      + (ins.length ? bloc('Déjà installées — réinstaller', ins, 'ins', ins.map((a) => ligne(a, true)).join('')) : '');
+  } },
+  D: { nom: 'Vitrine + tableau', rendu: () => {
+    if (ETAT.mode === 'simple') {
+      const ess = TOUTES.filter((a) => ESSENTIELS.includes(a.id));
+      GROUPES.ess = ess;
+      return NOTE_TETE + `<div class="an-bloc-h" style="padding:4px 2px 8px"><span class="an-bh-t">Les essentiels</span></div><div class="an-tuiles">${ess.map((a, i) => {
+        const c = ETAT.coches.has(a.id);
+        return `<label class="an-tuile${c ? ' coche' : ''}"><input type="checkbox" hidden data-app="${a.id}"${c ? ' checked' : ''}>${c ? `<span class="an-marque">${SVG.check}</span>` : ''}
+          <span class="an-av" style="background:${SERIE[i % SERIE.length]}">${a.n[0]}</span><b>${a.n}</b><span class="muted"></span></label>`;
+      }).join('')}</div><div class="an-note warn">${SVG.warn}<span>Limite actuelle : une tuile n'affiche que l'initiale et le nom — ni la vraie icône, ni la version, ni « déjà installée ».</span></div>`;
+    }
+    const q = ETAT.recherche.toLowerCase();
+    const lignes = TOUTES.filter((a) => !q || `${a.rayon.fr} ${a.n}`.toLowerCase().includes(q));
+    GROUPES.tab = TOUTES;
+    return `<div class="an-bloc"><div class="an-bloc-h"><span class="an-bh-t">Applications</span><input type="search" class="an-cherche" placeholder="Chercher…" value="${ETAT.recherche}" data-cherche></div>
+      <div style="overflow-x:auto"><table class="an-tab"><tr><th></th><th>Programme</th><th>Élément</th><th>Confiance</th><th>Taille ▼</th></tr>
+      ${lignes.map((a) => `<tr><td><input type="checkbox" data-app="${a.id}"${ETAT.coches.has(a.id) ? ' checked' : ''}></td><td>${a.rayon.fr}</td><td>${a.n}</td><td></td><td class="muted">—</td></tr>`).join('')}</table></div>
+      <div class="an-note warn">${SVG.warn}<span>Limite actuelle : le tableau a les colonnes du nettoyage (Confiance, Taille). Ni Version, ni Éditeur, ni état « installée ».</span></div></div>`;
+  } },
+};
+
+const EXPLI = {
+  A: { reco: '', decl: `## view : tree
+## Apps : [items] [view:tree] Applications
+
+[ITEM] Apps id=media label=Media kind=folder
+[ITEM] Apps id=vlc parent=media kind=app
+  name="VLC media player" label=Player
+  publisher=VideoLAN version=3.0.20
+  to=3.0.21 exe="C:\\…\\vlc.exe" checked=true`,
+    plus: ['Une seule liste : chaque rayon se replie', 'Un rayon entier se coche d\'un clic', 'Les rayons niche passent en Expert (show=expert)'],
+    moins: ['Tout déplié, la page devient très longue', '« Tout cocher » coche ~60 applications', 'En résumé de lot : un seul poste « Applications »'] },
+  B: { reco: 'reco', decl: `## Browsers : [items] Browsers
+## Media    : [items] Media
+## Office   : [items] Office and PDF
+…
+## Rescue   : [items] [show:expert] Troubleshooting
+## Dev      : [items] [show:expert] Developer
+
+[ITEM] Media id=vlc kind=app name="VLC media player"
+  label=Player publisher=VideoLAN
+  version=3.0.20 to=3.0.21 checked=true`,
+    plus: ['Chaque rayon a son titre, son compteur, ses boutons', 'En Simple : 7 rayons, en Expert : 9', 'Résumé d\'un lot : un poste par rayon', 'Une note sous un rayon (accès à distance)'],
+    moins: ['Beaucoup de blocs à faire défiler', 'Pas de recherche sur l\'ensemble'] },
+  C: { reco: '', decl: `## Updates   : [items] Updates available
+## Missing   : [items] [view:tree] Not installed yet
+## Installed : [items] Already installed — reinstall
+
+[ITEM] Missing id=media label=Media kind=folder
+[ITEM] Missing id=brave parent=… kind=app …`,
+    plus: ['Répond droit à « qu\'est-ce qui manque ? »', 'Les mises à jour se voient d\'un coup d\'œil'],
+    moins: ['Un même rayon est éclaté en trois', 'La liste « Pas encore installées » reste la plus longue', 'Une appli change de liste d\'une analyse à l\'autre'] },
+  D: { reco: 'limite', decl: `## view : tiles expert=table
+## Apps : [items] Applications`,
+    plus: ['La recherche du tableau, pratique sur 60 lignes', 'Des tuiles très lisibles pour un débutant'],
+    moins: ['Tuiles : initiale seulement, pas de version', 'Tableau : colonnes Confiance et Taille vides', 'Demanderait une évolution de Sindry'] },
+};
+
+function compter() {
+  const vis = TOUTES.filter((a) => ETAT.mode === 'expert' || !xpApp(a));
+  const n = vis.filter((a) => ETAT.coches.has(a.id)).length;
+  document.getElementById('total').textContent = n ? `${n} élément${n > 1 ? 's' : ''} coché${n > 1 ? 's' : ''}` : 'Rien de coché';
+  document.getElementById('go').className = n ? 'bouton' : 'bouton off';
+  const maj = TOUTES.filter((a) => etatApp(a) === 'u').length, ins = TOUTES.filter((a) => etatApp(a) !== 'm').length;
+  document.getElementById('etat').textContent = ETAT.rapide ? `Analyse rapide · ${vis.length} applications proposées` : `Analyse terminée · ${vis.length} applications · ${ins} déjà installées dont ${maj} à mettre à jour`;
+}
+function rendre() {
+  const ecran = document.getElementById('ecran');
+  ecran.className = `fen-c ${ETAT.mode}`;
+  const masques = TOUTES.filter(xpApp).length;
+  ecran.innerHTML = (ETAT.rapide ? NOTE_RAPIDE : '') + AGENCEMENTS[ETAT.agencement].rendu()
+    + (ETAT.mode === 'simple' && ETAT.agencement !== 'D' ? `<div class="an-masques">${SVG.info}<span>${masques} éléments de plus ne s'affichent qu'en mode Expert.</span></div>` : '');
+  ecran.querySelectorAll('[data-partiel]').forEach((x) => { x.indeterminate = true; });
+  const e = EXPLI[ETAT.agencement];
+  const pastille = e.reco === 'reco' ? '<span class="reco">Recommandé</span>' : e.reco === 'limite' ? '<span class="limite">Évolution de Sindry</span>' : '';
+  document.getElementById('expli').innerHTML = `<div class="carte"><h2>${ETAT.agencement} — ${AGENCEMENTS[ETAT.agencement].nom}${pastille}</h2>
+    <table class="pc">${e.plus.map((x) => `<tr class="plus"><td>+</td><td>${x}</td></tr>`).join('')}${e.moins.map((x) => `<tr class="moins"><td>−</td><td>${x}</td></tr>`).join('')}</table>
+    <h3>Ce que le script déclare</h3><pre>${e.decl.replace(/</g, '&lt;')}</pre></div>`;
+  document.getElementById('onglets').innerHTML = Object.entries(AGENCEMENTS).map(([k, a]) => `<button class="onglet" data-ag="${k}" aria-pressed="${k === ETAT.agencement}"><span class="lettre">${k}</span>${a.nom}</button>`).join('');
+  compter();
+}
+document.addEventListener('click', (ev) => {
+  const t = ev.target.closest('[data-ag],[data-m],[data-tout],[data-rien],[data-plier]');
+  if (!t) return;
+  if (t.dataset.plier) { ev.preventDefault(); const k = t.dataset.plier; ETAT.plies.has(k) ? ETAT.plies.delete(k) : ETAT.plies.add(k); }
+  if (t.dataset.ag) ETAT.agencement = t.dataset.ag;
+  if (t.dataset.m) { ETAT.mode = t.dataset.m; document.querySelectorAll('#mode button').forEach((b) => b.setAttribute('aria-pressed', b === t)); }
+  const vis = (a) => ETAT.mode === 'expert' || !xpApp(a);
+  if (t.dataset.tout) GROUPES[t.dataset.tout].filter(vis).forEach((a) => ETAT.coches.add(a.id));
+  if (t.dataset.rien) GROUPES[t.dataset.rien].forEach((a) => ETAT.coches.delete(a.id));
+  rendre();
+});
+document.addEventListener('change', (ev) => {
+  const t = ev.target;
+  if (t.id === 'rapide') { ETAT.rapide = t.checked; cocherDefaut(); }
+  else if (t.dataset.app) { t.checked ? ETAT.coches.add(t.dataset.app) : ETAT.coches.delete(t.dataset.app); }
+  else if (t.dataset.parent) { PARENTS[t.dataset.parent].filter((a) => ETAT.mode === 'expert' || !xpApp(a)).forEach((a) => (t.checked ? ETAT.coches.add(a.id) : ETAT.coches.delete(a.id))); }
+  else return;
+  rendre();
+});
+document.addEventListener('input', (ev) => {
+  if (!ev.target.matches('[data-cherche]')) return;
+  ETAT.recherche = ev.target.value; rendre();
+  const c = document.querySelector('[data-cherche]'); c.focus(); c.setSelectionRange(c.value.length, c.value.length);
+});
+cocherDefaut();
+rendre();
+</script>
+</body>
+</html>

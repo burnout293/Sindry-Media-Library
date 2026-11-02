@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M46 · Prisme, personnalisations</title>
+<!--
+  Mockup M46: ways to customise the Prisme plan, starting from SindryOS 0.7.0 as built
+  (M43 « Prisme 4 », adapted to what XFCE allows). Variant 0 is the image as it is; A to H
+  each change one part: window titles, chrome, taskbar, desktop, accent, wallpaper, start
+  menu, density. The accent and wallpaper pickers apply to every variant, so they combine.
+  Nothing may need a GPU: no live blur, no transparency between windows, no shadows. Each
+  variant says how it would be built and how much work it is. The « Démarrage » view shows
+  the boot: the text menu under Secure Boot (16 firmware colours only) and the loading screen.
+-->
+<style>
+@font-face { font-family: 'Inter'; font-weight: 100 900; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2-variations'); }
+:root { --page:#0B0F16; --page-2:#111827; --page-3:#1A2333; --ptxt:#E6EAF2; --ptxt-2:#9AA5B8; --line:#263042; --pacc:#7C8CFF; }
+* { box-sizing: border-box; }
+html, body { margin:0; background:var(--page); color:var(--ptxt); font-family:'Inter','Segoe UI',system-ui,sans-serif; }
+body { padding:20px 24px 70px; }
+.wrap { max-width:1400px; margin:0 auto; }
+header.top { display:flex; flex-wrap:wrap; gap:14px 24px; align-items:flex-end; justify-content:space-between; margin-bottom:12px; }
+header.top h1 { margin:0 0 4px; font-size:22px; letter-spacing:-.01em; }
+header.top p { margin:0; color:var(--ptxt-2); font-size:13px; max-width:680px; line-height:1.5; }
+.ctrls { display:flex; flex-wrap:wrap; gap:10px; }
+.seg { display:inline-flex; flex-wrap:wrap; background:var(--page-2); border:1px solid var(--line); border-radius:10px; padding:3px; gap:2px; }
+.seg button { font:inherit; font-size:12.5px; color:var(--ptxt-2); background:none; border:0; padding:7px 11px; border-radius:7px; cursor:pointer; }
+.seg button.on { background:var(--page-3); color:var(--ptxt); box-shadow:inset 0 0 0 1px #34405a; }
+.seg button b { color:var(--pacc); font-weight:700; margin-right:4px; }
+.frame { position:relative; width:100%; aspect-ratio:1280/760; overflow:hidden; border-radius:10px; border:1px solid var(--line); background:#000; }
+.desk { position:absolute; left:0; top:0; width:1280px; height:760px; transform-origin:0 0; overflow:hidden; user-select:none; }
+.pickers { display:flex; flex-wrap:wrap; gap:10px 22px; align-items:center; margin:10px 2px 0; font-size:12.5px; color:var(--ptxt-2); }
+.pickers .grp { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.chip-btn { font:inherit; font-size:12px; color:var(--ptxt); background:var(--page-2); border:1px solid var(--line); border-radius:999px; padding:5px 11px 5px 6px; display:inline-flex; align-items:center; gap:7px; cursor:pointer; }
+.chip-btn i { width:16px; height:16px; border-radius:50%; display:inline-block; border:1px solid rgba(255,255,255,.2); }
+.chip-btn.on { border-color:var(--pacc); box-shadow:inset 0 0 0 1px var(--pacc); }
+.pickers .grp.hot { background:rgba(124,140,255,.08); padding:4px 8px; border-radius:10px; }
+.hint { color:var(--ptxt-2); font-size:12px; margin:8px 2px 0; }
+.notes { display:grid; grid-template-columns:1.25fr 1fr 1fr; gap:14px; margin-top:16px; }
+.note { background:var(--page-2); border:1px solid var(--line); border-radius:10px; padding:14px 16px; font-size:13px; line-height:1.55; }
+.note h3 { margin:0 0 8px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ptxt-2); }
+.note .idee { font-size:16px; font-weight:650; margin:0 0 8px; color:var(--ptxt); }
+.note ul { margin:0; padding-left:18px; } .note li { margin:2px 0; }
+.note .pour { color:#7FD3A4; } .note .contre { color:#F59A8B; }
+.feas { display:inline-flex; align-items:center; gap:8px; font-weight:650; font-size:13px; padding:5px 10px; border-radius:8px; margin-bottom:8px; }
+.feas.n1 { background:rgba(127,211,164,.12); color:#7FD3A4; }
+.feas.n2 { background:rgba(242,193,78,.12); color:#F2C14E; }
+.feas.n3 { background:rgba(245,154,139,.12); color:#F59A8B; }
+.feas::before { content:""; width:8px; height:8px; border-radius:50%; background:currentColor; }
+table.cmp { width:100%; border-collapse:collapse; margin-top:16px; font-size:12.5px; background:var(--page-2); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+table.cmp th, table.cmp td { text-align:left; padding:8px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+table.cmp th { color:var(--ptxt-2); font-weight:600; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; }
+table.cmp td:first-child { white-space:nowrap; color:var(--ptxt-2); }
+table.cmp tr:last-child td { border-bottom:0; }
+table.cmp tr.cur td { background:rgba(124,140,255,.09); }
+table.cmp tr.cur td:first-child { color:var(--ptxt); font-weight:650; }
+.lvl { font-weight:650; } .lvl.n1 { color:#7FD3A4; } .lvl.n2 { color:#F2C14E; } .lvl.n3 { color:#F59A8B; }
+@media (max-width:900px) { .notes { grid-template-columns:1fr; } body { padding:16px 16px 60px; } table.cmp { display:block; overflow-x:auto; } }
+
+/* ================= the desk (1280 × 760), shared by every variant ================= */
+.desk { --r:4px; --rs:3px; --surf:#F8FAFF; --surf2:#fff; --bd:#cfd6ea; --txt:#141a2e; --mut:#56607a; --acc:#3F5BD9;
+  --grad:linear-gradient(90deg,#1FB5A3,#5B6CF0 55%,#9A5BE0); --veil:rgba(248,250,255,.82); --edge:rgba(255,255,255,.85);
+  --tbh:36px; --barh:46px; --menu-w:620px; --menu-h:540px; --menu-x:0px;
+  --tbbg:var(--surf); --tbfg:var(--txt); --tbmut:var(--mut); --tbbd:var(--bd);
+  --barveil:var(--veil); --bartxt:var(--txt); --baredge:var(--edge); --baron:rgba(255,255,255,.8);
+  --menuveil:var(--veil); --menutxt:var(--txt); --menuedge:rgba(255,255,255,.7); --field:#fff; --catson:#fff;
+  color:var(--txt); font-family:'Inter',sans-serif; font-size:13px; }
+.i { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+.wall { position:absolute; inset:0; background:var(--aur); }
+.wall svg { position:absolute; inset:0; width:100%; height:100%; }
+.dicons { position:absolute; left:16px; top:18px; display:flex; flex-direction:column; gap:16px; width:92px; z-index:1; }
+.dicon { display:flex; flex-direction:column; align-items:center; gap:6px; font-size:11.5px; text-align:center; line-height:1.25; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6); }
+.dicon .ic { width:48px; height:48px; display:grid; place-items:center; border-radius:var(--rs); background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); position:relative; }
+.dicon .ic .i { width:26px; height:26px; }
+.dicon .ic .lk { position:absolute; right:-4px; bottom:-4px; width:18px; height:18px; border-radius:50%; background:#B3261E; display:grid; place-items:center; }
+.dicon .ic .lk .i { width:11px; height:11px; color:#fff; stroke-width:2.2; }
+.desk.light-wall .dicon { color:#141a2e; text-shadow:none; }
+.desk.light-wall .dicon .ic { background:rgba(20,30,60,.06); border-color:rgba(20,30,60,.22); }
+
+/* windows: 36 px title, square bottom corners (as xfwm4 draws them without a compositor) */
+.win { position:absolute; z-index:2; }
+.win.active { z-index:3; }
+.wi { position:relative; width:100%; height:100%; display:flex; flex-direction:column; overflow:hidden; background:var(--surf); border:1px solid var(--bd); border-radius:var(--r) var(--r) 0 0; }
+.win.active .wi::before { content:""; position:absolute; left:0; right:0; top:0; height:3px; background:var(--grad); z-index:1; }
+.tb { height:var(--tbh); display:flex; align-items:center; gap:8px; padding-left:14px; font-size:12px; font-weight:550; letter-spacing:.02em; background:var(--tbbg); color:var(--tbfg); border-bottom:1px solid var(--tbbd); flex:none; }
+.win:not(.active) .tb { color:var(--tbmut); }
+.tb .t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tb .ti { width:16px; height:16px; flex:none; }
+.ctl { display:flex; align-self:stretch; }
+.ctl span { width:44px; display:grid; place-items:center; }
+.ctl .i { width:14px; height:14px; }
+.ctl span:hover { background:rgba(0,0,0,.06); }
+.ctl span.x:hover { background:#C42B1C; color:#fff; }
+.wbody { flex:1; min-height:0; display:flex; }
+.sy { flex:1; display:flex; flex-direction:column; padding:18px 24px 16px; gap:11px; min-width:0; }
+.sy-steps { display:flex; gap:2px; font-size:11.5px; }
+.sy-steps span { padding:4px 16px 4px 12px; background:rgba(20,30,60,.06); color:var(--mut); clip-path:polygon(0 0,calc(100% - 7px) 0,100% 50%,calc(100% - 7px) 100%,0 100%); }
+.sy-steps span.on { background:var(--grad); color:#fff; font-weight:600; }
+.sy h2 { margin:4px 0 0; font-size:20px; font-weight:700; letter-spacing:-.01em; }
+.sy .sub { margin:0; font-size:12.5px; color:var(--mut); }
+.card { display:flex; align-items:center; gap:14px; padding:12px 16px; background:var(--surf2); border:1px solid var(--bd); border-radius:var(--rs); }
+.card.sel { border-color:var(--acc); box-shadow:inset 4px 0 0 var(--acc); }
+.card .ci { width:38px; height:38px; display:grid; place-items:center; border-radius:var(--rs); background:color-mix(in srgb, var(--acc) 12%, transparent); color:var(--acc); flex:none; }
+.card .cm { flex:1; min-width:0; }
+.card .cm b { display:block; font-size:14px; font-weight:650; margin-bottom:2px; }
+.card .cm span { font-size:12px; color:var(--mut); }
+.chip { font-size:11px; padding:3px 8px; display:inline-flex; gap:5px; align-items:center; border-radius:var(--rs); background:color-mix(in srgb, var(--acc) 12%, transparent); color:var(--acc); margin-top:6px; }
+.chip.lock { background:#FDECEC; color:#B3261E; }
+.chip .i { width:12px; height:12px; }
+.card .act { font:inherit; font-size:12px; padding:7px 12px; border-radius:var(--rs); background:var(--surf); border:1px solid var(--bd); color:var(--txt); }
+.card.sel .act { background:var(--acc); border-color:var(--acc); color:#fff; }
+.sy-foot { margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:11.5px; color:var(--mut); }
+.btn { font:inherit; font-size:13px; font-weight:600; padding:9px 16px; border-radius:var(--rs); border:0; }
+.btn.p { background:var(--grad); color:#fff; }
+.btn.g { background:var(--surf2); border:1px solid var(--bd); color:var(--txt); }
+.files { flex:1; display:flex; min-width:0; font-size:12.5px; }
+.files .side { width:170px; padding:12px 8px; display:flex; flex-direction:column; gap:2px; border-right:1px solid var(--bd); flex:none; }
+.files .side div { display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:var(--rs); white-space:nowrap; }
+.files .side div.on { background:color-mix(in srgb, var(--acc) 12%, transparent); color:var(--acc); }
+.files .main { flex:1; min-width:0; display:flex; flex-direction:column; }
+.files .path { padding:10px 14px; font-size:12px; border-bottom:1px solid var(--bd); color:var(--mut); }
+.files .row { display:flex; align-items:center; gap:10px; padding:7px 14px; }
+.files .row .i { color:#E0A526; }
+.files .row span:last-child { margin-left:auto; color:var(--mut); font-size:11.5px; }
+
+/* taskbar: the glass is a slice of the wallpaper's gradients under a veil, computed once */
+.taskbar { position:absolute; left:0; right:0; bottom:0; height:var(--barh); display:flex; align-items:center; z-index:6; isolation:isolate; overflow:hidden; color:var(--bartxt); }
+.taskbar::before { content:""; position:absolute; left:0; top:calc((760px - var(--barh)) * -1); width:1280px; height:760px; background:var(--aur); z-index:-2; }
+.taskbar::after { content:""; position:absolute; inset:0; background:var(--barveil); border-top:1px solid var(--baredge); z-index:-1; }
+.startbtn { width:50px; height:100%; display:grid; place-items:center; flex:none; }
+.desk[data-view="menu"] .startbtn { background:color-mix(in srgb, var(--acc) 15%, transparent); }
+.startbtn svg { width:26px; height:26px; }
+.apps { display:flex; align-items:center; height:100%; }
+.tbtn { height:100%; display:flex; align-items:center; gap:8px; padding:0 14px; position:relative; font-size:12.5px; white-space:nowrap; }
+.tbtn svg.tile { width:22px; height:22px; flex:none; }
+.tbtn.open::after { content:""; position:absolute; left:0; right:0; bottom:0; height:2px; background:#8a90a6; }
+.tbtn.on { background:var(--baron); }
+.tbtn.on::after { content:""; position:absolute; left:0; right:0; bottom:0; height:3px; background:var(--grad); }
+.tray { margin-left:auto; display:flex; align-items:center; gap:12px; padding:0 14px 0 8px; font-size:12px; height:100%; }
+.clock { display:flex; flex-direction:column; align-items:flex-end; line-height:1.25; }
+
+/* start menu, as Whisker draws it in 0.7.0 */
+.smenu { position:absolute; left:var(--menu-x); bottom:var(--barh); width:var(--menu-w); height:var(--menu-h); z-index:5; display:none; flex-direction:column; isolation:isolate; overflow:hidden; border:1px solid var(--menuedge); color:var(--menutxt); }
+.desk[data-view="menu"] .smenu { display:flex; }
+.smenu::before { content:""; position:absolute; left:calc(var(--menu-x) * -1); top:calc((760px - var(--barh) - var(--menu-h)) * -1); width:1280px; height:760px; background:var(--aur); z-index:-2; }
+.smenu::after { content:""; position:absolute; inset:0; background:var(--menuveil); z-index:-1; }
+.wk { display:flex; flex-direction:column; flex:1; min-height:0; }
+.sm-search { margin:10px 8px 6px; height:38px; flex:none; background:var(--field); border:1px solid var(--bd); border-radius:var(--rs); display:flex; align-items:center; gap:10px; padding:0 12px; color:var(--mut); font-size:13px; }
+.sm-cats { display:flex; justify-content:center; align-items:center; gap:4px; margin:2px 0 6px; flex:none; }
+.sm-cats span { width:40px; height:30px; display:grid; place-items:center; border-radius:var(--rs); }
+.sm-cats span.on { background:var(--catson); }
+.sm-cats span svg.tile { width:18px; height:18px; }
+.sm-cats .sep { width:1px; height:20px; background:var(--bd); margin:0 4px; }
+.sm-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:4px; padding:4px 10px; align-content:start; flex:1; }
+.sm-tile { display:flex; flex-direction:column; align-items:center; gap:6px; padding:8px 2px; font-size:12px; text-align:center; border-radius:var(--rs); line-height:1.25; }
+.sm-tile svg.tile, .sm-tile img { width:32px; height:32px; }
+.sm-tile.hov { background:rgba(255,255,255,.7); }
+.sm-foot { display:flex; align-items:center; gap:10px; padding:8px 12px 10px; flex:none; }
+.sm-foot .av { width:30px; height:30px; border-radius:50%; background:var(--grad); display:grid; place-items:center; color:#fff; flex:none; }
+.sm-foot b { font-size:15px; font-weight:700; }
+.sm-foot .pw { margin-left:auto; display:flex; gap:16px; color:var(--mut); padding-right:6px; }
+.sm-foot .pw .i { width:20px; height:20px; }
+
+/* boot view: text menu under Secure Boot, and the loading screen */
+.boot { position:absolute; inset:0; z-index:10; display:none; background:#05070d; grid-template-columns:1fr 1fr; }
+.desk[data-view="boot"] .boot { display:grid; }
+.boot .half { position:relative; display:flex; align-items:center; justify-content:center; }
+.boot .cap { position:absolute; top:16px; left:20px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8e9ac0; }
+.boot .cap b { color:#E4E9FF; font-weight:650; letter-spacing:0; text-transform:none; font-size:12.5px; display:block; margin-top:4px; }
+.grubtxt { width:580px; height:450px; background:#000; font-family:'Courier New',ui-monospace,monospace; font-size:12.5px; color:#AAAAAA; padding:16px 14px; position:relative; }
+.grubtxt .hd { text-align:center; margin:4px 0 12px; }
+.grubtxt .box { border:1px solid #AAAAAA; padding:3px 1px; height:290px; }
+.grubtxt .it { padding:0 6px; line-height:18px; white-space:pre; color:var(--nf); }
+.grubtxt .it.on { background:var(--hb); color:var(--hf); }
+.grubtxt .help { margin-top:12px; padding-left:30px; line-height:17px; white-space:pre-wrap; }
+.splash { width:580px; height:450px; border-radius:6px; overflow:hidden; position:relative; background:var(--aur); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; color:#fff; }
+.splash .logo { width:92px; height:92px; }
+.splash .nm { font-size:24px; font-weight:600; }
+.splash .st { font-size:12.5px; opacity:.85; }
+.dots { position:relative; width:42px; height:42px; }
+.dots i { position:absolute; inset:0; animation:orbit 2.2s cubic-bezier(.5,.15,.5,.85) infinite; }
+.dots i::before { content:""; position:absolute; left:50%; top:0; width:6px; height:6px; margin-left:-3px; border-radius:50%; background:#fff; }
+.dots i:nth-child(2) { animation-delay:.12s; } .dots i:nth-child(3) { animation-delay:.24s; } .dots i:nth-child(4) { animation-delay:.36s; } .dots i:nth-child(5) { animation-delay:.48s; }
+@keyframes orbit { to { transform:rotate(360deg); } }
+.pbar { width:260px; height:4px; border-radius:2px; background:rgba(255,255,255,.18); overflow:hidden; }
+.pbar i { display:block; height:100%; width:62%; background:var(--grad); }
+.sweep { width:220px; height:2px; background:rgba(255,255,255,.12); position:relative; overflow:hidden; }
+.sweep i { position:absolute; top:0; width:70px; height:100%; background:var(--grad); animation:sweep 1.8s ease-in-out infinite; }
+@keyframes sweep { from { left:-70px; } to { left:220px; } }
+.checks { display:flex; flex-direction:column; gap:7px; font-size:13px; min-width:250px; }
+.checks div { display:flex; align-items:center; gap:10px; }
+.checks .ok { width:18px; height:18px; border-radius:50%; background:rgba(127,211,164,.2); color:#7FD3A4; display:grid; place-items:center; }
+.checks .ok .i { width:12px; height:12px; stroke-width:2.4; }
+.checks .run { width:18px; height:18px; display:grid; place-items:center; }
+.checks .run i { width:10px; height:10px; border-radius:50%; border:2px solid rgba(255,255,255,.35); border-top-color:#fff; animation:orbit 1s linear infinite; }
+.checks .wait { opacity:.55; }
+.splash.dark { background:#0B1020; }
+@media (prefers-reduced-motion: reduce) { * { animation:none !important; } }
+
+/* ================= A · Aurore pleine: the active title is the aurora ================= */
+[data-v="aurore"] .win.active .tb { background:var(--grad); color:#fff; border-bottom-color:transparent; }
+[data-v="aurore"] .win.active .wi::before { display:none; }
+[data-v="aurore"] .win.active .ctl span:hover { background:rgba(255,255,255,.2); }
+[data-v="aurore"] .tbtn.on { background:var(--grad); color:#fff; }
+[data-v="aurore"] .tbtn.on::after { display:none; }
+
+/* ================= B · Encre: dark chrome, light contents ================= */
+[data-v="encre"] { --tbbg:#121A33; --tbfg:#E4E9FF; --tbmut:#8E9AC0; --tbbd:#2A3760;
+  --barveil:rgba(14,20,42,.86); --bartxt:#CFD6F5; --baredge:rgba(255,255,255,.12); --baron:rgba(255,255,255,.08);
+  --menuveil:rgba(14,20,42,.88); --menutxt:#E4E9FF; --menuedge:rgba(255,255,255,.14); --field:#172142; --catson:rgba(123,140,255,.22); }
+[data-v="encre"] .wi { border-color:#2A3760; }
+[data-v="encre"] .smenu .sm-search { border-color:#2A3760; color:#8E9AC0; }
+[data-v="encre"] .sm-cats .sep { background:#2A3760; }
+[data-v="encre"] .sm-tile.hov { background:rgba(255,255,255,.07); }
+[data-v="encre"] .sm-foot .pw { color:#8E9AC0; }
+
+/* ================= C · Centrée: icons in the middle of the bar ================= */
+[data-v="centre"] { --menu-x:330px; }
+[data-v="centre"] .taskbar .grp { position:absolute; left:50%; transform:translateX(-50%); display:flex; height:100%; align-items:center; gap:2px; }
+[data-v="centre"] .tbtn { width:46px; padding:0; justify-content:center; }
+[data-v="centre"] .tbtn span { display:none; }
+[data-v="centre"] .tbtn.on { background:var(--baron); }
+[data-v="centre"] .tbtn.on::after { left:14px; right:14px; border-radius:2px 2px 0 0; }
+[data-v="centre"] .tbtn.open::after { left:18px; right:18px; }
+[data-v="centre"] .startbtn { width:46px; }
+
+/* ================= D · Tableau de bord: the state of the PC on the desktop ================= */
+.dash { display:none; position:absolute; right:22px; top:22px; width:300px; bottom:calc(var(--barh) + 22px); z-index:1; background:rgba(8,14,32,.58); border:1px solid rgba(255,255,255,.12); border-radius:var(--r); color:#E4E9FF; padding:16px 18px; flex-direction:column; gap:13px; font-size:12px; }
+[data-v="tableau"] .dash { display:flex; }
+.dash h4 { margin:0 0 6px; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:#8E9AC0; font-weight:600; }
+.dash .ln { display:flex; align-items:center; gap:8px; margin:3px 0; }
+.dash .ln .i { width:15px; height:15px; color:#A9B6FF; }
+.dash .ln small { margin-left:auto; color:#8E9AC0; }
+.dash .tag { font-size:10.5px; padding:2px 7px; border-radius:var(--rs); background:rgba(123,140,255,.16); color:#C3CCFF; margin-left:auto; }
+.dash .tag.red { background:rgba(255,99,99,.16); color:#FF9A9A; }
+.dash .tag.ok { background:rgba(127,211,164,.16); color:#9FE3BD; }
+.dash .bar { height:6px; background:rgba(255,255,255,.12); border-radius:3px; margin:4px 0 8px; overflow:hidden; }
+.dash .bar i { display:block; height:100%; background:var(--grad); }
+.dash .big { font-size:15px; font-weight:650; }
+
+/* ================= G · Colonnes: a start menu of its own ================= */
+.cmenu { display:none; }
+[data-v="colonnes"] { --menu-w:720px; --menu-h:560px; }
+[data-v="colonnes"] .smenu .wk { display:none; }
+[data-v="colonnes"] .smenu .cmenu { display:flex; flex:1; min-height:0; flex-direction:column; }
+.cmenu .cm-top { display:flex; flex:1; min-height:0; }
+.cmenu .cm-list { width:230px; padding:14px 6px 8px 12px; border-right:1px solid var(--bd); overflow:hidden; font-size:12.5px; }
+.cmenu .cm-list .lt { font-size:11px; font-weight:700; color:var(--acc); margin:8px 0 2px 8px; }
+.cmenu .cm-list .li { display:flex; align-items:center; gap:10px; padding:5px 8px; border-radius:var(--rs); }
+.cmenu .cm-list .li svg.tile, .cmenu .cm-list .li img { width:20px; height:20px; }
+.cmenu .cm-right { flex:1; display:flex; flex-direction:column; padding:14px 18px 8px; gap:10px; min-width:0; }
+.cmenu .cm-search { height:38px; background:var(--field); border:1px solid var(--bd); border-radius:var(--rs); display:flex; align-items:center; gap:10px; padding:0 12px; color:var(--mut); }
+.cmenu .cm-h { font-size:13px; font-weight:650; display:flex; justify-content:space-between; align-items:center; }
+.cmenu .cm-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
+.cmenu .cm-grid .sm-tile svg.tile, .cmenu .cm-grid .sm-tile img { width:38px; height:38px; }
+.cmenu .cm-win { display:flex; flex-direction:column; gap:6px; }
+.cmenu .cm-win .r { display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:var(--rs); font-size:12.5px; background:var(--surf2); border:1px solid var(--bd); }
+.cmenu .cm-win .r > .i { color:var(--acc); }
+.cmenu .cm-win small { display:block; color:var(--mut); font-size:11px; }
+.cmenu .cm-win .chip { margin:0 0 0 auto; }
+.cmenu .cm-foot { display:flex; align-items:center; gap:10px; padding:10px 18px; border-top:1px solid var(--bd); font-size:12.5px; background:color-mix(in srgb, var(--surf) 70%, transparent); }
+.cmenu .cm-foot .av { width:28px; height:28px; border-radius:50%; background:var(--grad); display:grid; place-items:center; color:#fff; }
+.cmenu .cm-foot .pw { margin-left:auto; display:flex; gap:6px; align-items:center; }
+.cmenu .cm-foot .pw div { height:32px; padding:0 10px; border-radius:var(--rs); display:flex; align-items:center; gap:6px; }
+.cmenu .cm-foot .pw div.w { background:color-mix(in srgb, var(--acc) 12%, transparent); color:var(--acc); }
+
+/* ================= H · Compacte: for 1366 × 768 laptops ================= */
+[data-v="compact"] { --tbh:30px; --barh:38px; --menu-w:540px; --menu-h:470px; font-size:12px; --r:3px; }
+[data-v="compact"] .tb { font-size:11.5px; padding-left:10px; }
+[data-v="compact"] .ctl span { width:38px; }
+[data-v="compact"] .tbtn { padding:0 10px; font-size:12px; gap:6px; }
+[data-v="compact"] .tbtn svg.tile { width:18px; height:18px; }
+[data-v="compact"] .startbtn { width:42px; }
+[data-v="compact"] .startbtn svg { width:22px; height:22px; }
+[data-v="compact"] .sm-grid { grid-template-columns:repeat(6,1fr); }
+[data-v="compact"] .sm-tile svg.tile, [data-v="compact"] .sm-tile img { width:26px; height:26px; }
+[data-v="compact"] .sm-tile { font-size:11px; padding:6px 1px; }
+[data-v="compact"] .sy { padding:14px 18px 12px; gap:9px; }
+[data-v="compact"] .sy h2 { font-size:18px; }
+[data-v="compact"] .dicon .ic { width:40px; height:40px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Prisme — personnaliser SindryOS</h1>
+      <p>Partir de SindryOS 0.7.0 tel qu'il tourne (onglet 0), et changer une chose à la fois : les titres, la barre, le bureau, l'accent, le fond, le menu, la densité. L'accent et le fond se choisissent sous l'image et valent pour toutes les variantes : elles se combinent. Rien n'exige de carte graphique.</p>
+    </div>
+    <div class="ctrls">
+      <div class="seg" id="plans"></div>
+      <div class="seg" id="views">
+        <button data-view="desk" class="on">Bureau</button>
+        <button data-view="menu">Menu démarrer</button>
+        <button data-view="boot">Démarrage</button>
+      </div>
+    </div>
+  </header>
+  <div class="frame" id="frame"><div class="desk" id="desk"></div></div>
+  <div class="pickers">
+    <div class="grp" id="accents"><span>Accent :</span></div>
+    <div class="grp" id="walls"><span>Fond :</span></div>
+  </div>
+  <p class="hint">Les fenêtres gardent leurs coins du bas carrés, comme xfwm4 les dessine sans compositeur. L'icône de SindryOS est le prisme provisoire, en attendant la tienne.</p>
+  <div class="notes" id="notes"></div>
+  <table class="cmp" id="cmp">
+    <thead><tr><th>Variante</th><th>Ce qui change</th><th>Comment la construire</th><th>Effort</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs id="sprite">
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M5 13l2.5-7h9L19 13"/><path d="M16.5 16.5h.01"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M12 15h5"/></symbol>
+  <symbol id="i-cone" viewBox="0 0 24 24"><path d="M12 3l5.2 15H6.8z"/><path d="M8.4 12h7.2M7.5 15h9M4 19h16"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5L5 20"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><path d="M12 19.5h.01"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a8 8 0 0 1 0 11"/></symbol>
+  <symbol id="i-usb" viewBox="0 0 24 24"><rect x="7" y="9" width="10" height="12" rx="2"/><path d="M9 9V4h6v5M10.5 6.5h.01M13.5 6.5h.01"/></symbol>
+  <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 3v8M6.3 6.3a8 8 0 1 0 11.4 0"/></symbol>
+  <symbol id="i-restart" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-windows" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx=".5"/><rect x="13" y="3.5" width="7.5" height="7.5" rx=".5"/><rect x="3.5" y="13" width="7.5" height="7.5" rx=".5"/><rect x="13" y="13" width="7.5" height="7.5" rx=".5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+  <symbol id="i-min" viewBox="0 0 24 24"><path d="M6 12h12"/></symbol>
+  <symbol id="i-max" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+  <symbol id="i-pc" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.7-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-battery" viewBox="0 0 24 24"><rect x="2.5" y="7" width="17" height="10" rx="2"/><path d="M22 10.5v3M5.5 10v4M9 10v4M12.5 10v4"/></symbol>
+</defs>
+</svg>
+
+<div data-maquette-badge style="position:fixed;left:10px;bottom:10px;z-index:2147483647;pointer-events:none;font:650 12px/1.2 'Segoe UI',system-ui,sans-serif;color:#fff;background:rgba(18,12,26,.9);border:1px solid rgba(255,255,255,.22);padding:6px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.35)">M46 · 01/11/2026 20:48 · Prisme, personnalisations</div>
+
+<script>
+// ---------- helpers ----------
+const ic = id => `<svg class="i"><use href="#i-${id}"/></svg>`;
+// The stand-in SindryOS prism (the real icon is the user's to provide)
+const PRISM = `<svg viewBox="0 0 32 32"><path d="M16 3L29 28H3z" fill="#5B6CF0"/><path d="M16 3L16 20L3 28z" fill="#1FB5A3"/><path d="M16 3L29 28L16 20z" fill="#9A5BE0"/><path d="M3 28L16 20L29 28z" fill="#4AB2E7"/></svg>`;
+const SINDRY = '_ressources/sindry-256.png';
+// The menu's app icon: a coloured square, 3 px corners, the bottom-right one cut, a white glyph
+function tile(glyph, colour) {
+  return `<svg class="tile" viewBox="0 0 42 42"><path d="M3 0H39a3 3 0 0 1 3 3V33.6L33.6 42H3a3 3 0 0 1-3-3V3a3 3 0 0 1 3-3z" fill="${colour}"/><use href="#i-${glyph}" x="10" y="10" width="22" height="22" style="color:#fff;fill:none;stroke:#fff;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"/></svg>`;
+}
+const APPS = {
+  sindry:   { nom: 'Sindry', img: SINDRY },
+  firefox:  { nom: 'Firefox', g: 'globe', c: '#FF7139' },
+  fichiers: { nom: 'Fichiers', g: 'folder', c: '#E9A23B' },
+  disques:  { nom: 'Disques', g: 'disk', c: '#4AB2E7' },
+  vlc:      { nom: 'VLC', g: 'cone', c: '#F08A00' },
+  terminal: { nom: 'Terminal', g: 'terminal', c: '#6B7287' },
+  editeur:  { nom: 'Éditeur de texte', g: 'pen', c: '#3B8FD9' },
+  images:   { nom: 'Images', g: 'image', c: '#775FD7' },
+  reglages: { nom: 'Paramètres', g: 'sliders', c: '#6B7287' },
+  windows:  { nom: 'Redémarrer sous Windows', g: 'windows', c: '#3F5BD9' },
+};
+const appIcon = id => APPS[id].img ? `<img src="${APPS[id].img}" alt="">` : tile(APPS[id].g, APPS[id].c);
+
+// ---------- accents (the aurora gradient and the accent colour) ----------
+const ACCENTS = {
+  aurore:  { nom: 'Aurore', g: ['#1FB5A3', '#5B6CF0', '#9A5BE0'], a: '#3F5BD9' },
+  braise:  { nom: 'Braise', g: ['#F5B53A', '#FD7D26', '#E5484D'], a: '#E8590C' },
+  menthe:  { nom: 'Menthe', g: ['#2BE3A6', '#1FB5A3', '#0E9F8E'], a: '#0E9F8E' },
+  lilas:   { nom: 'Lilas', g: ['#A78BFA', '#9A5BE0', '#CA28B1'], a: '#7C3AED' },
+  corail:  { nom: 'Corail', g: ['#FF8A65', '#F0506E', '#C2185B'], a: '#D6336C' },
+  glacier: { nom: 'Glacier', g: ['#3FD0C9', '#3C9BE0', '#6C7BEA'], a: '#1E88B4' },
+};
+
+// ---------- wallpapers (the CSS gradient is the base, the SVG adds the shapes) ----------
+const AUR_PRISME = 'radial-gradient(45% 40% at 25% 30%, #1d8f86, transparent 70%), radial-gradient(40% 35% at 62% 22%, #2f5fb8, transparent 70%), radial-gradient(45% 45% at 85% 45%, #5b3fae, transparent 70%), linear-gradient(160deg,#061226,#0b1d3c 45%,#151440)';
+const AUR_NUIT = 'radial-gradient(45% 40% at 25% 30%, #156e68, transparent 70%), radial-gradient(40% 35% at 62% 22%, #24488c, transparent 70%), radial-gradient(45% 45% at 85% 45%, #46318a, transparent 70%), linear-gradient(160deg,#040b18,#08142c 45%,#0e0d2c)';
+const AUR_AUBE = 'radial-gradient(45% 40% at 22% 28%, #c9f1e6, transparent 70%), radial-gradient(40% 35% at 62% 20%, #d9e2ff, transparent 70%), radial-gradient(45% 45% at 85% 45%, #f1dcff, transparent 70%), linear-gradient(170deg,#eef3ff,#f4ecff 55%,#ffeee6)';
+const VB = 'viewBox="0 0 1280 760" preserveAspectRatio="xMidYMid slice"';
+const RIDGE = 'M0 600 L180 520 L330 585 L520 470 L700 570 L880 500 L1060 590 L1280 520';
+function facetsSVG(pale) {
+  const cols = pale ? ['#d7f5ec', '#d8ecfb', '#dfe3fd', '#ecdffb'] : ['#2BE3A6', '#4AB2E7', '#5B6CF0', '#9A5BE0'];
+  let s = '';
+  for (let k = 0; k < 18; k++) {
+    const x = (k * 97) % 1280, y = 60 + (k * 53) % 260, w = 160 + (k * 37) % 140;
+    s += `<polygon points="${x},${y} ${x + w},${y + 30 + (k % 3) * 20} ${(x + w * .4).toFixed(0)},${y + 110 + (k % 4) * 25}" fill="${cols[k % 4]}" opacity="${(pale ? .35 + (k % 5) * .08 : .10 + (k % 5) * .05).toFixed(2)}"/>`;
+  }
+  return s;
+}
+const ridge = (fill, stroke, op) => `<path d="${RIDGE} V760 H0Z" fill="${fill}" opacity=".92"/><path d="${RIDGE}" fill="none" stroke="${stroke}" stroke-opacity="${op}" stroke-width="1.5"/>`;
+function stars() {
+  let s = '';
+  for (let k = 0; k < 70; k++) s += `<circle cx="${(k * 197) % 1280}" cy="${(k * 113) % 440}" r="${((k % 3) * .4 + .5).toFixed(1)}" fill="#fff" opacity="${(.25 + (k % 5) * .1).toFixed(2)}"/>`;
+  return s;
+}
+const WALLS = {
+  prisme:  { nom: 'Prisme', aur: AUR_PRISME, svg: () => `<svg ${VB}>${facetsSVG()}${ridge('#050b1a', '#4AB2E7', .55)}</svg>` },
+  crete:   { nom: 'Crête', aur: AUR_PRISME, svg: () => `<svg ${VB}><path d="M0 540 L220 470 L400 520 L610 430 L800 505 L990 455 L1160 515 L1280 480 V760 H0Z" fill="#0a1430" opacity=".7"/>${ridge('#050b1a', '#4AB2E7', .55)}</svg>` },
+  aube:    { nom: 'Aube (claire)', aur: AUR_AUBE, light: true, svg: () => `<svg ${VB}>${facetsSVG(true)}<path d="${RIDGE} V760 H0Z" fill="#dfe5f7"/><path d="${RIDGE}" fill="none" stroke="#8fa3e0" stroke-opacity=".8" stroke-width="1.5"/></svg>` },
+  etoiles: { nom: 'Étoiles', aur: AUR_NUIT, svg: () => `<svg ${VB}><defs><linearGradient id="rb" x1="0" x2="1"><stop offset="0" stop-color="#2BE3A6"/><stop offset=".5" stop-color="#4AB2E7"/><stop offset="1" stop-color="#9A5BE0"/></linearGradient></defs>${stars()}<path d="M-40 300 C 220 170 430 330 700 230 S 1120 140 1320 250" fill="none" stroke="url(#rb)" stroke-width="46" opacity=".28"/><path d="M-40 300 C 220 170 430 330 700 230 S 1120 140 1320 250" fill="none" stroke="url(#rb)" stroke-width="10" opacity=".45"/>${ridge('#03070f', '#4AB2E7', .4)}</svg>` },
+  vitrail: { nom: 'Vitrail doux', aur: AUR_PRISME, svg: () => `<svg ${VB}><g opacity=".5">${facetsSVG(true)}</g>${ridge('#050b1a', '#9ad7ea', .5)}</svg>` },
+  uni:     { nom: 'Uni', aur: AUR_PRISME, svg: () => '' },
+};
+
+// ---------- variants ----------
+// n: 1 = theme and settings only; 2 = needs a small tool; 3 = needs code of our own
+const V = {
+  ref: { k: '0', nom: 'Référence', boot: { hf: '#FFFFFF', hb: '#0000AA', nf: '#AAAAAA', fr: false, splash: 'dots' },
+    idee: "SindryOS 0.7.0 tel qu'il tourne : le point de départ de toutes les variantes.",
+    change: ["Titre 36 px, filet d'aurore sur la fenêtre active", "Barre en verre, applis avec leur nom, aurore sous l'active", "Menu Whisker : recherche, rangée de catégories, tuiles, session"],
+    n: 1, comment: 'Construit (0.7.0).', pour: ['Testé, sous Secure Boot comme en BIOS'], contre: ["Menu démarrer plus sobre que M43 (limites de Whisker)", "Menu de démarrage en texte sous Secure Boot"] },
+  aurore: { k: 'A', nom: 'Aurore pleine', boot: { hf: '#000000', hb: '#55FFFF', nf: '#AAAAAA', fr: true, splash: 'bar' },
+    idee: "La fenêtre active porte toute l'aurore dans son titre ; les autres restent claires.",
+    change: ["Titre actif en dégradé, texte et boutons blancs", "L'appli active de la barre prend le même dégradé", "On voit d'un coup d'œil quelle fenêtre a la main"],
+    n: 1, comment: "Un autre dessin du titre pour xfwm4 (l'image étirée de 0.6.0 porte déjà le dégradé), et deux lignes de CSS pour la barre.",
+    pour: ['Signature très forte, très « SindryOS »', 'Aucun outil en plus'], contre: ['Plus voyant : peut lasser sur une longue intervention'] },
+  encre: { k: 'B', nom: 'Encre', boot: { hf: '#000000', hb: '#AAAAAA', nf: '#55FFFF', fr: true, splash: 'minimal' },
+    idee: "L'habillage en sombre (titres, barre, menu), le contenu des fenêtres en clair.",
+    change: ['Titres bleu nuit, filet d\'aurore conservé', 'Barre et menu démarrer en verre sombre', 'Contenu clair : lisible en plein jour'],
+    n: 1, comment: 'Un troisième jeu de thèmes, généré comme Prisme et Nuit (titres xfwm4, CSS de la barre et du menu).',
+    pour: ['Le contenu ressort mieux', "Un peu de Nuit sans tout passer en sombre"], contre: ['Trois thèmes à tenir au lieu de deux'] },
+  centre: { k: 'C', nom: 'Centrée', boot: { hf: '#FFFFFF', hb: '#0000AA', nf: '#AAAAAA', fr: true, splash: 'sweep' },
+    idee: "La barre de Windows 11 : le bouton démarrer et les applis au centre, en icônes seules.",
+    change: ["Icônes seules, nom au survol", "Le menu démarrer s'ouvre au-dessus du centre", "Zone d'état inchangée à droite"],
+    n: 1, comment: 'Réglages du tableau de bord : un séparateur extensible de chaque côté, noms des applis masqués. Whisker ouvre le menu au-dessus de son bouton.',
+    pour: ['Familier pour les habitués de Windows 11', 'Barre plus calme'], contre: ["Le nom des fenêtres disparaît : moins clair avec plusieurs fenêtres d'une même appli"] },
+  tableau: { k: 'D', nom: 'Tableau de bord', boot: { hf: '#000000', hb: '#55FF55', nf: '#AAAAAA', fr: true, splash: 'checks' },
+    idee: "L'état du PC posé sur le bureau : ce qu'un technicien veut savoir en arrivant.",
+    change: ['Windows trouvés, BitLocker, démarrage rapide', 'Disques et place libre, SINDRY-DATA compris', 'Secure Boot, réseau, batterie'],
+    n: 2, comment: "Conky dessine sur le fond d'écran lui-même (pas de compositeur). Le contenu viendrait d'un petit script, ou plus tard de Sindry Linux.",
+    pour: ['Utile dès la première seconde', "Rassure : on voit que la clé n'a rien touché"], contre: ['Un outil de plus à tenir', 'À accorder avec ce que Sindry affichera'] },
+  accents: { k: 'E', nom: 'Accents', boot: { hf: '#FFFFFF', hb: '#0000AA', nf: '#AAAAAA', fr: true, splash: 'dots' }, pick: 'accents',
+    idee: "Six couleurs d'accent au choix, pour le filet, la sélection, les boutons et la barre.",
+    change: ['Aurore, Braise (celle de Sindry), Menthe, Lilas, Corail, Glacier', 'Changeable dans les réglages, sans redémarrer', 'Se combine avec toutes les variantes'],
+    n: 1, comment: "Le générateur de thèmes produit un jeu par accent ; un réglage bascule de l'un à l'autre. Choisis-les sous l'image.",
+    pour: ['Personnel, sans casser l\'identité', 'Braise rapproche SindryOS de Sindry'], contre: ['Six jeux à générer (automatique)'] },
+  fonds: { k: 'F', nom: 'Fonds', boot: { hf: '#FFFFFF', hb: '#0000AA', nf: '#AAAAAA', fr: true, splash: 'wall' }, pick: 'walls',
+    idee: "Six fonds d'écran de la même famille, dont un clair pour le thème clair.",
+    change: ['Prisme, Crête, Aube (claire), Étoiles, Vitrail doux, Uni', 'Le verre de la barre et du menu suit le fond', "Uni : le plus léger pour les vieux écrans"],
+    n: 1, comment: "Calculés par le même générateur que le fond actuel ; le verre est recalculé pour chacun. Choisis-les sous l'image.",
+    pour: ['Variété sans sortir de l\'identité'], contre: ["Aube demande des icônes du bureau foncées (prévu)"] },
+  colonnes: { k: 'G', nom: 'Colonnes', boot: { hf: '#FFFFFF', hb: '#0000AA', nf: '#AAAAAA', fr: true, splash: 'dots' },
+    idee: "Le menu démarrer de M43, enfin complet : toutes les applis à gauche, les épinglés et les Windows détectés à droite.",
+    change: ['Liste alphabétique de toutes les applis', 'Épinglés en tuiles, Windows détectés avec BitLocker', 'Pied : session, « Redémarrer sous Windows », alimentation'],
+    n: 3, comment: "Whisker ne sait pas montrer deux vues à la fois, ni les Windows détectés : il faut un menu à nous (petit programme GTK, lancé par le bouton démarrer et la touche Windows).",
+    pour: ['Le plus proche de la maquette d\'origine', '« Windows détectés » au premier clic'], contre: ['Un programme de plus à écrire et tenir', 'À voir avec Sindry : qui détecte les Windows'] },
+  compact: { k: 'H', nom: 'Compacte', boot: { hf: '#FFFFFF', hb: '#0000AA', nf: '#AAAAAA', fr: true, splash: 'minimal' },
+    idee: "Tout un peu plus petit, pour les portables en 1366 × 768 qu'on dépanne souvent.",
+    change: ['Titres 30 px, barre 38 px', 'Menu démarrer 540 × 470, six colonnes', 'Textes et icônes réduits d\'un cran'],
+    n: 1, comment: "Un jeu de thèmes « compact » (mêmes dessins, autres tailles) ; pourrait se choisir seul selon la taille de l'écran.",
+    pour: ['Plus de place pour les fenêtres', 'Choisi automatiquement sur petit écran'], contre: ['Cibles plus petites au pavé tactile'] },
+};
+const ORDER = ['ref', 'aurore', 'encre', 'centre', 'tableau', 'accents', 'fonds', 'colonnes', 'compact'];
+const FEAS = { 1: 'Thème et réglages seulement', 2: 'Un petit outil en plus', 3: 'Un programme à écrire' };
+
+// ---------- pieces of the desk ----------
+const ctl = `<div class="ctl"><span>${ic('min')}</span><span>${ic('max')}</span><span class="x">${ic('close')}</span></div>`;
+function sindryWin(pos) {
+  const steps = ['Choisir', 'Analyser', 'Cocher', 'Faire', 'Bilan'].map((s, k) => `<span class="${k ? '' : 'on'}">${k + 1} · ${s}</span>`).join('');
+  return `<div class="win active" style="${pos}"><div class="wi">
+    <div class="tb"><img class="ti" src="${SINDRY}" alt=""><span class="t">Sindry</span>${ctl}</div>
+    <div class="wbody"><div class="sy">
+      <div class="sy-steps">${steps}</div>
+      <h2>Quel Windows soigner ?</h2>
+      <p class="sub">2 Windows trouvés sur ce PC. Rien n'est modifié tant que vous n'avez pas coché d'action.</p>
+      <div class="card"><span class="ci">${ic('windows')}</span><div class="cm"><b>Windows 11 Pro · 24H2</b><span>Disque 0 · NVMe Samsung 512 Go · C:</span><br><span class="chip lock">${ic('lock')}BitLocker : verrouillé</span></div><button class="act">Déverrouiller…</button></div>
+      <div class="card sel"><span class="ci">${ic('windows')}</span><div class="cm"><b>Windows 10 Famille · 22H2</b><span>Disque 1 · SATA 1 To · D:</span><br><span class="chip">${ic('moon')}Démarrage rapide : à confirmer</span></div><button class="act">Choisi</button></div>
+      <div class="sy-foot"><span>Copie de retour arrière : SINDRY-DATA › Retours</span><div style="display:flex;gap:8px"><button class="btn g">Retour</button><button class="btn p">Analyser ce Windows</button></div></div>
+    </div></div></div></div>`;
+}
+function filesWin(pos) {
+  const rows = [['folder', 'Program Files', '12/10/2026'], ['folder', 'ProgramData', '26/10/2026'], ['folder', 'Users', '26/10/2026'], ['folder', 'Windows', '26/10/2026'], ['file', 'hiberfil.sys', '26/10/2026']];
+  return `<div class="win" style="${pos}"><div class="wi">
+    <div class="tb">${tile('folder', '#E9A23B').replace('class="tile"', 'class="tile ti"')}<span class="t">Windows 10 (D:) - Fichiers</span>${ctl}</div>
+    <div class="wbody"><div class="files">
+      <div class="side"><div>${ic('pc')}Ce PC</div><div>${ic('lock')}Windows 11 (C:)</div><div class="on">${ic('windows')}Windows 10 (D:)</div><div>${ic('usb')}SINDRY-DATA</div></div>
+      <div class="main"><div class="path">Ce PC › Windows 10 (D:)</div>${rows.map(([i, n, d]) => `<div class="row">${ic(i)}<span>${n}</span><span>${d}</span></div>`).join('')}</div>
+    </div></div></div></div>`;
+}
+function dicons(plan) {
+  const list = plan === 'tableau' ? [['pc', 'Ce PC'], ['windows', 'Windows 11 (C:)', true], ['windows', 'Windows 10 (D:)'], ['usb', 'SINDRY-DATA']] : [['pc', 'Ce PC']];
+  return `<div class="dicons">${list.map(([i, t, lk]) => `<div class="dicon"><span class="ic">${ic(i)}${lk ? `<span class="lk">${ic('lock')}</span>` : ''}</span>${t}</div>`).join('')}</div>`;
+}
+function dash() {
+  return `<div class="dash">
+    <div><h4>Ce PC</h4><div class="big">Lenovo ThinkPad T14 · 16 Go</div><div class="ln">${ic('shield')}Secure Boot actif<span class="tag ok">clé SindryOS</span></div></div>
+    <div><h4>Windows trouvés</h4>
+      <div class="ln">${ic('windows')}Windows 11 Pro · C:<span class="tag red">BitLocker</span></div>
+      <div class="ln">${ic('windows')}Windows 10 Famille · D:<span class="tag">Démarrage rapide</span></div></div>
+    <div><h4>Disques</h4>
+      <div class="ln">${ic('disk')}NVMe Samsung 512 Go<small>62 %</small></div><div class="bar"><i style="width:62%"></i></div>
+      <div class="ln">${ic('disk')}SATA 1 To<small>41 %</small></div><div class="bar"><i style="width:41%"></i></div>
+      <div class="ln">${ic('usb')}SINDRY-DATA<small>28 Go libres</small></div><div class="bar"><i style="width:22%"></i></div></div>
+    <div><h4>Réseau et énergie</h4>
+      <div class="ln">${ic('wifi')}Wi-Fi « Atelier »<small>connecté</small></div>
+      <div class="ln">${ic('battery')}Batterie<small>78 % · secteur</small></div></div>
+  </div>`;
+}
+function taskbar(plan) {
+  const items = [['sindry', 'on'], ['fichiers', 'open'], ['terminal', 'open']];
+  const btns = items.map(([id, st]) => `<div class="tbtn ${st}">${APPS[id].img ? `<img src="${APPS[id].img}" alt="" style="width:22px;height:22px">` : tile(APPS[id].g, APPS[id].c)}<span>${id === 'fichiers' ? 'Windows 10 (D:) - Fichiers' : APPS[id].nom}</span></div>`).join('');
+  const tray = `<div class="tray"><span>FR</span>${ic('wifi')}${ic('volume')}<span class="clock"><span>08:11</span><span>01/11/2026</span></span></div>`;
+  if (plan === 'centre') return `<div class="taskbar"><div class="grp"><div class="startbtn">${PRISM}</div>${btns}</div>${tray}</div>`;
+  return `<div class="taskbar"><div class="startbtn">${PRISM}</div><div class="apps">${btns}</div>${tray}</div>`;
+}
+function whisker() {
+  const cats = [['star', '#3F5BD9', true], ['windows', '#6B7287'], '|', ['pen', '#3B8FD9'], ['image', '#775FD7'], ['globe', '#FF7139'], ['cone', '#F08A00'], ['sliders', '#6B7287'], ['chip', '#33B07A']];
+  const grid = ['sindry', 'firefox', 'fichiers', 'disques', 'vlc', 'terminal', 'editeur', 'images', 'reglages', 'windows'];
+  return `<div class="wk">
+    <div class="sm-search">${ic('search')}<span>|</span></div>
+    <div class="sm-cats">${cats.map(c => c === '|' ? '<i class="sep"></i>' : `<span class="${c[2] ? 'on' : ''}">${tile(c[0], c[1])}</span>`).join('')}</div>
+    <div class="sm-grid">${grid.map((id, k) => `<div class="sm-tile${k === 2 ? ' hov' : ''}">${appIcon(id)}${APPS[id].nom}</div>`).join('')}</div>
+    <div class="sm-foot"><span class="av">${ic('user')}</span><b>Session technicien</b><div class="pw">${ic('restart')}${ic('power')}</div></div>
+  </div>`;
+}
+function columns() {
+  const all = [['D', ['disques']], ['É', ['editeur']], ['F', ['fichiers', 'firefox']], ['I', ['images']], ['P', ['reglages']], ['R', ['windows']], ['S', ['sindry']], ['T', ['terminal']], ['V', ['vlc']]];
+  const pins = ['sindry', 'firefox', 'fichiers', 'disques', 'vlc', 'terminal', 'editeur', 'reglages'];
+  return `<div class="cmenu"><div class="cm-top">
+    <div class="cm-list">${all.map(([l, ids]) => `<div class="lt">${l}</div>${ids.map(id => `<div class="li">${appIcon(id)}${APPS[id].nom}</div>`).join('')}`).join('')}</div>
+    <div class="cm-right">
+      <div class="cm-search">${ic('search')}Rechercher des outils, des réglages, des fichiers</div>
+      <div class="cm-h">Épinglés</div>
+      <div class="cm-grid">${pins.map(id => `<div class="sm-tile">${appIcon(id)}${APPS[id].nom}</div>`).join('')}</div>
+      <div class="cm-h">Windows détectés sur ce PC</div>
+      <div class="cm-win">
+        <div class="r">${ic('windows')}<div>Windows 11 Pro · 24H2<small>Disque 0 · NVMe 512 Go · C:</small></div><span class="chip lock">${ic('lock')}BitLocker</span></div>
+        <div class="r">${ic('windows')}<div>Windows 10 Famille · 22H2<small>Disque 1 · SATA 1 To · D:</small></div><span class="chip">${ic('moon')}Démarrage rapide</span></div>
+      </div>
+    </div></div>
+    <div class="cm-foot"><span class="av">${ic('user')}</span>Session technicien<div class="pw"><div class="w">${ic('windows')}Redémarrer sous Windows</div><div>${ic('restart')}</div><div>${ic('power')}</div></div></div>
+  </div>`;
+}
+function bootView(plan) {
+  const b = V[plan].boot;
+  const entries = ['SindryOS 0.7.0', 'SindryOS - affichage de secours', 'SindryOS - tout en mémoire (retirer la clé ensuite)', 'SindryOS - journal détaillé', 'Réglages du micrologiciel (UEFI)', 'Redémarrer', 'Éteindre'];
+  const help = b.fr ? 'Utilisez les touches ▲ et ▼ pour choisir.\nDémarrage automatique dans 5 s.' : 'Use the ▲ and ▼ keys to select which entry is highlighted.\nThe highlighted entry will be executed automatically in 5s.';
+  const grub = `<div class="grubtxt" style="--hf:${b.hf};--hb:${b.hb};--nf:${b.nf}"><div class="hd">GNU GRUB  version 2.14</div>
+    <div class="box">${entries.map((e, k) => `<div class="it${k ? '' : ' on'}">${k ? ' ' : '*'}${e}</div>`).join('')}</div><div class="help">${help}</div></div>`;
+  let ind = '', cls = '';
+  if (b.splash === 'dots') ind = '<div class="dots"><i></i><i></i><i></i><i></i><i></i></div>';
+  if (b.splash === 'bar') ind = '<div class="pbar"><i></i></div>';
+  if (b.splash === 'sweep') ind = '<div class="sweep"><i></i></div>';
+  if (b.splash === 'minimal') { ind = '<div class="sweep"><i></i></div>'; cls = ' dark'; }
+  if (b.splash === 'wall') ind = '<div class="dots"><i></i><i></i><i></i><i></i><i></i></div>';
+  const status = b.splash === 'checks'
+    ? `<div class="checks"><div><span class="ok">${ic('check')}</span>Noyau verrouillé</div><div><span class="ok">${ic('check')}</span>Système vérifié, bloc par bloc</div><div><span class="run"><i></i></span>Recherche des disques…</div><div class="wait"><span class="run"></span>Bureau</div></div>`
+    : `${ind}<div class="st">Recherche des disques…</div>`;
+  const wallSvg = b.splash === 'wall' ? `<div class="wall" style="position:absolute;inset:0">${WALLS[state.wall].svg()}</div>` : '';
+  const splash = `<div class="splash${cls}">${wallSvg}<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:18px"><div class="logo">${PRISM}</div><div class="nm">SindryOS</div>${status}</div></div>`;
+  const tag = b.fr ? 'aide de GRUB en français (catalogue signé)' : "tel qu'aujourd'hui";
+  return `<div class="boot">
+    <div class="half"><div class="cap">Menu de démarrage, sous Secure Boot<b>16 couleurs du micrologiciel · ${tag}</b></div>${grub}</div>
+    <div class="half"><div class="cap">Chargement<b>${{ dots: 'logo, points en orbite', bar: 'barre en aurore', sweep: 'trait qui balaie', minimal: 'sobre, sur fond nuit', checks: 'les vérifications de 0.7.0, en clair', wall: 'sur le fond choisi' }[b.splash]}</b></div>${splash}</div>
+  </div>`;
+}
+
+// ---------- notes and comparison ----------
+function notes(plan) {
+  const v = V[plan];
+  return `<div class="note"><h3>L'idée</h3><p class="idee">${v.idee}</p><ul>${v.change.map(x => `<li>${x}</li>`).join('')}</ul></div>
+    <div class="note"><h3>Comment la construire</h3><div class="feas n${v.n}">${FEAS[v.n]}</div><p style="margin:0">${v.comment}</p></div>
+    <div class="note"><h3>Pour / contre</h3><ul>${v.pour.map(x => `<li class="pour">${x}</li>`).join('')}${v.contre.map(x => `<li class="contre">${x}</li>`).join('')}</ul></div>`;
+}
+document.querySelector('#cmp tbody').innerHTML = ORDER.map(p => `<tr data-p="${p}"><td><b style="color:#7C8CFF">${V[p].k}</b> ${V[p].nom}</td><td>${V[p].change[0]}</td><td>${V[p].comment}</td><td class="lvl n${V[p].n}">${FEAS[V[p].n]}</td></tr>`).join('');
+
+// ---------- render ----------
+const desk = document.getElementById('desk');
+const state = { plan: 'ref', view: 'desk', accent: 'aurore', wall: 'prisme' };
+function render() {
+  const p = state.plan, a = ACCENTS[state.accent], w = WALLS[state.wall];
+  desk.dataset.v = p; desk.dataset.view = state.view;
+  desk.classList.toggle('light-wall', !!w.light);
+  desk.style.setProperty('--grad', `linear-gradient(90deg,${a.g[0]},${a.g[1]} 55%,${a.g[2]})`);
+  desk.style.setProperty('--acc', a.a);
+  desk.style.setProperty('--aur', w.aur);
+  const filesPos = p === 'tableau' ? 'left:140px;top:40px;width:520px;height:380px' : 'left:250px;top:44px;width:560px;height:400px';
+  const sindryPos = p === 'tableau' ? 'left:250px;top:150px;width:640px;height:470px' : (p === 'compact' ? 'left:560px;top:96px;width:660px;height:470px' : 'left:575px;top:104px;width:690px;height:490px');
+  desk.innerHTML = `<div class="wall">${w.svg()}</div>${dicons(p)}${dash()}${filesWin(filesPos)}${sindryWin(sindryPos)}
+    <div class="smenu">${whisker()}${columns()}</div>${taskbar(p)}${bootView(p)}`;
+  document.getElementById('notes').innerHTML = notes(p);
+  document.querySelectorAll('#cmp tbody tr').forEach(tr => tr.classList.toggle('cur', tr.dataset.p === p));
+  document.querySelectorAll('#plans button').forEach(b => b.classList.toggle('on', b.dataset.p === p));
+  document.querySelectorAll('#views button').forEach(b => b.classList.toggle('on', b.dataset.view === state.view));
+  document.querySelectorAll('#accents .chip-btn').forEach(b => b.classList.toggle('on', b.dataset.a === state.accent));
+  document.querySelectorAll('#walls .chip-btn').forEach(b => b.classList.toggle('on', b.dataset.w === state.wall));
+  document.getElementById('accents').classList.toggle('hot', V[p].pick === 'accents');
+  document.getElementById('walls').classList.toggle('hot', V[p].pick === 'walls');
+  fit();
+}
+function fit() { desk.style.transform = `scale(${document.getElementById('frame').clientWidth / 1280})`; }
+window.addEventListener('resize', fit);
+
+document.getElementById('plans').innerHTML = ORDER.map(p => `<button data-p="${p}"><b>${V[p].k}</b>${V[p].nom}</button>`).join('');
+document.getElementById('plans').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.plan = b.dataset.p; render(); } });
+document.getElementById('views').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.view = b.dataset.view; render(); } });
+document.getElementById('accents').insertAdjacentHTML('beforeend', Object.entries(ACCENTS).map(([k, a]) => `<button class="chip-btn" data-a="${k}"><i style="background:linear-gradient(135deg,${a.g[0]},${a.g[1]},${a.g[2]})"></i>${a.nom}</button>`).join(''));
+document.getElementById('walls').insertAdjacentHTML('beforeend', Object.entries(WALLS).map(([k, w]) => `<button class="chip-btn" data-w="${k}"><i style="background:${w.aur}"></i>${w.nom}</button>`).join(''));
+document.getElementById('accents').addEventListener('click', e => { const b = e.target.closest('.chip-btn'); if (b) { state.accent = b.dataset.a; render(); } });
+document.getElementById('walls').addEventListener('click', e => { const b = e.target.closest('.chip-btn'); if (b) { state.wall = b.dataset.w; render(); } });
+render();
+</script>
+</body>
+</html>

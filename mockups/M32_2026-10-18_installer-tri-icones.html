@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M32 · Installer : tri et icônes</title>
+<style>
+@font-face { font-family: 'Inter'; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2'); font-weight: 100 900; }
+/* Jetons de Sindry (Plan) — repris de src/styles.css */
+:root {
+  --bg: #F6F4EF; --surface: #FFFFFF; --surface-2: #EFECE5; --surface-3: #E4E0D6; --surface-soft: #FAF9F6;
+  --border: #DCD7CC; --border-2: #B6AE9F; --text: #141A24; --text-2: #5C6778; --text-3: #5F6A7B;
+  --ok: #0E7550; --ok-s: #E6F5EC; --warn: #8F5D0C; --warn-s: #FBF3E2;
+  --acc: #E2640F; --acc-on: #A84A08; --acc-soft: #FCEBDD; --evo: #7C5CD6;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B0F16; --surface: #0F1520; --surface-2: #141C2A; --surface-3: #1B2536; --surface-soft: #0D121B;
+    --border: #2A3445; --border-2: #42506A; --text: #E9EEF5; --text-2: #8C9AAE; --text-3: #8190A5;
+    --ok: #3FD69B; --ok-s: #0C2620; --warn: #FFC24D; --warn-s: #2A2210;
+    --acc: #FD7D26; --acc-on: #FF9A55; --acc-soft: #2A1A10; --evo: #A58BFF;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B0F16; --surface: #0F1520; --surface-2: #141C2A; --surface-3: #1B2536; --surface-soft: #0D121B;
+  --border: #2A3445; --border-2: #42506A; --text: #E9EEF5; --text-2: #8C9AAE; --text-3: #8190A5;
+  --ok: #3FD69B; --ok-s: #0C2620; --warn: #FFC24D; --warn-s: #2A2210;
+  --acc: #FD7D26; --acc-on: #FF9A55; --acc-soft: #2A1A10; --evo: #A58BFF;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.45 'Inter', 'Segoe UI', system-ui, sans-serif; }
+button { font: inherit; background: none; border: 0; cursor: pointer; color: inherit; }
+.ico { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.i12 { width: 12px; height: 12px; } .i14 { width: 14px; height: 14px; }
+.page { max-width: 1280px; margin: 0 auto; padding: 26px 16px 70px; }
+h1 { font-size: 22px; margin: 0 0 4px; }
+.sous { color: var(--text-2); margin: 0 0 16px; max-width: 860px; }
+.barre { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: center; margin-bottom: 16px; }
+.interr { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--text-2); cursor: pointer; user-select: none; }
+.switch { width: 36px; height: 20px; border-radius: 999px; background: var(--border-2); position: relative; transition: background .15s; }
+.switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.interr input { display: none; }
+.interr input:checked + .switch { background: var(--acc); }
+.interr input:checked + .switch::after { transform: translateX(16px); }
+.seg { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600; color: var(--text-2); }
+.seg span.btns { display: inline-flex; border: 1px solid var(--border); border-radius: 999px; overflow: hidden; background: var(--surface); }
+.seg button { padding: 5px 11px; font-size: 12px; font-weight: 650; color: var(--text-2); white-space: nowrap; }
+.seg button[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+
+/* Fenêtre */
+.fen { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); box-shadow: 0 10px 30px rgba(20,26,36,.08); overflow: hidden; }
+.fen-h { display: flex; align-items: center; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); }
+.fen-h .pastille { width: 38px; height: 38px; border-radius: 11px; background: var(--acc-soft); color: var(--acc-on); display: grid; place-items: center; }
+.fen-h .pastille .ico { width: 20px; height: 20px; }
+.fen-h b { display: block; font-size: 15px; }
+.fen-h small { color: var(--text-3); font-size: 12.5px; }
+.fen-corps { display: grid; grid-template-columns: minmax(0, 1fr) 300px; min-height: 560px; }
+@media (max-width: 900px) { .fen-corps { grid-template-columns: 1fr; } }
+.fen-c { padding: 12px 16px 6px; max-height: 660px; overflow: auto; }
+.fen-b { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-top: 1px solid var(--border); background: var(--surface-soft); }
+.fen-b .total { flex: 1; font-weight: 650; color: var(--text-2); font-size: 13.5px; }
+.bouton { padding: 9px 18px; border-radius: 10px; background: var(--acc); color: #fff; font-weight: 700; display: inline-flex; gap: 8px; align-items: center; }
+.bouton.off { background: var(--surface-3); color: var(--text-3); cursor: default; }
+
+/* Résumé des états */
+.etats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.etat { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-soft); text-align: left; }
+.etat b { font-size: 20px; line-height: 1; font-variant-numeric: tabular-nums; }
+.etat span { font-size: 12px; color: var(--text-2); font-weight: 600; }
+.etat .rond { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex-shrink: 0; }
+.etat.maj .rond { background: var(--acc-soft); color: var(--acc-on); }
+.etat.abs .rond { background: var(--surface-2); color: var(--text-2); }
+.etat.ins .rond { background: var(--ok-s); color: var(--ok); }
+.recherche { position: sticky; top: -12px; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 0 -16px 10px; padding: 8px 16px; background: var(--surface); }
+.recherche .champ { flex: 1 1 260px; display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--border-2); background: var(--surface); color: var(--text-3); }
+.recherche input { flex: 1; min-width: 0; border: 0; outline: 0; background: none; font: inherit; color: var(--text); }
+.recherche .n { font-size: 12.5px; color: var(--text-3); font-weight: 600; white-space: nowrap; }
+.options-vue { display: inline-flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; border-radius: 12px; padding: 2px; }
+
+/* Analyse — classes de Sindry */
+.an-bloc { border: 1px solid var(--border); border-radius: 14px; background: var(--surface-soft); margin-bottom: 12px; overflow: hidden; }
+.an-bloc-h { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 10px; padding: 10px 12px 8px; font-size: 12.5px; font-weight: 700; color: var(--text-2); }
+.an-bh-t { flex: 1 1 180px; min-width: 0; display: inline-flex; gap: 8px; align-items: center; }
+.an-lien { padding: 0; color: var(--acc-on); font-weight: 700; font-size: 12px; white-space: nowrap; }
+.an-total { font-weight: 600; color: var(--text-3); white-space: nowrap; }
+.an-ligne { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-top: 1px solid var(--border); cursor: pointer; }
+.an-ligne.decoche .an-t b { color: var(--text-2); }
+.an-ligne.noeud .an-t b { font-weight: 700; }
+.an-ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex-shrink: 0; background: var(--surface-2); color: var(--text-2); }
+.an-ico .vraie { width: 20px; height: 20px; border-radius: 5px; display: grid; place-items: center; font-size: 11px; font-weight: 800; color: #fff; }
+.an-ico.role { color: var(--acc-on); background: var(--acc-soft); }
+.an-ico.cat { color: var(--text); background: var(--surface-3); }
+.an-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.an-t b { font-size: 13.5px; font-weight: 650; }
+.an-t mark { background: color-mix(in srgb, var(--acc) 28%, transparent); color: inherit; border-radius: 3px; padding: 0 1px; }
+.an-badges { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+.an-pub { font-size: 11.5px; color: var(--text-3); }
+.an-v { text-align: right; font-size: 12px; font-weight: 600; color: var(--text-3); min-width: 64px; white-space: nowrap; }
+.an-enfants { margin-left: 26px; border-left: 2px solid var(--border); }
+.an-enfants .an-ligne { border-top: 1px dashed var(--border); }
+.an-plier { padding: 0; color: var(--text-3); display: grid; place-items: center; width: 22px; height: 22px; }
+.an-plier .ico { transition: transform .2s; }
+.an-plier.plie .ico { transform: rotate(-90deg); }
+.badge { display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 6px; border: 1px solid transparent; font-size: 11px; font-weight: 650; line-height: 1.5; }
+.badge.neutre { color: var(--text-2); background: var(--surface-2); border-color: var(--border-2); }
+.badge.acc { color: var(--acc-on); background: color-mix(in srgb, var(--acc) 12%, transparent); border-color: color-mix(in srgb, var(--acc) 34%, transparent); }
+.an-note { display: flex; gap: 8px; align-items: flex-start; margin: 4px 12px 10px; padding: 8px 10px; border-radius: 10px; font-size: 12.5px; background: var(--surface-2); color: var(--text-2); }
+.an-note.warn { background: var(--warn-s); color: var(--warn); }
+.an-note .ico { margin-top: 2px; }
+.an-vide { padding: 14px 12px; color: var(--text-3); font-size: 13px; }
+input[type="checkbox"] { accent-color: var(--acc); width: 16px; height: 16px; margin: 0; flex-shrink: 0; }
+
+/* Panneau « Ce qui sera fait » */
+.panneau { border-left: 1px solid var(--border); background: var(--surface-soft); padding: 14px 14px 10px; display: flex; flex-direction: column; gap: 10px; max-height: 660px; overflow: auto; }
+@media (max-width: 900px) { .panneau { border-left: 0; border-top: 1px solid var(--border); } }
+.panneau h2 { font-size: 13.5px; margin: 0; display: flex; gap: 8px; align-items: center; }
+.pgroupe h3 { margin: 4px 0 4px; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-3); display: flex; gap: 6px; align-items: center; }
+.pgroupe h3 .c { margin-left: auto; font-variant-numeric: tabular-nums; }
+.pl { display: flex; align-items: center; gap: 8px; padding: 5px 6px; border-radius: 8px; font-size: 12.5px; }
+.pl:hover { background: var(--surface-2); }
+.pl .an-ico { width: 22px; height: 22px; border-radius: 6px; }
+.pl .an-ico .vraie { width: 15px; height: 15px; font-size: 9px; }
+.pl .an-ico .ico { width: 12px; height: 12px; }
+.pl span.n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl .x { color: var(--text-3); width: 20px; height: 20px; display: grid; place-items: center; border-radius: 6px; }
+.pl .x:hover { background: var(--surface-3); color: var(--text); }
+.pvide { font-size: 12.5px; color: var(--text-3); }
+.plicence { margin-top: auto; font-size: 11.5px; color: var(--text-3); border-top: 1px solid var(--border); padding-top: 8px; }
+
+/* Évolutions de Sindry, repérées */
+.voir-evo .evo { outline: 2px dashed var(--evo); outline-offset: 2px; border-radius: 12px; position: relative; }
+.tag-evo { display: none; font-size: 10.5px; font-weight: 750; color: #fff; background: var(--evo); padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+.voir-evo .tag-evo { display: inline-block; }
+.legende { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12.5px; color: var(--text-2); margin-top: 12px; align-items: center; }
+.legende span { display: inline-flex; gap: 6px; align-items: center; }
+</style>
+</head>
+<body class="voir-evo">
+<div class="page">
+  <h1>Installer des applications — tri, icônes, tout replié</h1>
+  <p class="sous">M31 revue : <b>tout est replié</b> au départ et <b>trié par ordre alphabétique</b>. Chaque rayon et sous-catégorie a son icône. Une appli installée montre son <b>icône officielle</b>, une absente l'icône de sa sous-catégorie (Spotify : musique). On peut afficher <b>par catégories ou en liste A → Z</b>, et trier par nom ou éditeur. Violet = évolution de Sindry. Données fictives.</p>
+
+  <div class="barre">
+    <label class="interr"><input type="checkbox" id="rapide"><span class="switch"></span>Analyse rapide (QuickList)</label>
+    <span class="seg">Icônes de secours <span class="btns" id="icones"><button data-ic="paquet">Sindry aujourd'hui</button><button data-ic="role" aria-pressed="true">Avec E4</button></span></span>
+    <label class="interr"><input type="checkbox" id="evo" checked><span class="switch"></span>Repérer les évolutions</label>
+  </div>
+
+  <div class="fen">
+    <div class="fen-h">
+      <span class="pastille"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></span>
+      <div><b>Installer des applications</b><small id="etat"></small></div>
+    </div>
+    <div class="fen-corps">
+      <div class="fen-c" id="ecran"></div>
+      <aside class="panneau evo" id="panneau"></aside>
+    </div>
+    <div class="fen-b"><span class="total" id="total"></span><button class="bouton" id="go"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>Lancer</button></div>
+  </div>
+
+  <div class="legende">
+    <span><span class="badge acc">3.0.20 → 3.0.21</span> mise à jour</span>
+    <span><span class="badge neutre">24.08</span> version installée</span>
+    <span><span class="an-ico"><span class="vraie" style="background:#FD7D26">V</span></span> icône officielle (installée)</span>
+    <span><span class="an-ico role"><svg class="ico i14" viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span> icône de secours (absente)</span>
+    <span><span class="tag-evo" style="display:inline-block">E1</span> arbre, replié · <span class="tag-evo" style="display:inline-block">E2</span> recherche · <span class="tag-evo" style="display:inline-block">E3</span> panneau · <span class="tag-evo" style="display:inline-block">E4</span> icônes · <span class="tag-evo" style="display:inline-block">E5</span> affichage et tri</span>
+  </div>
+</div>
+
+<div data-maquette-badge style="position:fixed;left:10px;bottom:10px;z-index:2147483647;pointer-events:none;font:650 12px/1.2 'Segoe UI',system-ui,sans-serif;color:#fff;background:rgba(18,12,26,.9);border:1px solid rgba(255,255,255,.22);padding:6px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.35)">M32 · 18/10/2026 16:26 · Installer : tri et icônes</div>
+
+<script>
+const P = (d) => `<svg class="ico i14" viewBox="0 0 24 24">${d}</svg>`;
+const L = {
+  paquet: '<path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 7.703 4.734a2 2 0 0 0 1.994 0L20.7 7"/><path d="m7.5 4.27 9 5.15"/>',
+  dossier: '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>', x: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  warn: '<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+  cherche: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  maj: '<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/>',
+  ajout: '<circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/>',
+  reinst: '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  liste: '<path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/>',
+  globe: '<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+  shield: '<path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>',
+  play: '<polygon points="6 3 20 12 6 21 6 3"/>',
+  film: '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M7 3v18"/><path d="M3 7.5h4"/><path d="M3 12h18"/><path d="M3 16.5h4"/><path d="M17 3v18"/><path d="M17 7.5h4"/><path d="M17 16.5h4"/>',
+  music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
+  mic: '<path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/>',
+  image: '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
+  mallette: '<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
+  doc: '<path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M16 13H8"/><path d="M16 17H8"/>',
+  crayon: '<path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>',
+  mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+  archive: '<rect width="20" height="5" x="2" y="3" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>',
+  disque: '<line x1="22" x2="2" y1="12" y2="12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" x2="6.01" y1="16" y2="16"/>',
+  cle: '<path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z"/><circle cx="16.5" cy="7.5" r=".5"/>',
+  usb: '<circle cx="10" cy="7" r="1"/><circle cx="4" cy="20" r="1"/><path d="M4.7 19.3 19 5"/><path d="m21 3-3 1 2 2Z"/><path d="M9.26 7.68 5 12l2 5"/><path d="m10 14 5 2 3.5-3.5"/>',
+  grille: '<rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>',
+  bulle: '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+  video: '<path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/>',
+  manette: '<line x1="6" x2="10" y1="11" y2="11"/><line x1="8" x2="8" y1="9" y2="13"/><line x1="15" x2="15.01" y1="12" y2="12"/><line x1="18" x2="18.01" y1="10" y2="10"/><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258A4 4 0 0 0 17.32 5z"/>',
+  puce: '<rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/>',
+  tasse: '<path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/>',
+  distance: '<path d="M18 8V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h8"/><path d="M10 19v-3.96"/><path d="M7 19h5"/><rect width="6" height="10" x="16" y="12" rx="2"/>',
+  pouls: '<path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/>',
+  cle_molette: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+  code: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>',
+  terminal: '<polyline points="4 17 10 11 4 5"/><line x1="12" x2="20" y1="19" y2="19"/>',
+  bracket: '<path d="M8 3H7a2 2 0 0 0-2 2v5a2 2 0 0 1-2 2 2 2 0 0 1 2 2v5c0 1.1.9 2 2 2h1"/><path d="M16 21h1a2 2 0 0 0 2-2v-5c0-1.1.9-2 2-2a2 2 0 0 1-2-2V5a2 2 0 0 0-2-2h-1"/>',
+};
+const SERIE = ['#FEC923', '#FD9E21', '#FD7D26', '#FD5632', '#F8304B', '#DC1178', '#89088B', '#4AB2E7', '#332BD9', '#775FD7'];
+
+// Rayon (icône) › sous-catégorie (icône) › applications. s : u = mise à jour, m = absente, i = installée.
+// ic sur une appli : son icône de secours, si elle diffère de celle de sa sous-catégorie.
+const A = (id, n, p, s = 'm', v = '', to = '', ic = '') => ({ id, n, p, s, v, to, ic });
+const S = (id, fr, ic, apps) => ({ id, fr, ic, apps });
+const RAYONS = [
+  { id: 'browsers', fr: 'Navigateurs', ic: 'globe', subs: [
+    S('common', 'Navigateurs courants', 'globe', [A('firefox', 'Firefox', 'Mozilla', 'u', '131.0', '131.0.3'), A('chrome', 'Google Chrome', 'Google', 'i', '130.0.6723.70'), A('vivaldi', 'Vivaldi', 'Vivaldi Technologies')]),
+    S('private', 'Axés vie privée', 'shield', [A('brave', 'Brave', 'Brave Software'), A('librewolf', 'LibreWolf', 'LibreWolf')]) ] },
+  { id: 'media', fr: 'Multimédia', ic: 'play', subs: [
+    S('player', 'Lecteurs vidéo', 'film', [A('vlc', 'VLC media player', 'VideoLAN', 'u', '3.0.20', '3.0.21'), A('mpchc', 'MPC-HC', 'clsid2'), A('klite', 'K-Lite Codec Pack', 'Codec Guide')]),
+    S('music', 'Musique', 'music', [A('spotify', 'Spotify', 'Spotify AB')]),
+    S('editing', 'Montage et enregistrement', 'mic', [A('audacity', 'Audacity', 'Audacity Team'), A('handbrake', 'HandBrake', 'HandBrake Team', 'm', '', '', 'film'), A('obs', 'OBS Studio', 'OBS Project', 'i', '30.2.3')]),
+    S('photo', 'Images et dessin', 'image', [A('gimp', 'GIMP', 'The GIMP Team'), A('paintnet', 'Paint.NET', 'dotPDN')]) ] },
+  { id: 'office', fr: 'Bureautique', ic: 'mallette', subs: [
+    S('suite', 'Suites bureautiques', 'mallette', [A('libreoffice', 'LibreOffice', 'The Document Foundation')]),
+    S('pdf', 'Lecteurs PDF', 'doc', [A('sumatra', 'SumatraPDF', 'Krzysztof Kowalczyk'), A('acrobat', 'Adobe Acrobat Reader', 'Adobe', 'i', '24.003.20180')]),
+    S('text', 'Texte et notes', 'crayon', [A('npp', 'Notepad++', 'Don Ho', 'u', '8.6.9', '8.7'), A('joplin', 'Joplin', 'Joplin')]),
+    S('mail', 'Courriel', 'mail', [A('thunderbird', 'Thunderbird', 'Mozilla')]) ] },
+  { id: 'utils', fr: 'Utilitaires', ic: 'grille', subs: [
+    S('archive', 'Archives', 'archive', [A('7zip', '7-Zip', 'Igor Pavlov', 'i', '24.08')]),
+    S('files', 'Fichiers et disque', 'disque', [A('everything', 'Everything', 'voidtools', 'm', '', '', 'cherche'), A('wiztree', 'WizTree', 'Antibody Software')]),
+    S('passwords', 'Mots de passe', 'cle', [A('keepassxc', 'KeePassXC', 'KeePassXC Team'), A('bitwarden', 'Bitwarden', 'Bitwarden')]),
+    S('usb', 'Clés USB', 'usb', [A('rufus', 'Rufus', 'Pete Batard'), A('ventoy', 'Ventoy', 'Ventoy')]),
+    S('wintools', 'Outils pour Windows', 'grille', [A('powertoys', 'PowerToys', 'Microsoft'), A('greenshot', 'Greenshot', 'Greenshot', 'm', '', '', 'image')]) ] },
+  { id: 'chat', fr: 'Communication', ic: 'bulle', subs: [
+    S('messaging', 'Messageries', 'bulle', [A('discord', 'Discord', 'Discord', 'i', '1.0.9165'), A('signal', 'Signal', 'Signal'), A('telegram', 'Telegram', 'Telegram')]),
+    S('visio', 'Visioconférence', 'video', [A('zoom', 'Zoom', 'Zoom'), A('teams', 'Microsoft Teams', 'Microsoft')]) ] },
+  { id: 'games', fr: 'Jeux', ic: 'manette', subs: [
+    S('stores', 'Boutiques de jeux', 'manette', [A('steam', 'Steam', 'Valve', 'i', '2.10.91.91'), A('epic', 'Epic Games Launcher', 'Epic Games'), A('gog', 'GOG Galaxy', 'GOG'), A('ea', 'EA app', 'Electronic Arts'), A('ubisoft', 'Ubisoft Connect', 'Ubisoft'), A('battlenet', 'Battle.net', 'Blizzard')]) ] },
+  { id: 'runtimes', fr: 'Composants Windows', ic: 'puce', subs: [
+    S('ms', 'Composants Microsoft', 'puce', [A('dotnet8', '.NET Desktop Runtime 8', 'Microsoft', 'u', '8.0.8', '8.0.10'), A('vcx64', 'Visual C++ 2015-2022 (64 bits)', 'Microsoft', 'i', '14.40.33810'), A('vcx86', 'Visual C++ 2015-2022 (32 bits)', 'Microsoft'), A('directx', 'DirectX (anciens jeux)', 'Microsoft', 'm', '', '', 'manette')]),
+    S('java', 'Java', 'tasse', [A('java', 'Java (Temurin JRE 21)', 'Eclipse Adoptium')]) ] },
+  { id: 'rescue', fr: 'Dépannage', ic: 'cle_molette', note: true, subs: [
+    S('remote', 'Accès à distance', 'distance', [A('teamviewer', 'TeamViewer', 'TeamViewer'), A('anydesk', 'AnyDesk', 'AnyDesk Software'), A('rustdesk', 'RustDesk', 'RustDesk')]),
+    S('diag', 'Diagnostic', 'pouls', [A('hwinfo', 'HWiNFO', 'REALiX', 'm', '', '', 'puce'), A('cdi', 'CrystalDiskInfo', 'Crystal Dew World', 'i', '9.4.4'), A('bsv', 'BlueScreenView', 'NirSoft'), A('autoruns', 'Autoruns', 'Microsoft Sysinternals'), A('procexp', 'Process Explorer', 'Microsoft Sysinternals')]),
+    S('clean', 'Sécurité et désinstallation', 'shield', [A('mbam', 'Malwarebytes', 'Malwarebytes'), A('revo', 'Revo Uninstaller', 'VS Revo Group')]) ] },
+  { id: 'dev', fr: 'Développeur', ic: 'code', subs: [
+    S('editors', 'Éditeurs de code', 'code', [A('vscode', 'Visual Studio Code', 'Microsoft', 'i', '1.94.2')]),
+    S('shell', 'Outils en ligne de commande', 'terminal', [A('git', 'Git', 'The Git Development Community', 'u', '2.46.0', '2.47.0'), A('pwsh', 'PowerShell 7', 'Microsoft'), A('wt', 'Windows Terminal', 'Microsoft')]),
+    S('lang', 'Langages', 'bracket', [A('python', 'Python 3.13', 'Python Software Foundation'), A('node', 'Node.js LTS', 'OpenJS Foundation')]) ] },
+];
+RAYONS.forEach((r) => r.subs.forEach((s) => s.apps.forEach((a) => { a.rayon = r; a.sub = s; })));
+const TOUTES = RAYONS.flatMap((r) => r.subs.flatMap((s) => s.apps));
+
+// Le script émet tout dans l'ordre alphabétique (français : É avec E).
+const cmp = (x, y) => x.localeCompare(y, 'fr', { sensitivity: 'base' });
+const parNom = (a, b) => cmp(a.n, b.n);
+const parEditeur = (a, b) => cmp(a.p, b.p) || cmp(a.n, b.n);
+
+const BLOCS = [
+  { k: 'maj', s: 'u', fr: 'Mises à jour disponibles', ic: 'maj', action: 'Mettre à jour' },
+  { k: 'abs', s: 'm', fr: 'Pas encore installées', ic: 'ajout', action: 'Installer' },
+  { k: 'ins', s: 'i', fr: 'Déjà installées — réinstaller si besoin', ic: 'reinst', action: 'Réinstaller' },
+];
+const RAPIDE = { k: 'all', s: '*', fr: 'Toutes les applications', ic: 'liste', action: 'Installer' };
+
+const ETAT = { rapide: false, icone: 'role', vue: 'cat', tri: 'nom', coches: new Set(), ouverts: new Set(), q: '' };
+const etatApp = (a) => (ETAT.rapide ? 'm' : a.s);
+const blocs = () => (ETAT.rapide ? [RAPIDE] : BLOCS);
+const dans = (b, a) => b.s === '*' || etatApp(a) === b.s;
+const triApps = (l) => [...l].sort(ETAT.tri === 'editeur' ? parEditeur : parNom);
+function cocherDefaut() {
+  // PRECHECK_UPDATES = $true : seules les mises à jour arrivent cochées.
+  ETAT.coches = new Set(TOUTES.filter((a) => etatApp(a) === 'u').map((a) => a.id));
+}
+const norm = (x) => x.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const correspond = (a) => !ETAT.q || norm(`${a.n} ${a.p} ${a.sub.fr} ${a.rayon.fr}`).includes(norm(ETAT.q));
+const surligne = (t) => {
+  if (!ETAT.q) return t;
+  const i = norm(t).indexOf(norm(ETAT.q));
+  return i < 0 ? t : `${t.slice(0, i)}<mark>${t.slice(i, i + ETAT.q.length)}</mark>${t.slice(i + ETAT.q.length)}`;
+};
+
+// Installée : l'icône officielle, lue dans son .exe (exe=). Absente : celle de
+// l'appli si elle en déclare une, sinon celle de sa sous-catégorie.
+function icone(a) {
+  if (etatApp(a) !== 'm') return `<span class="an-ico"><span class="vraie" style="background:${SERIE[TOUTES.indexOf(a) % SERIE.length]}">${a.n[0]}</span></span>`;
+  return ETAT.icone === 'role' ? `<span class="an-ico role">${P(L[a.ic || a.sub.ic])}</span>` : `<span class="an-ico">${P(L.paquet)}</span>`;
+}
+const iconeCat = (ic) => (ETAT.icone === 'role' ? `<span class="an-ico cat">${P(L[ic])}</span>` : `<span class="an-ico">${P(L.dossier)}</span>`);
+function ligneApp(a, chemin = false) {
+  const c = ETAT.coches.has(a.id), s = etatApp(a);
+  const b = s === 'u' ? `<span class="badge acc">${a.v} → ${a.to}</span>` : s === 'i' ? `<span class="badge neutre">${a.v}</span>` : '';
+  return `<label class="an-ligne${c ? '' : ' decoche'}"><input type="checkbox" data-app="${a.id}"${c ? ' checked' : ''}>${icone(a)}
+    <span class="an-t"><b>${surligne(a.n)}</b><span class="an-badges">${b}<span class="an-pub">${a.p}</span>${chemin ? `<span class="an-pub">· ${a.rayon.fr} › ${a.sub.fr}</span>` : ''}</span></span></label>`;
+}
+// Un nœud (rayon ou sous-catégorie) : replié d'office, son état vient de TOUTES ses feuilles (E1).
+const NOEUDS = {};
+function noeud(cle, titre, ic, apps, enfantsHtml) {
+  NOEUDS[cle] = apps;
+  const n = apps.filter((a) => ETAT.coches.has(a.id)).length;
+  const ouvert = !!ETAT.q || ETAT.ouverts.has(cle);
+  return `<label class="an-ligne noeud${n ? '' : ' decoche'}"><input type="checkbox" data-noeud="${cle}"${n === apps.length ? ' checked' : ''}${n && n < apps.length ? ' data-partiel="1"' : ''}>
+    ${iconeCat(ic)}<span class="an-t"><b>${surligne(titre)}</b></span>
+    <span class="an-v">${n} sur ${apps.length}</span>
+    <button class="an-plier${ouvert ? '' : ' plie'}" data-plier="${cle}">${P(L.chevron)}</button></label>
+    ${ouvert ? `<div class="an-enfants">${enfantsHtml}</div>` : ''}`;
+}
+function bloc(b) {
+  const apps = TOUTES.filter((a) => dans(b, a));
+  NOEUDS[b.k] = apps;
+  const n = apps.filter((a) => ETAT.coches.has(a.id)).length;
+  let html = '';
+  if (ETAT.vue === 'az') {
+    html = triApps(apps.filter(correspond)).map((a) => ligneApp(a, true)).join('');
+  } else {
+    for (const r of [...RAYONS].sort((x, y) => cmp(x.fr, y.fr))) {
+      const subs = [...r.subs].sort((x, y) => cmp(x.fr, y.fr))
+        .map((s) => ({ s, apps: triApps(s.apps.filter((a) => dans(b, a) && correspond(a))) })).filter((x) => x.apps.length);
+      if (!subs.length) continue;
+      const sousHtml = subs.map(({ s, apps: as }) => noeud(`${b.k}.${r.id}.${s.id}`, s.fr, s.ic, as, as.map((a) => ligneApp(a)).join(''))).join('');
+      html += noeud(`${b.k}.${r.id}`, r.fr, r.ic, subs.flatMap((x) => x.apps), sousHtml + (r.note && b.s !== 'i' ? NOTE_DISTANCE : ''));
+    }
+  }
+  return `<div class="an-bloc" id="bloc-${b.k}"><div class="an-bloc-h"><span class="an-bh-t">${P(L[b.ic])}${b.fr}</span>
+    <button class="an-lien" data-tout="${b.k}">Tout cocher</button><button class="an-lien" data-rien="${b.k}">Tout décocher</button>
+    <span class="an-total">${n} sur ${apps.length}</span></div>${html || '<div class="an-vide">Aucune application ne correspond.</div>'}</div>`;
+}
+const NOTE_DISTANCE = `<div class="an-note warn">${P(L.warn)}<span>Un outil d'accès à distance permet à quelqu'un de prendre la main sur ce PC. Ne l'installez que si vous en avez besoin, et ne donnez jamais l'accès à quelqu'un qui vous a appelé.</span></div>`;
+
+function resume() {
+  if (ETAT.rapide) return `<div class="an-note warn" style="margin:0 0 10px">${P(L.warn)}<span>Analyse rapide : Sindry n'a pas regardé ce qui est déjà installé. Tout est proposé.</span></div>`;
+  return `<div class="etats">${BLOCS.map((b) => {
+    const n = TOUTES.filter((a) => a.s === b.s).length;
+    return `<button class="etat ${b.k}" data-aller="${b.k}"><span class="rond">${P(L[b.ic])}</span><span><b>${n}</b><br><span>${b.fr.split(' —')[0]}</span></span></button>`;
+  }).join('')}</div>`;
+}
+function outils(nRes) {
+  const seg = (lib, cle, choix) => `<span class="seg">${lib} <span class="btns">${choix.map(([v, t]) => `<button data-${cle}="${v}" aria-pressed="${ETAT[cle] === v}">${t}</button>`).join('')}</span></span>`;
+  return `<div class="recherche"><div class="champ evo">${P(L.cherche)}<input type="search" placeholder="Chercher une application, un éditeur, une catégorie…" value="${ETAT.q}" data-cherche><span class="tag-evo">E2</span></div>
+    ${nRes !== null ? `<span class="n">${nRes} résultat${nRes > 1 ? 's' : ''}</span>` : ''}
+    <span class="options-vue evo">${seg('Afficher', 'vue', [['cat', 'Par catégories'], ['az', 'Liste A → Z']])}${seg('Trier par', 'tri', [['nom', 'Nom'], ['editeur', 'Éditeur']])}<span class="tag-evo">E5</span></span></div>`;
+}
+function panneau() {
+  const groupes = blocs().map((b) => ({ b, apps: triApps(TOUTES.filter((a) => dans(b, a) && ETAT.coches.has(a.id))) }));
+  const total = groupes.reduce((n, g) => n + g.apps.length, 0);
+  const corps = total ? groupes.filter((g) => g.apps.length).map((g) => `<div class="pgroupe"><h3>${P(L[g.b.ic])}${g.b.action}<span class="c">${g.apps.length}</span></h3>
+    ${g.apps.map((a) => `<div class="pl">${icone(a)}<span class="n">${a.n}</span><button class="x" data-retirer="${a.id}" title="Retirer">${P(L.x)}</button></div>`).join('')}</div>`).join('')
+    : '<div class="pvide">Rien de coché pour l\'instant.</div>';
+  return `<h2>${P(L.liste)}Ce qui sera fait <span class="tag-evo">E3</span></h2>${corps}
+    <div class="plicence">En lançant, vous acceptez les conditions de licence des éditeurs de ces applications.</div>`;
+}
+function rendre() {
+  document.body.classList.toggle('voir-evo', document.getElementById('evo').checked);
+  const ecran = document.getElementById('ecran');
+  const haut = ecran.scrollTop;
+  const nRes = ETAT.q ? TOUTES.filter(correspond).length : null;
+  ecran.innerHTML = resume() + outils(nRes)
+    + `<div class="evo" style="border-radius:14px">${blocs().map(bloc).join('')}<span class="tag-evo" style="position:absolute;top:-9px;right:10px">E1</span></div>`;
+  ecran.scrollTop = haut;
+  ecran.querySelectorAll('[data-partiel]').forEach((x) => { x.indeterminate = true; });
+  document.getElementById('panneau').innerHTML = panneau();
+  const n = ETAT.coches.size;
+  document.getElementById('total').textContent = n ? `${n} application${n > 1 ? 's' : ''} cochée${n > 1 ? 's' : ''}` : 'Rien de coché';
+  document.getElementById('go').className = n ? 'bouton' : 'bouton off';
+  const c = (s) => TOUTES.filter((a) => a.s === s).length;
+  document.getElementById('etat').textContent = ETAT.rapide ? `Analyse rapide · ${TOUTES.length} applications · 9 rayons proposés`
+    : `Analyse terminée · ${TOUTES.length} applications · ${c('u')} mises à jour · ${c('m')} absentes · ${c('i')} à jour · 9 rayons proposés`;
+  document.querySelectorAll('#icones button').forEach((x) => x.setAttribute('aria-pressed', x.dataset.ic === ETAT.icone));
+}
+document.addEventListener('click', (ev) => {
+  const t = ev.target.closest('[data-plier],[data-tout],[data-rien],[data-retirer],[data-ic],[data-aller],[data-vue],[data-tri]');
+  if (!t) return;
+  const d = t.dataset;
+  if (d.plier) { ev.preventDefault(); ETAT.ouverts.has(d.plier) ? ETAT.ouverts.delete(d.plier) : ETAT.ouverts.add(d.plier); }
+  if (d.tout) NOEUDS[d.tout].forEach((a) => ETAT.coches.add(a.id));
+  if (d.rien) NOEUDS[d.rien].forEach((a) => ETAT.coches.delete(a.id));
+  if (d.retirer) ETAT.coches.delete(d.retirer);
+  if (d.ic) ETAT.icone = d.ic;
+  if (d.vue) ETAT.vue = d.vue;
+  if (d.tri) ETAT.tri = d.tri;
+  if (d.aller) { document.getElementById(`bloc-${d.aller}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  rendre();
+});
+document.addEventListener('change', (ev) => {
+  const t = ev.target;
+  if (t.id === 'rapide') { ETAT.rapide = t.checked; cocherDefaut(); }
+  else if (t.id === 'evo') { /* rendu seulement */ }
+  else if (t.dataset.app) { t.checked ? ETAT.coches.add(t.dataset.app) : ETAT.coches.delete(t.dataset.app); }
+  else if (t.dataset.noeud) { NOEUDS[t.dataset.noeud].forEach((a) => (t.checked ? ETAT.coches.add(a.id) : ETAT.coches.delete(a.id))); }
+  else return;
+  rendre();
+});
+document.addEventListener('input', (ev) => {
+  if (!ev.target.matches('[data-cherche]')) return;
+  ETAT.q = ev.target.value; rendre();
+  const c = document.querySelector('[data-cherche]'); c.focus(); c.setSelectionRange(c.value.length, c.value.length);
+});
+cocherDefaut();
+rendre();
+</script>
+</body>
+</html>

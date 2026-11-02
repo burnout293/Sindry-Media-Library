@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M47 · Roue libre : la transition d'entrée</title>
+<!--
+  Mockup M47: how Sindry turns into its hidden game after ten quick clicks on
+  the icon. A mock Sindry window, five transitions to compare, each replayable,
+  slowed down, and played backwards on Escape (the way back to the app). Every
+  transition is a pure function of its clock, so the way back is the same
+  drawing, rewound. The end frame is the first frame of the game in M45. Code in
+  English, visible text in French.
+-->
+<style>
+@font-face { font-family: 'Inter'; font-weight: 100 900; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Sindry Mono'; font-weight: 400; src: url('_ressources/sindry-mono-400.woff2') format('woff2'); }
+:root {
+  --bg: #F6F4EF; --surface: #FFFFFF; --border: #DCD7CC; --text: #141A24; --text-2: #5C6778; --acc: #E2640F;
+  --ui: 'Inter', 'Segoe UI', system-ui, sans-serif; --mono: 'Sindry Mono', Consolas, monospace;
+  color-scheme: light;
+}
+:root.mono { --ui: var(--mono); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.5 var(--ui); }
+button { font: inherit; color: inherit; }
+
+.top { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); }
+.brand { display: flex; gap: 10px; align-items: center; user-select: none; }
+.brand img { width: 32px; height: 32px; cursor: pointer; }
+.brand h1 { margin: 0; font-size: 15px; }
+.brand p { margin: 0; color: var(--text-2); font-size: 12px; }
+.ctl { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.grp { display: flex; align-items: center; gap: 7px; }
+.grp > span { font-size: 10.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: .07em; }
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 5px 10px; font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button:hover { color: var(--text); }
+.seg button.on { background: var(--acc); color: var(--bg); }
+
+main { max-width: 1040px; margin: 0 auto; padding: 20px 16px 90px; display: grid; gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+.sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 12px; }
+.sec-h h2 { margin: 0; font-size: 15px; }
+.sec-h p { margin: 0; flex-basis: 100%; color: var(--text-2); font-size: 12px; }
+.tag { font: 700 11px var(--mono); color: var(--acc); border: 1px solid var(--border); border-radius: 6px; padding: 0 6px; }
+
+/* The five versions. */
+.versions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.versions button { display: flex; align-items: baseline; gap: 7px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--text-2); }
+.versions button kbd { font: 700 11px var(--mono); color: var(--acc); }
+.versions button.on { border-color: var(--acc); color: var(--text); box-shadow: 0 0 0 1px var(--acc) inset; }
+.desc { min-height: 38px; margin: 0 0 12px; color: var(--text-2); font-size: 12.5px; }
+.desc b { color: var(--text); }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-top: 12px; color: var(--text-2); font-size: 12px; }
+.bar .btns { display: flex; gap: 8px; }
+.btn { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn.acc { background: var(--acc); color: var(--bg); border-color: transparent; }
+.btn:disabled { opacity: .4; cursor: default; }
+kbd.k { font: 600 10.5px var(--mono); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--text); }
+
+/* The mock Sindry window, drawn at 960 x 526 and scaled to fit. */
+.stage { position: relative; width: 100%; max-width: 960px; margin: 0 auto; aspect-ratio: 960 / 526; }
+.win { position: absolute; left: 0; top: 0; width: 960px; height: 526px; transform-origin: 0 0; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg); box-shadow: 0 8px 30px rgba(0, 0, 0, .12); }
+.tb { position: absolute; left: 0; right: 0; top: 0; height: 46px; display: flex; align-items: center; gap: 10px; padding: 0 12px;
+  background: var(--surface); border-bottom: 1px solid var(--border); user-select: none; }
+.tb img { width: 30px; height: 30px; cursor: pointer; }
+.tb b { font-size: 15.5px; font-weight: 800; letter-spacing: -.4px; }
+.tb span { font: 10px var(--mono); color: var(--text-2); }
+.tb .wc { margin-left: auto; display: flex; gap: 18px; color: var(--text-2); font-size: 12px; }
+.ui { position: absolute; left: 0; right: 0; top: 46px; bottom: 0; display: grid; grid-template-columns: 190px 1fr; }
+.side { border-right: 1px solid var(--border); padding: 14px 10px; display: flex; flex-direction: column; gap: 4px; background: var(--surface); }
+.nav { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--text-2); font-weight: 600; font-size: 12.5px; }
+.nav i { width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid currentColor; }
+.nav.on { background: color-mix(in srgb, var(--acc) 14%, transparent); color: var(--text); }
+.nav.on i { border-color: var(--acc); }
+.main { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.mh { display: flex; align-items: baseline; gap: 12px; }
+.mh b { font-size: 18px; font-weight: 800; letter-spacing: -.3px; }
+.mh span { color: var(--text-2); font-size: 12px; }
+.search { height: 34px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-2); padding: 0 12px; display: flex; align-items: center; font-size: 12.5px; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.cardx { height: 132px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+.cardx i { width: 26px; height: 26px; border-radius: 7px; background: color-mix(in srgb, var(--acc) 18%, transparent); margin-bottom: 4px; }
+.cardx b { font-size: 12.5px; }
+.cardx span { color: var(--text-2); font-size: 11.5px; line-height: 1.35; }
+.cardx em { margin-top: auto; align-self: flex-start; font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--acc); }
+#fx { position: absolute; left: 0; top: 0; width: 960px; height: 526px; pointer-events: none; }
+
+/* The game's welcome screen, as in M45. */
+.gov { position: absolute; left: 0; right: 0; top: 46px; bottom: 0; display: flex; align-items: center; justify-content: center;
+  color: var(--text); font: 12px/1.4 var(--mono); opacity: 0; pointer-events: none; }
+.gov.live { pointer-events: auto; }
+.gov-card { background: var(--surface); border: 1.5px solid var(--text); border-radius: 6px; padding: 14px 28px; text-align: center; margin-top: -40px; }
+.gov-title { font-size: 20px; font-weight: 700; letter-spacing: .3em; margin-bottom: 4px; }
+.gov p { margin: 3px 0; }
+.gov .dim { opacity: .62; }
+.gov button { margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; font: 600 12px var(--mono);
+  color: var(--surface); background: var(--text); border: 1.5px solid var(--text); border-radius: 4px; cursor: pointer; }
+.gov kbd { font: 600 10px var(--mono); border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; opacity: .8; }
+
+table.t { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.t th { text-align: left; font-size: 10.5px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; padding: 0 10px 6px 0; border-bottom: 1px solid var(--border); }
+table.t td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.t tr:last-child td { border-bottom: 0; }
+table.t td:first-child { font-weight: 600; white-space: nowrap; }
+table.t td.num { white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.toast { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; z-index: 10;
+  background: var(--text); color: var(--bg); padding: 8px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600; transition: .25s; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+<div data-maquette-badge style="position:fixed;left:10px;bottom:10px;z-index:2147483647;pointer-events:none;font:650 12px/1.2 'Segoe UI',system-ui,sans-serif;color:#fff;background:rgba(18,12,26,.9);border:1px solid rgba(255,255,255,.22);padding:6px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.35)">M47 · 01/11/2026 21:01 · Roue libre : la transition d'entrée</div>
+
+<header class="top">
+  <div class="brand">
+    <img id="logo" src="_ressources/marque.png" alt="Sindry" title="Sindry" draggable="false">
+    <div>
+      <h1>Roue libre : la transition d'entrée</h1>
+      <p>Dix clics rapides sur l'icône, et Sindry devient le jeu. Cinq façons d'y passer.</p>
+    </div>
+  </div>
+  <div class="ctl">
+    <div class="grp"><span>Vitesse</span><div class="seg">
+      <button data-set="speed" data-val="1">Normale</button><button data-set="speed" data-val="0.25">Ralenti ×¼</button>
+    </div></div>
+    <div class="grp"><span>Ambiance</span><div class="seg">
+      <button data-set="amb" data-val="plan-clair">Plan clair</button><button data-set="amb" data-val="plan-sombre">Plan sombre</button><button data-set="amb" data-val="foret">Forêt</button><button data-set="amb" data-val="ardente">Braise</button><button data-set="amb" data-val="synthwave">Synthwave</button><button data-set="amb" data-val="terminal">Terminal</button>
+    </div></div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="sec-h"><span class="tag">A</span><h2>Les transitions</h2>
+      <p>Choisis une version, puis clique 10 fois vite sur l'icône de la fenêtre (ou « Rejouer »). Échap ramène à l'appli : la même transition, à l'envers.</p></div>
+    <div class="versions" id="versions"></div>
+    <p class="desc" id="desc"></p>
+    <div class="stage" id="stage">
+      <div class="win" id="win">
+        <div class="tb"><img id="icon" src="_ressources/marque.png" alt="" draggable="false"><b>Sindry</b><span>2.5.0</span><span class="wc">— ▢ ✕</span></div>
+        <div class="ui" id="ui">
+          <aside class="side">
+            <div class="nav r on"><i></i>Catalogue</div>
+            <div class="nav r"><i></i>Installés</div>
+            <div class="nav r"><i></i>Analyse</div>
+            <div class="nav r"><i></i>Journaux</div>
+            <div class="nav r"><i></i>Réglages</div>
+          </aside>
+          <section class="main">
+            <div class="mh"><b class="r">Catalogue</b><span class="r">42 scripts · à jour</span></div>
+            <div class="search r">Rechercher un script…</div>
+            <div class="cards">
+              <div class="cardx r"><i></i><b>Restes de Webroot</b><span>Retire ce que la désinstallation laisse derrière elle.</span><em>Lancer</em></div>
+              <div class="cardx r"><i></i><b>Installeur d'applis</b><span>Tes logiciels habituels, en une fois.</span><em>Lancer</em></div>
+              <div class="cardx r"><i></i><b>Clé SindryOS</b><span>Prépare une clé USB démarrable.</span><em>Lancer</em></div>
+              <div class="cardx r"><i></i><b>Diagnostic réseau</b><span>Trouve où la connexion coince.</span><em>Lancer</em></div>
+              <div class="cardx r"><i></i><b>Mises à jour Windows</b><span>Vérifie et installe ce qui manque.</span><em>Lancer</em></div>
+              <div class="cardx r"><i></i><b>Point de restauration</b><span>Une sauvegarde avant de toucher au système.</span><em>Lancer</em></div>
+            </div>
+          </section>
+        </div>
+        <canvas id="fx"></canvas>
+        <div class="gov" id="gov"><div class="gov-card">
+          <div class="gov-title">ROUE LIBRE</div>
+          <p>Espace, clic ou ↑ pour rouler — maintenir pour sauter plus haut</p>
+          <p class="dim">Course 1 · total 0</p>
+          <button id="roll">Rouler <kbd>Espace</kbd></button>
+        </div></div>
+      </div>
+    </div>
+    <div class="bar">
+      <span>Ou clique vite sur l'icône <b>dans la fenêtre</b> · <kbd class="k">1</kbd>–<kbd class="k">5</kbd> change de version</span>
+      <span class="btns"><button class="btn acc" id="replay">Rejouer</button><button class="btn" id="quit" disabled>Retour à l'appli <kbd class="k">Échap</kbd></button></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><span class="tag">B</span><h2>Comparer</h2><p>Durées en vitesse normale. Toutes finissent sur la première image du jeu de M45.</p></div>
+    <table class="t" id="compare">
+      <tr><th>Version</th><th>Durée</th><th>À l'entrée</th><th>Au retour (Échap)</th></tr>
+    </table>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><span class="tag">C</span><h2>À trancher</h2><p>Ce que la maquette a choisi en attendant ton avis.</p></div>
+    <table class="t">
+      <tr><th>Point</th><th>Dans la maquette</th></tr>
+      <tr><td>La version</td><td>Une seule dans Sindry. Plusieurs peuvent aussi se combiner, par exemple la flamme de l'Embrasement suivie de la Chute.</td></tr>
+      <tr><td>Le jeu dans la fenêtre</td><td>Il prend toute la place sous la barre de titre ; la barre reste, pour fermer ou réduire Sindry.</td></tr>
+      <tr><td>L'icône pendant le jeu</td><td>Quand l'engrenage en est parti (Chute, Roue libérée, Repli), il ne reste que la flamme ; il revient à sa place au retour.</td></tr>
+      <tr><td>Le retour</td><td>Échap, ou un bouton dans le jeu : la transition rejouée à l'envers.</td></tr>
+    </table>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+(() => {
+const $ = (s) => document.querySelector(s);
+const TAU = Math.PI * 2;
+const WW = 960, WH = 526, TB = 46;               // the window, its title bar
+const GW = 466, X0 = 160, GAME_DY = GW - 252;    // the game's ground in the window; M45's world shifted down
+// The gear of Sindry's icon, as in M45.
+const RC = 27.5, TEETH = 8, ROOT = 0.82, RING = 0.57, HUB = 0.34, TIP_HALF = 0.148, ROOT_HALF = 0.279;
+const ICON_GEAR = { x: 0.401, y: 0.687, r: 0.305 };
+const ICON_BOX = { x: 12, y: 8, s: 30 };         // the title bar icon, in window units
+const IG = { x: ICON_BOX.x + ICON_GEAR.x * ICON_BOX.s, y: ICON_BOX.y + ICON_GEAR.y * ICON_BOX.s, r: ICON_GEAR.r * ICON_BOX.s };
+const GEAR_Y = GW - RC;
+const CLICKS = 10, CLICK_GAP = 600;
+const MONO = "'Sindry Mono', Consolas, monospace";
+const KEY_UI = 'sindry.m47.ui';
+
+const AMBS = {
+  'plan-clair':  { bg: '#F6F4EF', surface: '#FFFFFF', border: '#DCD7CC', text: '#141A24', text2: '#5C6778', acc: '#E2640F' },
+  'plan-sombre': { bg: '#0B0F16', surface: '#0F1520', border: '#2A3445', text: '#E9EEF5', text2: '#8C9AAE', acc: '#FD7D26', dark: true },
+  'foret':       { bg: '#07110C', surface: '#0C1912', border: '#1E3529', text: '#E6F2EA', text2: '#9DB5A5', acc: '#7CE38B', dark: true },
+  'ardente':     { bg: '#0F0A14', surface: '#18111F', border: '#2C2236', text: '#F7F1FA', text2: '#B9A9C6', acc: '#FEC923', dark: true },
+  'synthwave':   { bg: '#120326', surface: '#1C0838', border: '#3A1A66', text: '#FBF0FF', text2: '#CDB6EE', acc: '#FF2BD6', dark: true },
+  'terminal':    { bg: '#020A04', surface: '#06140A', border: '#164A24', text: '#6CFF94', text2: '#4CCF72', acc: '#6CFF94', dark: true, mono: true },
+};
+let INK = '#141A24', BG = '#FFFFFF';
+
+const clamp01 = (u) => Math.max(0, Math.min(1, u));
+const span = (t, a, b) => clamp01((t - a) / (b - a));      // 0 before a, 1 after b
+const lerp = (a, b, u) => a + (b - a) * u;
+const easeIn = (u) => u * u;
+const easeOut = (u) => 1 - (1 - u) * (1 - u);
+const easeInOut = (u) => (u < 0.5 ? 2 * u * u : 1 - (-2 * u + 2) ** 2 / 2);
+const hash = (n) => { n = Math.imul((n | 0) ^ 0x9e3779b9, 0x85ebca6b); n ^= n >>> 13; n = Math.imul(n, 0xc2b2ae35); n ^= n >>> 16; return n >>> 0; };
+
+/* ---------- The icon, and the icon without its gear ---------- */
+const ICON = new Image();
+ICON.src = '_ressources/marque.png';
+let FLAME = null;
+// Lifts the gear out of the icon, with its pale halo: what lay behind it, right
+// of the flame's hidden edge, is filled in from the surrounding flame, ring by
+// ring from the edge inwards, then smoothed; the rest goes clear.
+function makeFlame() {
+  const N = 128, c = document.createElement('canvas');
+  c.width = c.height = N;
+  const x = c.getContext('2d', { willReadFrequently: true });
+  x.drawImage(ICON, 0, 0, N, N);
+  const m = document.createElement('canvas');
+  m.width = m.height = N;
+  const mx = m.getContext('2d', { willReadFrequently: true });
+  const gx = ICON_GEAR.x * N, gy = ICON_GEAR.y * N, gr = ICON_GEAR.r * N;
+  mx.beginPath(); gearContour(mx, gx, gy, gr, 0, null);
+  mx.fill(); mx.lineWidth = 4; mx.stroke();
+  const mask = mx.getImageData(0, 0, N, N).data, img = x.getImageData(0, 0, N, N), d = img.data;
+  // The flame's edge hidden by the gear, from its top left to its bottom.
+  const ax = 0.21 * N, ay = 0.38 * N, bx = 0.46 * N, by = 0.99 * N;
+  const HOLE = 1, FILL = 2, kind = new Uint8Array(N * N), done = new Uint8Array(N * N);
+  const px = new Float32Array(N * N * 4);
+  for (let i = 0; i < N * N; i++) {
+    const X = i % N, Y = (i / N) | 0, rgb = [d[i * 4], d[i * 4 + 1], d[i * 4 + 2]];
+    const halo = d[i * 4 + 3] > 0 && Math.hypot(X - gx, Y - gy) < gr * 1.5 && Math.max(...rgb) - Math.min(...rgb) < 110;
+    if (mask[i * 4 + 3] > 0 || halo) kind[i] = (bx - ax) * (Y - ay) - (by - ay) * (X - ax) < 0 ? FILL : HOLE;
+    const a = d[i * 4 + 3] / 255;
+    for (let k = 0; k < 3; k++) px[i * 4 + k] = kind[i] ? 0 : rgb[k] * a;   // premultiplied
+    px[i * 4 + 3] = kind[i] ? 0 : a;
+    done[i] = kind[i] === FILL ? 0 : 1;
+  }
+  const average = (i) => {
+    const X = i % N, Y = (i / N) | 0;
+    let n = 0; const s = [0, 0, 0, 0];
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      const XX = X + dx, YY = Y + dy;
+      if (XX < 0 || YY < 0 || XX >= N || YY >= N) continue;
+      const j = YY * N + XX;
+      if (kind[j] === HOLE || !done[j]) continue;
+      for (let k = 0; k < 4; k++) s[k] += px[j * 4 + k];
+      n++;
+    }
+    if (n) for (let k = 0; k < 4; k++) px[i * 4 + k] = s[k] / n;
+    return n;
+  };
+  for (let ring = 0; ring < N; ring++) {
+    const layer = [];
+    for (let i = 0; i < N * N; i++) if (kind[i] === FILL && !done[i] && average(i)) layer.push(i);
+    if (!layer.length) break;
+    for (const i of layer) done[i] = 1;
+  }
+  for (let it = 0; it < 40; it++) for (let i = 0; i < N * N; i++) if (kind[i] === FILL) average(i);
+  for (let i = 0; i < N * N; i++) {
+    const a = px[i * 4 + 3];
+    for (let k = 0; k < 3; k++) d[i * 4 + k] = a > 0 ? px[i * 4 + k] / a : 0;
+    d[i * 4 + 3] = Math.round(a * 255);
+  }
+  x.putImageData(img, 0, 0);
+  return c;
+}
+ICON.onload = () => { FLAME = makeFlame(); drawCompare(); };
+
+/* ---------- Drawing (window units, one ink) ---------- */
+function gearContour(x, cx, cy, rt, ang, missing) {
+  const step = TAU / TEETH, rr = rt * ROOT;
+  const at = (rad, a) => [cx + Math.cos(a) * rad, cy + Math.sin(a) * rad];
+  x.moveTo(...at(rr, ang - Math.PI / 2 - ROOT_HALF));
+  for (let i = 0; i < TEETH; i++) {
+    const a = ang - Math.PI / 2 + i * step;
+    x.lineTo(...at(rt, a - TIP_HALF));
+    x.arc(cx, cy, rt, a - TIP_HALF, a + TIP_HALF);
+    x.lineTo(...at(rr, a + ROOT_HALF));
+    x.arc(cx, cy, rr, a + ROOT_HALF, a + step - ROOT_HALF);
+  }
+  x.closePath();
+}
+function gearTrait(x, cx, cy, rt, ang, a = 1) {
+  if (a <= 0) return;
+  x.save(); x.globalAlpha *= a;
+  x.beginPath(); gearContour(x, cx, cy, rt, ang, null);
+  x.fillStyle = BG; x.fill();
+  x.lineWidth = 1.8 * Math.min(1, rt / RC + 0.35); x.stroke();
+  x.beginPath(); x.arc(cx, cy, rt * RING, 0, TAU); x.moveTo(cx + rt * HUB, cy); x.arc(cx, cy, rt * HUB, 0, TAU);
+  x.globalAlpha *= 0.16; x.fillStyle = INK; x.fill('evenodd'); x.globalAlpha /= 0.16;
+  x.lineWidth = 1.3 * Math.min(1, rt / RC + 0.35);
+  x.beginPath(); x.arc(cx, cy, rt * RING, 0, TAU); x.stroke();
+  x.beginPath(); x.arc(cx, cy, rt * HUB, 0, TAU); x.stroke();
+  x.restore();
+}
+// The icon's own gear, in colour, cut out of the image.
+function gearIcon(x, cx, cy, rt, ang, a = 1) {
+  if (a <= 0 || !ICON.naturalWidth) return;
+  const s = rt / ICON_GEAR.r;
+  x.save(); x.globalAlpha *= a;
+  x.translate(cx, cy); x.rotate(ang);
+  x.beginPath(); gearContour(x, 0, 0, rt, 0, null); x.clip();
+  x.drawImage(ICON, -ICON_GEAR.x * s, -ICON_GEAR.y * s, s, s);
+  x.restore();
+}
+// The flying gear turns from the icon's colours to the game's ink.
+function gearMorph(x, cx, cy, rt, ang, m) {
+  gearIcon(x, cx, cy, rt, ang, 1 - m);
+  gearTrait(x, cx, cy, rt, ang, m);
+}
+function flameIcon(x) { if (FLAME) x.drawImage(FLAME, ICON_BOX.x, ICON_BOX.y, ICON_BOX.s, ICON_BOX.s); }
+
+const TONGUES = [[-0.35, 0, 2.4, -0.42, 0.3], [-0.6, 0.38, 1.9, -0.78, 0.26], [0.02, -0.3, 1.9, -0.12, 0.26]];
+function tonguePath(x, h, b) {
+  const r0 = 0.27 * h;
+  x.moveTo(r0, 0);
+  x.bezierCurveTo(r0, -0.45 * h, 0.1 * h - b * h * 0.3, -0.72 * h, -b * h, -h);
+  x.bezierCurveTo(-0.1 * h - b * h * 0.5, -0.66 * h, -r0, -0.42 * h, -r0, 0);
+  x.arc(0, 0, r0, Math.PI, 0, true);
+  x.closePath();
+}
+// Strokes a set of tongues as one flame (the M45 trick: stroke twice as thick,
+// fill over, only the outer half of the line stays), with a brighter core.
+function flameOf(x, addTongues) {
+  x.save();
+  x.beginPath(); addTongues(1);
+  x.lineWidth = 3.6; x.stroke();
+  x.fillStyle = BG; x.fill();
+  x.globalAlpha *= 0.12; x.fillStyle = INK; x.fill(); x.globalAlpha /= 0.12;
+  x.beginPath(); addTongues(0.55);
+  x.lineWidth = 2.6; x.stroke();
+  x.fillStyle = BG; x.fill();
+  x.restore();
+}
+function gearFire(x, cx, cy, t, k) {
+  if (k <= 0) return;
+  flameOf(x, (scale) => TONGUES.forEach(([dx, dy, hh, lean, bend], i) => {
+    const h = hh * RC * scale * (0.5 + 0.5 * k) * (1 + 0.07 * Math.sin(t * 15 + i * 2.3));
+    x.save(); x.translate(cx + dx * RC, cy + dy * RC); x.rotate(lean + 0.08 * Math.sin(t * 11 + i * 1.9));
+    tonguePath(x, h, bend + 0.08 * Math.sin(t * 9 + i * 2.7));
+    x.restore();
+  }));
+}
+function cogContour(x, cx, cy, r, th, n, ang) {
+  const step = TAU / n;
+  for (let i = 0; i < n; i++) {
+    const a = ang + i * step;
+    const pts = [[r, 0], [r, 0.2], [r + th, 0.34], [r + th, 0.66], [r, 0.8]];
+    for (let j = 0; j < pts.length; j++) {
+      const aa = a + pts[j][1] * step, px = cx + Math.cos(aa) * pts[j][0], py = cy + Math.sin(aa) * pts[j][0];
+      if (i === 0 && j === 0) x.moveTo(px, py); else x.lineTo(px, py);
+    }
+  }
+  x.closePath();
+}
+
+/* ---------- The game's first frame (M45), piece by piece ---------- */
+const CAM = X0 - 170;                            // M45's camera at the start
+function body(x, a) {
+  if (a <= 0) return;
+  x.save(); x.globalAlpha *= a; x.fillStyle = BG; x.fillRect(0, TB, WW, WH - TB); x.restore();
+}
+function backdrop(x, a) {
+  if (a <= 0) return;
+  x.save(); x.globalAlpha *= 0.22 * a; x.lineWidth = 1.4;
+  const off = CAM * 0.35;
+  for (let i = -1; i <= 2; i++) {
+    const h = hash(i + 7777), rr = 46 + (h % 46);
+    const gx = i * 540 + ((h >>> 7) % 180) - off, gy = 30 + rr * 0.6 + ((h >>> 13) % 50) + GAME_DY;
+    x.beginPath(); cogContour(x, gx, gy, rr, 8, Math.max(10, Math.round(rr / 4.2)), (off / rr) * (i % 2 ? 0.8 : -0.8)); x.stroke();
+    x.beginPath(); x.arc(gx, gy, rr * 0.42, 0, TAU); x.stroke();
+  }
+  x.restore();
+}
+function ground(x, xa, xb, a = 1) {
+  if (a <= 0 || xb <= xa) return;
+  x.save(); x.globalAlpha *= a;
+  x.lineWidth = 1.6; x.beginPath(); x.moveTo(xa, GW + 0.8); x.lineTo(xb, GW + 0.8); x.stroke();
+  x.lineWidth = 1; x.beginPath();
+  for (let wx = Math.ceil((xa + CAM) / 50) * 50; wx - CAM <= xb; wx += 50) { const sx = wx - CAM; x.moveTo(sx, GW + 2); x.lineTo(sx, GW + (wx % 250 === 0 ? 9 : 5)); }
+  x.stroke();
+  x.restore();
+}
+function hud(x, a) {
+  if (a <= 0) return;
+  x.save(); x.globalAlpha *= a; x.translate(0, TB);
+  x.textBaseline = 'top'; x.textAlign = 'left';
+  x.font = `700 12px ${MONO}`; x.fillText('COURSE 1', 18, 14);
+  x.font = `500 12px ${MONO}`; x.fillText('0 / 1 000 m', 18, 31);
+  for (let i = 0; i < 3; i++) { const tx = 18 + i * 15, ty = 51; x.beginPath(); x.moveTo(tx, ty + 9); x.lineTo(tx + 2.5, ty); x.lineTo(tx + 8.5, ty); x.lineTo(tx + 11, ty + 9); x.closePath(); x.fill(); }
+  const p0 = 300, p1 = WW - 300, py = 21;
+  x.save(); x.globalAlpha *= 0.35; x.fillRect(p0, py, p1 - p0, 1.5); x.restore();
+  x.beginPath(); x.arc(p0, py + 0.75, 5, 0, TAU); x.fill();
+  for (let k = 0; k < 4; k++) if (((k & 1) + (k >> 1)) % 2 === 0) x.fillRect(p1 + 6 + (k & 1) * 4, py - 3.5 + (k >> 1) * 4, 4, 4);
+  x.textAlign = 'right';
+  x.font = `700 17px ${MONO}`; x.fillText('0', WW - 18, 12);
+  x.font = `500 11px ${MONO}`; x.globalAlpha *= 0.7;
+  x.fillText('TOTAL 0', WW - 18, 34); x.fillText('BONUS 0/2 · TURBO 0/2', WW - 18, 50);
+  x.restore();
+}
+function gameFrame(x, gear = true) {
+  body(x, 1); backdrop(x, 1); ground(x, 0, WW); hud(x, 1);
+  if (gear) gearTrait(x, X0, GEAR_Y, RC, 0);
+}
+// A gear landing: two hops, a squash at each contact, a puff of dust.
+const HOPS = [[0.3, 22], [0.18, 7]];
+function hopHeight(s) {
+  let t0 = 0;
+  for (const [d, h] of HOPS) { if (s < t0 + d) { const u = (s - t0) / d; return h * 4 * u * (1 - u); } t0 += d; }
+  return 0;
+}
+function landedGear(x, cx, s, ang) {
+  const squash = s < 0.07 ? 1 - s / 0.07 : (s > 0.3 && s < 0.36 ? 0.5 * (1 - (s - 0.3) / 0.06) : 0);
+  const cy = GEAR_Y - hopHeight(s);
+  x.save(); x.translate(cx, GW); x.scale(1 + 0.1 * squash, 1 - 0.12 * squash); x.translate(-cx, -GW);
+  gearTrait(x, cx, cy, RC, ang);
+  x.restore();
+  if (s < 0.4) {                                 // dust from the first contact
+    const u = s / 0.4;
+    x.save(); x.globalAlpha *= 1 - u;
+    for (let i = 0; i < 6; i++) {
+      const side = i % 2 ? 1 : -1, sp = 30 + (i >> 1) * 22;
+      x.fillRect(cx + side * (14 + sp * u) - 1.3, GW - 4 - 60 * u * (1 - u) * (1 + (i >> 1) * 0.4) - 1.3, 2.6, 2.6);
+    }
+    x.restore();
+  }
+}
+// A falling gear turns FALL_SPIN in the air and 0.4 rad more while it hops:
+// one full turn, so it lands tooth up, exactly as on the game's first frame.
+const FALL_SPIN = TAU - 0.4;
+const hopSpin = (s) => FALL_SPIN + 0.8 * Math.min(s, 0.5);
+function speedLines(x, cx, cy, t, a) {
+  if (a <= 0) return;
+  x.save(); x.globalAlpha *= a; x.lineWidth = 1.3;
+  const k = Math.floor(t * 18);
+  x.beginPath();
+  for (let i = 0; i < 5; i++) {
+    const h = hash(k * 5 + i), yy = cy - 22 + i * 11, len = 30 + (h % 50), xx = cx - RC - 10 - ((h >>> 8) % 30);
+    x.moveTo(xx - len, yy); x.lineTo(xx, yy);
+  }
+  x.stroke(); x.restore();
+}
+
+/* ---------- The mock app, driven by each transition ---------- */
+const ui = $('#ui'), gov = $('#gov'), icon = $('#icon');
+function setUi({ opacity = 1, dy = 0, clipLeft = 0, blur = 0 } = {}) {
+  ui.style.opacity = opacity;
+  ui.style.transform = dy ? `translateY(${dy}px)` : '';
+  ui.style.clipPath = clipLeft > 0 ? `inset(0 0 0 ${clipLeft}px)` : '';
+  ui.style.filter = blur ? `blur(${blur}px)` : '';
+}
+function setOv(a) { gov.style.opacity = a; gov.classList.toggle('live', a > 0.9); }
+function setIcon({ hidden = false, rot = 0, flare = 0 } = {}) {
+  icon.style.visibility = hidden ? 'hidden' : '';
+  icon.style.transform = rot || flare ? `rotate(${rot}deg) scale(${1 + 0.18 * flare})` : '';
+  icon.style.filter = flare ? `brightness(${1 + 0.5 * flare}) drop-shadow(0 0 ${6 * flare}px ${AMBS[uiPrefs.amb].acc})` : '';
+}
+// The app's blocks, as rectangles in window units (for the Fold).
+function uiRects() {
+  const wb = $('#win').getBoundingClientRect(), k = wb.width / WW;
+  return [...ui.querySelectorAll('.r')].map((el) => {
+    const b = el.getBoundingClientRect();
+    return { x: (b.left - wb.left) / k, y: (b.top - wb.top) / k, w: b.width / k, h: b.height / k };
+  });
+}
+let RECTS = [];
+
+/* ---------- The five transitions: draw(x, t) for t in [0, D] ---------- */
+const FIRE = [[-120, 0.5], [-60, 0.78], [0, 1], [55, 0.82], [100, 0.55]];   // the Blaze: [dx from the front, height]
+const VERSIONS = [
+  { name: 'Chute', D: 1.7,
+    desc: '<b>L’engrenage se détache de l’icône</b>, saute, tombe dans la fenêtre et rebondit sur le sol qui se trace sous lui. L’appli s’efface pendant sa chute.',
+    back: 'L’engrenage rebondit, puis remonte d’un saut dans l’icône ; l’appli revient sous lui.',
+    draw(x, t) {
+      const fade = easeInOut(span(t, 0.15, 0.6));
+      setUi({ opacity: 1 - fade, dy: 10 * fade });
+      body(x, fade);
+      const g = easeOut(span(t, 0.5, 1));
+      ground(x, X0 - g * (X0 + 10), X0 + g * (WW - X0 + 10));
+      backdrop(x, span(t, 1.1, 1.5)); hud(x, span(t, 1.2, 1.6));
+      setOv(span(t, 1.35, 1.65));
+      setIcon({ hidden: t > 0 });
+      if (t > 0) flameIcon(x);
+      if (t <= 0) return;
+      if (t < 0.12) { gearIcon(x, IG.x, IG.y, IG.r * (1 + 0.3 * Math.sin(span(t, 0, 0.12) * Math.PI / 2)), 0); return; }
+      if (t < 1) {
+        const u = span(t, 0.12, 1);
+        const cx = lerp(IG.x, X0, easeOut(u)), cy = IG.y + (GEAR_Y - IG.y) * u * u - 120 * u * (1 - u);
+        gearMorph(x, cx, cy, lerp(IG.r * 1.3, RC, easeOut(u)), u * FALL_SPIN, span(t, 0.15, 0.6));
+        return;
+      }
+      landedGear(x, X0, t - 1, hopSpin(t - 1));
+    } },
+  { name: 'Roue libérée', D: 2.3,
+    desc: '<b>L’icône s’emballe et lâche son engrenage</b>, qui file en feu à travers la fenêtre en posant le sol derrière lui, sort à droite, revient par la gauche et freine pile à sa place.',
+    back: 'L’engrenage recule, fait le tour à l’envers et remonte dans l’icône, qui ralentit.',
+    draw(x, t) {
+      setIcon({ hidden: t > 0.25, rot: 900 * easeIn(span(t, 0, 0.25)) });
+      if (t > 0.25) flameIcon(x);
+      // The race: everything behind the gear is already the game.
+      const race = span(t, 0.55, 1.25), rx = lerp(70, WW + 60, easeIn(race) * 0.35 + race * 0.65);
+      const wipe = t < 0.55 ? 0 : t < 1.25 ? rx : WW + 60;
+      setUi({ clipLeft: wipe });
+      if (wipe > 0) {
+        x.save(); x.beginPath(); x.rect(0, TB, wipe, WH - TB); x.clip();
+        body(x, 1); backdrop(x, span(t, 1.3, 1.7));
+        x.restore();
+        ground(x, 0, Math.min(WW, wipe));
+      }
+      hud(x, span(t, 1.6, 2)); setOv(span(t, 1.95, 2.3));
+      if (t <= 0.25) return;
+      if (t < 0.55) {                            // the drop out of the icon
+        const u = span(t, 0.25, 0.55);
+        gearMorph(x, lerp(IG.x, 70, u), IG.y + (GEAR_Y - IG.y) * u * u, lerp(IG.r, RC, easeOut(u)), u * 5, u);
+        return;
+      }
+      if (t < 1.25) {
+        const ang = 5 + (rx - 70) / RC;
+        speedLines(x, rx, GEAR_Y, t, 1); gearFire(x, rx, GEAR_Y, t, 1); gearTrait(x, rx, GEAR_Y, RC, ang);
+        return;
+      }
+      if (t < 1.45) return;                      // off screen, coming round
+      const u = span(t, 1.45, 2.0), cx = lerp(-60, X0, easeOut(u)), k = 1 - span(t, 1.6, 2.05);
+      speedLines(x, cx, GEAR_Y, t, 1 - u); gearFire(x, cx, GEAR_Y, t, k);
+      gearTrait(x, cx, GEAR_Y, RC, ((cx + 60) / (X0 + 60)) * 2.5 * Math.PI);   // stops tooth up
+      if (u > 0.7 && u < 1) {                    // brake sparks
+        x.save(); x.globalAlpha *= (1 - u) / 0.3;
+        for (let i = 0; i < 5; i++) { const h = hash(Math.floor(t * 30) * 5 + i); x.fillRect(cx - 6 - (h % 26), GW - 3 - ((h >>> 5) % 14), 2.4, 2.4); }
+        x.restore();
+      }
+    } },
+  { name: 'Iris', D: 1.5,
+    desc: '<b>Le moyeu de l’icône s’ouvre</b> en un engrenage qui grandit en tournant jusqu’à remplir la fenêtre : le jeu est dedans. L’icône reste entière.',
+    back: 'L’engrenage se referme en tournant jusqu’au moyeu de l’icône.',
+    draw(x, t) {
+      setIcon({ flare: 0.6 * Math.sin(Math.PI * span(t, 0, 0.35)) });
+      if (t > 0 && t < 0.3) {                    // the hub lights up
+        const u = span(t, 0, 0.3);
+        x.save(); x.globalAlpha *= 1 - u; x.lineWidth = 1.6;
+        x.beginPath(); x.arc(IG.x, IG.y, IG.r * (0.5 + 1.6 * u), 0, TAU); x.stroke(); x.restore();
+      }
+      const u = span(t, 0.2, 1.15), R = IG.r * Math.exp(Math.log(1400 / IG.r) * easeInOut(u)), ang = -R / 90;
+      setUi({ opacity: u >= 1 ? 0 : 1 });
+      if (u > 0) {
+        x.save();
+        x.beginPath(); x.rect(0, TB, WW, WH - TB); x.clip();
+        x.beginPath(); gearContour(x, IG.x, IG.y, R, ang, null); x.clip();
+        gameFrame(x);
+        x.restore();
+        if (u < 1) { x.save(); x.lineWidth = 2.2; x.beginPath(); gearContour(x, IG.x, IG.y, R, ang, null); x.stroke(); x.restore(); }
+      }
+      setOv(span(t, 1.1, 1.5));
+    } },
+  { name: 'Embrasement', D: 1.7,
+    desc: '<b>La flamme de l’icône gagne la fenêtre</b> et la consume de gauche à droite. Derrière le feu, le jeu attend, l’engrenage encore en flammes. L’icône reste entière.',
+    back: 'Le feu repart vers l’icône en rendant l’appli derrière lui.',
+    draw(x, t) {
+      setIcon({ flare: Math.sin(Math.PI * span(t, 0, 0.45)) });
+      const u = span(t, 0.1, 1.25), F = lerp(-140, WW + 280, easeInOut(u));
+      const front = (y) => F - (y - TB) * 0.1 + Math.sin(y / 23 + t * 9) * 6;
+      setUi({ clipLeft: u >= 1 ? WW : Math.max(0, front(WH)) });
+      if (u > 0) {
+        x.save();
+        x.beginPath(); x.moveTo(0, TB);
+        for (let y = TB; y <= WH; y += 8) x.lineTo(front(y), y);
+        x.lineTo(0, WH); x.closePath(); x.clip();
+        gameFrame(x, false);
+        gearFire(x, X0, GEAR_Y, t, 1 - span(t, 0.9, 1.7));
+        gearTrait(x, X0, GEAR_Y, RC, 0);
+        x.restore();
+        if (u < 1) {
+          x.save(); x.beginPath(); x.rect(0, TB, WW, WH - TB); x.clip();
+          x.lineWidth = 1.4; x.beginPath();      // the burnt edge
+          for (let y = TB; y <= WH; y += 8) x[y === TB ? 'moveTo' : 'lineTo'](front(y), y);
+          x.stroke();
+          // A fire as tall as the window, rising from its bottom: the turbo
+          // flame at window scale, leaning back as it sweeps forward.
+          flameOf(x, (scale) => FIRE.forEach(([dx, hr], i) => {
+            const h = (340 * hr + 34 * Math.sin(t * 9 + i * 1.7)) * scale;
+            x.save(); x.translate(front(WH) + dx, WH + 40); x.rotate(-0.14 + 0.06 * Math.sin(t * 7 + i * 2.3));
+            tonguePath(x, h, 0.2 + 0.06 * Math.sin(t * 8 + i)); x.restore();
+          }));
+          x.restore();
+          x.save();                              // embers ahead of it
+          for (let i = 0; i < 14; i++) {
+            const h = hash(i * 97 + 3), ph = (t * 1.6 + (h % 100) / 100) % 1, y = TB + (h >>> 7) % (WH - TB);
+            x.globalAlpha = 1 - ph; x.fillRect(front(y) + 10 + 40 * ph, y - 50 * ph, 2.4, 2.4);
+          }
+          x.restore();
+        }
+      }
+      setOv(span(t, 1.3, 1.7));
+    } },
+  { name: 'Repli', D: 2,
+    desc: '<b>L’appli redevient un plan à l’encre</b>, puis tout s’affaisse et s’aplatit en une seule ligne : le sol. L’engrenage quitte l’icône et tombe dessus.',
+    back: 'L’engrenage remonte, le sol se déplie et redevient l’appli.',
+    draw(x, t) {
+      const ink = span(t, 0, 0.35);
+      setUi({ opacity: 1 - ink });
+      body(x, ink);
+      if (t > 0) {
+        x.save(); x.lineWidth = 1.4;
+        for (const r of RECTS) {
+          const v = easeIn(span(t, 0.35 + (r.x / WW) * 0.25, 0.8 + (r.x / WW) * 0.25));
+          const top = lerp(r.y, GW, v), bot = lerp(r.y + r.h, GW, v);
+          x.globalAlpha = ink * (v < 1 ? 1 : 1 - span(t, 1.05, 1.25));   // flat, it melts into the ground
+          if (v < 1) x.strokeRect(r.x, top, r.w, Math.max(0.01, bot - top));
+          else { x.beginPath(); x.moveTo(r.x, GW + 0.8); x.lineTo(r.x + r.w, GW + 0.8); x.stroke(); }
+        }
+        x.restore();
+      }
+      ground(x, 0, WW, span(t, 0.95, 1.15));
+      backdrop(x, span(t, 1.4, 1.8)); hud(x, span(t, 1.5, 1.9));
+      setOv(span(t, 1.7, 2));
+      setIcon({ hidden: t > 0.95 });
+      if (t > 0.95) flameIcon(x);
+      if (t <= 0.95) return;
+      if (t < 1.45) {
+        const u = span(t, 0.95, 1.45);
+        gearMorph(x, lerp(IG.x, X0, easeOut(u)), IG.y + (GEAR_Y - IG.y) * u * u - 90 * u * (1 - u), lerp(IG.r * 1.2, RC, easeOut(u)), u * FALL_SPIN, span(t, 0.95, 1.3));
+        return;
+      }
+      landedGear(x, X0, t - 1.45, hopSpin(t - 1.45));
+    } },
+];
+
+/* ---------- Clock, phases, controls ---------- */
+const fx = $('#fx'), fxx = fx.getContext('2d');
+let uiPrefs = { amb: 'plan-clair', speed: '1' };
+try { uiPrefs = Object.assign(uiPrefs, JSON.parse(localStorage.getItem(KEY_UI)) || {}); } catch (e) { /* defaults */ }
+let current = 0, phase = 'app', t = 0, scale = 1;   // phase: app | in | game | out
+function frameAt(tt) {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), s = scale * dpr;
+  const pw = Math.round(WW * s), ph = Math.round(WH * s);
+  if (fx.width !== pw || fx.height !== ph) { fx.width = pw; fx.height = ph; }
+  fxx.setTransform(1, 0, 0, 1, 0, 0); fxx.clearRect(0, 0, pw, ph);
+  if (phase === 'app') return;
+  fxx.setTransform(s, 0, 0, s, 0, 0);
+  fxx.fillStyle = fxx.strokeStyle = INK; fxx.lineCap = fxx.lineJoin = 'round'; fxx.globalAlpha = 1;
+  VERSIONS[current].draw(fxx, tt);
+}
+function resetApp() {
+  phase = 'app'; t = 0;
+  setUi(); setOv(0); setIcon();
+  $('#quit').disabled = true;
+  frameAt(0);
+}
+function enter() {
+  if (phase !== 'app') return;
+  RECTS = uiRects();
+  phase = 'in'; t = 0; $('#quit').disabled = false;
+}
+function leave() { if (phase === 'game' || phase === 'in') phase = 'out'; }
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000) * Number(uiPrefs.speed);
+  last = now;
+  const D = VERSIONS[current].D;
+  if (phase === 'in') { t = Math.min(D, t + dt); if (t >= D) phase = 'game'; }
+  else if (phase === 'out') { t = Math.max(0, t - dt); if (t <= 0) { resetApp(); requestAnimationFrame(loop); return; } }
+  if (phase !== 'app') frameAt(phase === 'game' ? D : t);
+  requestAnimationFrame(loop);
+}
+
+// Ten quick clicks, each turning the icon a tenth of a turn (as in M45).
+let clicks = 0, lastClick = 0, undo = 0;
+function iconClick(img) {
+  if (phase !== 'app') return;
+  const now = performance.now();
+  clicks = now - lastClick < CLICK_GAP ? clicks + 1 : 1; lastClick = now;
+  clearTimeout(undo);
+  img.style.transition = 'transform 80ms'; img.style.transform = `rotate(${clicks * (360 / CLICKS)}deg)`;
+  if (clicks >= CLICKS) {
+    clicks = 0;
+    setTimeout(() => { img.style.transition = 'none'; img.style.transform = ''; if (img === icon) enter(); else { $('#stage').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(enter, 450); } }, 90);
+    return;
+  }
+  undo = setTimeout(() => { clicks = 0; img.style.transition = 'transform .35s'; img.style.transform = ''; }, CLICK_GAP);
+}
+icon.addEventListener('click', () => iconClick(icon));
+$('#logo').addEventListener('click', () => iconClick($('#logo')));
+function replay() {
+  resetApp();
+  let n = 0;
+  const tick = () => { iconClick(icon); if (++n < CLICKS) setTimeout(tick, 85); };
+  tick();
+}
+$('#replay').addEventListener('click', replay);
+$('#quit').addEventListener('click', leave);
+$('#roll').addEventListener('click', () => toast('La course démarre ici : c’est le jeu de M45.'));
+
+function pick(i) {
+  current = i;
+  for (const [j, b] of [...$('#versions').children].entries()) b.classList.toggle('on', j === i);
+  $('#desc').innerHTML = VERSIONS[i].desc;
+  resetApp();
+}
+VERSIONS.forEach((v, i) => {
+  const b = document.createElement('button');
+  b.innerHTML = `<kbd>${i + 1}</kbd>${v.name}`;
+  b.addEventListener('click', () => { pick(i); b.blur(); });
+  $('#versions').appendChild(b);
+});
+function drawCompare() {
+  const rows = VERSIONS.map((v, i) => `<tr><td>${i + 1} · ${v.name}</td><td class="num">${v.D.toLocaleString('fr-FR')} s</td><td>${v.desc}</td><td>${v.back}</td></tr>`).join('');
+  $('#compare').innerHTML = `<tr><th>Version</th><th>Durée</th><th>À l'entrée</th><th>Au retour (Échap)</th></tr>${rows}`;
+}
+
+addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  if (e.code === 'Escape') leave();
+  else if (/^Digit[1-5]$/.test(e.code)) pick(Number(e.code.slice(5)) - 1);
+  else if (e.code === 'Space' && phase === 'game') { e.preventDefault(); toast('La course démarre ici : c’est le jeu de M45.'); }
+});
+
+function toast(msg) { const el = $('#toast'); el.textContent = msg; el.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => el.classList.remove('on'), 2400); }
+function applyUi() {
+  const a = AMBS[uiPrefs.amb] || AMBS['plan-clair'], root = document.documentElement, rs = root.style;
+  for (const [k, val] of Object.entries({ '--bg': a.bg, '--surface': a.surface, '--border': a.border, '--text': a.text, '--text-2': a.text2, '--acc': a.acc })) rs.setProperty(k, val);
+  INK = a.text; BG = a.surface;
+  rs.colorScheme = a.dark ? 'dark' : 'light';
+  root.classList.toggle('mono', !!a.mono);
+  for (const b of document.querySelectorAll('[data-set]')) b.classList.toggle('on', uiPrefs[b.dataset.set] === b.dataset.val);
+  if (phase !== 'app') frameAt(phase === 'game' ? VERSIONS[current].D : t);
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-set]');
+  if (!b) return;
+  uiPrefs[b.dataset.set] = b.dataset.val;
+  try { localStorage.setItem(KEY_UI, JSON.stringify(uiPrefs)); } catch (err) { /* not kept */ }
+  applyUi(); b.blur();
+});
+new ResizeObserver(() => {
+  scale = $('#stage').clientWidth / WW;
+  $('#win').style.transform = `scale(${scale})`;
+  if (phase !== 'app') frameAt(phase === 'game' ? VERSIONS[current].D : t);
+}).observe($('#stage'));
+
+applyUi();
+pick(0);
+drawCompare();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

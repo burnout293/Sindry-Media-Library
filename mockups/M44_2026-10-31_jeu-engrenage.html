@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M44 · Jeu caché : Roue libre</title>
+<!--
+  Mockup M44: Sindry's hidden game, playable. A gear rolls through a 2D
+  course; Space, click or Up jumps (hold for higher). Each course has a
+  distance to cover and a finish line, always 2 temporary speed boosts and
+  2 score bonuses placed at random, platforms and obstacles. After each line:
+  points to spend on five stats, and a total score that only grows. One ink
+  colour taken from the ambiance, in three renderings (big pixel, fine pixel,
+  line). Progress is kept in this browser only. Code in English, visible text
+  in French.
+-->
+<style>
+@font-face { font-family: 'Inter'; font-weight: 100 900; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Sindry Mono'; font-weight: 400; src: url('_ressources/sindry-mono-400.woff2') format('woff2'); }
+:root {
+  --bg: #F6F4EF; --surface: #FFFFFF; --border: #DCD7CC; --text: #141A24; --text-2: #5C6778; --acc: #E2640F;
+  --g-ink: #141A24; --g-bg: #FFFFFF;
+  --ui: 'Inter', 'Segoe UI', system-ui, sans-serif; --mono: 'Sindry Mono', Consolas, monospace;
+  color-scheme: light;
+}
+:root.mono { --ui: var(--mono); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.5 var(--ui); }
+button { font: inherit; color: inherit; }
+
+.top { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); }
+.brand { display: flex; gap: 10px; align-items: center; }
+.brand img { width: 32px; height: 32px; cursor: pointer; transition: transform .25s; }
+.brand h1 { margin: 0; font-size: 15px; }
+.brand p { margin: 0; color: var(--text-2); font-size: 12px; }
+.ctl { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.grp { display: flex; align-items: center; gap: 7px; }
+.grp > span { font-size: 10.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: .07em; }
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 5px 10px; font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button:hover { color: var(--text); }
+.seg button.on { background: var(--acc); color: var(--bg); }
+
+main { max-width: 1040px; margin: 0 auto; padding: 20px 16px 90px; display: grid; gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+.sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 12px; }
+.sec-h h2 { margin: 0; font-size: 15px; }
+.sec-h p { margin: 0; flex-basis: 100%; color: var(--text-2); font-size: 12px; }
+.tag { font: 700 11px var(--mono); color: var(--acc); border: 1px solid var(--border); border-radius: 6px; padding: 0 6px; }
+.foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; margin-top: 10px; color: var(--text-2); font-size: 12px; }
+.foot kbd, .keys kbd { font: 600 10.5px var(--mono); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--text); }
+.link { border: 0; background: none; padding: 0; color: var(--acc); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-size: 12px; }
+
+/* Game frame: one ink colour on the ambiance surface. */
+.game { position: relative; max-width: 960px; margin: 0 auto; aspect-ratio: 960 / 300; background: var(--g-bg); border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden; user-select: none; touch-action: manipulation; }
+.game canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.game.flash { animation: flash 1.2s ease-out; }
+@keyframes flash { 0%, 30% { box-shadow: 0 0 0 4px var(--acc); } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+.ov { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; padding: 10px;
+  background: color-mix(in srgb, var(--g-bg) 76%, transparent); color: var(--g-ink); font: 12px/1.4 var(--mono); }
+.ov.on { display: flex; }
+.ov-card { background: var(--g-bg); border: 1.5px solid var(--g-ink); border-radius: 6px; padding: 12px 16px; max-height: 100%; overflow: auto; }
+:root[data-rendu="pixel"] .ov-card { border-radius: 0; border-width: 3px; }
+.ov-center { text-align: center; padding: 14px 28px; }
+.ov-title { font-size: 20px; font-weight: 700; letter-spacing: .3em; margin-bottom: 4px; }
+.ov p { margin: 3px 0; }
+.dim { opacity: .62; }
+.ov-btns { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
+.ov button { display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; font: 600 12px var(--mono); color: var(--g-ink);
+  background: transparent; border: 1.5px solid var(--g-ink); border-radius: 4px; cursor: pointer; }
+:root[data-rendu="pixel"] .ov button { border-radius: 0; border-width: 2px; }
+.ov button:hover:not(:disabled), .ov button.primary { background: var(--g-ink); color: var(--g-bg); }
+.ov button.primary:hover { opacity: .85; }
+.ov button:disabled { opacity: .3; cursor: default; }
+.ov kbd { font: 600 10px var(--mono); border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; opacity: .8; }
+.badge { font-weight: 700; }
+.reg { width: min(880px, 100%); padding: 10px 14px; }
+.reg-h { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-bottom: 1px dashed var(--g-ink); padding-bottom: 5px; margin-bottom: 7px; }
+.reg-h b { letter-spacing: .22em; text-transform: uppercase; }
+.reg-cols { display: grid; grid-template-columns: 1fr 1.3fr; gap: 20px; }
+.reg-cols.solo { grid-template-columns: 1fr; }
+.reg-recap table { width: 100%; border-collapse: collapse; }
+.reg-recap td { padding: 2px 0; }
+.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sum td { border-top: 1px solid var(--g-ink); padding-top: 5px; font-weight: 700; }
+.tot td { font-weight: 700; font-size: 13px; }
+.pts { margin-bottom: 4px; }
+.st { display: grid; grid-template-columns: auto 86px auto auto minmax(0, 1fr); align-items: center; gap: 8px; padding: 2px 0; }
+.st-d { opacity: .62; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pips { display: flex; gap: 3px; }
+.pips i { width: 9px; height: 9px; border: 1.5px solid var(--g-ink); }
+.pips i.on { background: var(--g-ink); }
+.st button { width: 22px; height: 20px; padding: 0; justify-content: center; }
+@media (max-width: 720px) { .reg-cols { grid-template-columns: 1fr; } }
+
+/* The pieces. */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.tile { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--g-bg); }
+.tile canvas { display: block; width: 100%; aspect-ratio: 240 / 170; }
+.tile div { padding: 8px 10px; border-top: 1px solid var(--border); background: var(--surface); }
+.tile b { display: block; font-size: 12.5px; }
+.tile span { color: var(--text-2); font-size: 11.5px; }
+
+/* The secret entrance: Sindry's own UI around the strip. */
+.entree { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 820px) { .entree { grid-template-columns: 1fr; } }
+.sd { border: 1px solid var(--border); border-radius: 12px; background: var(--bg); overflow: hidden; }
+.sd-head { display: flex; gap: 12px; align-items: center; padding: 14px 16px; }
+.sd-head img { width: 34px; height: 34px; }
+.sd-head b { display: block; font-size: 14px; }
+.sd-head span { color: var(--text-2); font-size: 12px; }
+.sd-strip { position: relative; aspect-ratio: 600 / 90; background: var(--g-bg); border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); cursor: pointer; }
+.sd-strip canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.sd-strip span { position: absolute; right: 16px; top: 34%; color: var(--g-ink); opacity: .6; font: 600 12px var(--mono); }
+.sd-strip:hover span { opacity: 1; }
+.sd-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px; }
+.btn { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; cursor: default; }
+.btn.acc { background: var(--acc); color: var(--bg); border-color: transparent; }
+
+table.t { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.t th { text-align: left; font-size: 10.5px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; padding: 0 10px 6px 0; border-bottom: 1px solid var(--border); }
+table.t td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.t tr:last-child td { border-bottom: 0; }
+table.t td:first-child { font-weight: 600; white-space: nowrap; }
+
+.toast { position: fixed; left: 50%; bottom: 22px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none; z-index: 10;
+  background: var(--text); color: var(--bg); padding: 8px 14px; border-radius: 999px; font-size: 12.5px; font-weight: 600; transition: .25s; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+</style>
+</head>
+<body>
+<div data-maquette-badge style="position:fixed;left:10px;bottom:10px;z-index:2147483647;pointer-events:none;font:650 12px/1.2 'Segoe UI',system-ui,sans-serif;color:#fff;background:rgba(18,12,26,.9);border:1px solid rgba(255,255,255,.22);padding:6px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.35)">M44 · 31/10/2026 10:45 · Jeu caché : Roue libre</div>
+
+<header class="top">
+  <div class="brand">
+    <img id="logo" src="_ressources/marque.png" alt="Sindry" title="Sindry">
+    <div>
+      <h1>Jeu caché : Roue libre</h1>
+      <p>L'engrenage roule, on saute, on passe la ligne, on règle, on recommence.</p>
+    </div>
+  </div>
+  <div class="ctl">
+    <div class="grp"><span>Rendu</span><div class="seg">
+      <button data-set="style" data-val="px3">Pixel gros</button><button data-set="style" data-val="px2">Pixel fin</button><button data-set="style" data-val="line">Trait</button>
+    </div></div>
+    <div class="grp"><span>Encre</span><div class="seg">
+      <button data-set="ink" data-val="text">Texte</button><button data-set="ink" data-val="acc">Accent</button>
+    </div></div>
+    <div class="grp"><span>Ambiance</span><div class="seg">
+      <button data-set="amb" data-val="plan-clair">Plan clair</button><button data-set="amb" data-val="plan-sombre">Plan sombre</button><button data-set="amb" data-val="foret">Forêt</button><button data-set="amb" data-val="ardente">Braise</button><button data-set="amb" data-val="synthwave">Synthwave</button><button data-set="amb" data-val="terminal">Terminal</button>
+    </div></div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="sec-h"><span class="tag">A</span><h2>La course</h2>
+      <p>Une distance à couvrir, une ligne d'arrivée. Toujours 2 turbos et 2 bonus, placés au hasard. Des plateformes, des obstacles.</p></div>
+    <div class="game" id="game"><canvas id="cvGame"></canvas><div class="ov" id="ov"></div></div>
+    <div class="foot">
+      <span class="keys"><kbd>Espace</kbd> <kbd>↑</kbd> ou clic : sauter, maintenir pour sauter plus haut · <kbd>Échap</kbd> pause · <kbd>1</kbd>–<kbd>5</kbd> réglages</span>
+      <span>Progression gardée dans ce navigateur · <button class="link" id="reset">Tout remettre à zéro</button></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><span class="tag">B</span><h2>Ligne franchie : les réglages</h2>
+      <p>Après chaque ligne : le détail de la course, le score total qui ne fait que grandir, et les réglages à placer (5 niveaux chacun).</p></div>
+    <div class="game" id="demoB"><canvas id="cvDemo"></canvas><div class="ov on" id="ovDemo" inert></div></div>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><span class="tag">C</span><h2>Les pièces</h2>
+      <p>Tout se dessine d'une seule encre : celle de l'ambiance active. Change le rendu ou l'ambiance en haut de la page.</p></div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><span class="tag">D</span><h2>L'entrée secrète</h2>
+      <p>Comme le dino : il attend au moment où l'on est bloqué. Clique sur la bande pour le réveiller.</p></div>
+    <div class="entree">
+      <div class="sd">
+        <div class="sd-head"><img src="_ressources/marque.png" alt="">
+          <div><b>Catalogue injoignable</b><span>Sindry n'a pas pu joindre GitHub : pas de connexion. Les scripts déjà installés restent utilisables.</span></div></div>
+        <div class="sd-strip" id="strip"><canvas id="cvStrip"></canvas><span>Clic ou Espace pour rouler ›</span></div>
+        <div class="sd-actions"><span class="btn">Travailler hors ligne</span><span class="btn acc">Réessayer</span></div>
+      </div>
+      <table class="t">
+        <tr><th>Déclencheur</th><th>Ce qui se passe</th></tr>
+        <tr><td>Hors ligne</td><td>Catalogue ou mise à jour injoignable : la bande apparaît sous le message.</td></tr>
+        <tr><td>7 clics sur le logo</td><td>Le logo tourne d'un cran à chaque clic. Essaie-le en haut de cette page.</td></tr>
+        <tr><td>Taper « sindry »</td><td>N'importe où dans l'appli. Ça marche aussi ici.</td></tr>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><span class="tag">E</span><h2>À trancher</h2><p>Ce que la maquette a choisi en attendant ton avis.</p></div>
+    <table class="t">
+      <tr><th>Point</th><th>Choix de la maquette</th></tr>
+      <tr><td>Un choc</td><td>Une dent casse, et on la voit manquer sur l'engrenage. Sans dent de réserve, c'est la panne : la même course se rejoue.</td></tr>
+      <tr><td>Les réglages</td><td>1 point par ligne franchie, +1 sans faute. Le score total ne se dépense jamais.</td></tr>
+      <tr><td>La panne</td><td>Le score de la course entre quand même au total, mais sans point de réglage.</td></tr>
+      <tr><td>Les courses</td><td>Chaque ligne passée allonge et densifie la suivante (480 m, puis jusqu'à 1 200 m).</td></tr>
+      <tr><td>Le nom</td><td>« Roue libre ».</td></tr>
+      <tr><td>La sauvegarde</td><td>Score et réglages gardés sur le poste, jamais envoyés.</td></tr>
+    </table>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+(() => {
+const $ = (s) => document.querySelector(s);
+const TAU = Math.PI * 2;
+const W = 960, H = 300, GY = 252;               // world size, ground line
+const R = 21, TH = 7, RC = R + TH, TEETH = 14;  // gear: root radius, tooth height
+const GRAV = 2300, VJ = 800, BASE_V = 270, BOOST_X = 1.6, X0 = 160, PLAT_H = 15;
+const MONO = "'Sindry Mono', Consolas, monospace";
+const KEY = 'sindry.m44', KEY_UI = 'sindry.m44.ui';
+
+const STYLES = { px3: { pixel: true, S: 3 }, px2: { pixel: true, S: 2 }, line: { pixel: false, S: 1 } };
+const AMBS = {
+  'plan-clair':  { bg: '#F6F4EF', surface: '#FFFFFF', border: '#DCD7CC', text: '#141A24', text2: '#5C6778', acc: '#E2640F' },
+  'plan-sombre': { bg: '#0B0F16', surface: '#0F1520', border: '#2A3445', text: '#E9EEF5', text2: '#8C9AAE', acc: '#FD7D26', dark: true },
+  'foret':       { bg: '#07110C', surface: '#0C1912', border: '#1E3529', text: '#E6F2EA', text2: '#9DB5A5', acc: '#7CE38B', dark: true },
+  'ardente':     { bg: '#0F0A14', surface: '#18111F', border: '#2C2236', text: '#F7F1FA', text2: '#B9A9C6', acc: '#FEC923', dark: true },
+  'synthwave':   { bg: '#120326', surface: '#1C0838', border: '#3A1A66', text: '#FBF0FF', text2: '#CDB6EE', acc: '#FF2BD6', dark: true },
+  'terminal':    { bg: '#020A04', surface: '#06140A', border: '#164A24', text: '#6CFF94', text2: '#4CCF72', acc: '#6CFF94', dark: true, mono: true },
+};
+const STATS = [
+  { k: 'speed',  name: 'Vitesse',    desc: '+8 % de vitesse de croisière' },
+  { k: 'jump',   name: 'Saut',       desc: '+10 % de hauteur' },
+  { k: 'turbo',  name: 'Turbo',      desc: '+0,6 s à chaque turbo' },
+  { k: 'armor',  name: 'Robustesse', desc: '+1 dent de réserve' },
+  { k: 'magnet', name: 'Aimant',     desc: 'attire les bonus de plus loin' },
+];
+const MAXLVL = 5;
+
+let ST = STYLES.px3, INK = { css: '#141A24', rgb: [20, 26, 36] }, BG = '#FFFFFF';
+let T = 0, state = 'accueil', run = null, ovT = -1, lastRecap = null;
+let gameVisible = true, stripVisible = false, typed = '';
+
+const fmt = (n) => Math.round(n).toLocaleString('fr-FR');
+const sec = (n) => n.toFixed(1).replace('.', ',');
+const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+const hash = (n) => { n = Math.imul((n | 0) ^ 0x9e3779b9, 0x85ebca6b); n ^= n >>> 13; n = Math.imul(n, 0xc2b2ae35); n ^= n >>> 16; return n >>> 0; };
+const snap = (v) => (ST.pixel ? Math.round(v / ST.S) * ST.S : v);
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+
+/* ---------- Progress ---------- */
+function fresh() { return { total: 0, course: 1, points: 0, seed: (Math.random() * 1e9) | 0, stats: { speed: 0, jump: 0, turbo: 0, armor: 0, magnet: 0 } }; }
+function load() {
+  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.stats) return Object.assign(fresh(), s); } catch (e) { /* private window */ }
+  return fresh();
+}
+let save = load();
+function persist() { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch (e) { /* not kept */ } }
+const speedOf = () => BASE_V * (1 + 0.08 * save.stats.speed);
+const jumpOf = () => VJ * Math.sqrt(1 + 0.1 * save.stats.jump);   // height grows with v²
+const turboOf = () => 2.5 + 0.6 * save.stats.turbo;
+const reserveOf = () => 2 + save.stats.armor;
+const magnetOf = () => (save.stats.magnet ? 40 + 35 * save.stats.magnet : 0);
+
+/* ---------- Course ---------- */
+function buildCourse(n, seed) {
+  const r = rng(seed * 31 + n * 7919);
+  const L = 5000 + 800 * Math.min(n - 1, 9);
+  const diff = Math.min(1, (n - 1) / 8);
+  const holes = [], plats = [], obs = [];
+  let x = 750;
+  while (x < L - 650) {
+    const p = r();
+    if (p < 0.2) { obs.push({ t: 'bloc', x, w: 34, h: 34 }); x += 34; }
+    else if (p < 0.38) { const k = 2 + Math.floor(r() * (2 + 2 * diff)); obs.push({ t: 'pics', x, w: k * 16, h: 20 }); x += k * 16; }
+    else if (p < 0.54) { const w = Math.round(70 + r() * (35 + 45 * diff)); holes.push({ x, w }); x += w; }
+    else if (p < 0.74) {
+      const w = Math.round(170 + r() * 150), h = Math.round(72 + r() * 38);
+      plats.push({ x, y: GY - h, w });
+      if (r() < 0.45 + 0.4 * diff) { const k = Math.max(2, Math.floor((w - 70) / 16)); obs.push({ t: 'pics', x: x + 35, w: k * 16, h: 20 }); }
+      x += w;
+    } else if (p < 0.88) {
+      plats.push({ x, y: GY - 74, w: 130 });
+      const x2 = x + 175;
+      plats.push({ x: x2, y: GY - 146, w: 190 });
+      obs.push({ t: 'pile', x: x2 + 70, w: 34, h: 68 });
+      x = x2 + 190;
+    } else { obs.push({ t: 'pile', x, w: 34, h: 68 }); x += 34; }
+    x += Math.round(320 - 110 * diff + r() * 260);
+  }
+  // Always 2 boosts and 2 bonuses, at random but never on a hazard.
+  const busy = (xx, pad) => obs.some((o) => xx > o.x - pad && xx < o.x + o.w + pad) || holes.some((h) => xx > h.x - pad && xx < h.x + h.w + pad);
+  const taken = [];
+  const pick = (pad) => {
+    let xx = 0;
+    for (let i = 0; i < 80; i++) {
+      xx = Math.round(650 + r() * (L - 1300));
+      if (!busy(xx, pad) && taken.every((q) => Math.abs(q - xx) > 420)) break;
+    }
+    taken.push(xx);
+    return xx;
+  };
+  const boosts = [0, 1].map(() => ({ x: pick(90), taken: false })).sort((a, b) => a.x - b.x);
+  const bonus = [0, 1].map(() => {
+    const bx = pick(60);
+    const pl = plats.find((q) => bx > q.x + 10 && bx < q.x + q.w - 10);
+    const y = pl ? pl.y - RC : GY - RC - (r() < 0.45 ? 0 : 60 + Math.round(r() * 40));
+    return { x: bx, y, taken: false };
+  });
+  return { n, L, holes, plats, obs, boosts, bonus };
+}
+function makeRun(c) {
+  return { c, x: X0, y: GY - RC, vy: 0, ground: true, coyote: 0, buffer: 0, holding: false, ang: 0, hits: 0, missing: new Set(),
+    invul: 0, slow: 1, boost: 0, falling: false, fallHole: null, t: 0, time: 0, endT: 0, bonusN: 0, boostN: 0, parts: [], floats: [] };
+}
+const prepareRun = () => { run = makeRun(buildCourse(save.course, save.seed)); };
+const liveScore = (r) => Math.max(0, Math.round((Math.min(r.x, r.c.L) - X0) / 10)) + r.bonusN * 250;
+
+/* ---------- Drawing (world units, one ink) ---------- */
+function gearContour(x, cx, cy, r, th, n, ang, missing) {
+  const step = TAU / n;
+  for (let i = 0; i < n; i++) {
+    const a = ang + i * step, h = missing && missing.has(i) ? th * 0.28 : th;
+    const pts = [[r, 0], [r, 0.2], [r + h, 0.34], [r + h, 0.66], [r, 0.8]];
+    for (let j = 0; j < pts.length; j++) {
+      const aa = a + pts[j][1] * step, px = cx + Math.cos(aa) * pts[j][0], py = cy + Math.sin(aa) * pts[j][0];
+      if (i === 0 && j === 0) x.moveTo(px, py); else x.lineTo(px, py);
+    }
+  }
+  x.closePath();
+}
+function drawGear(x, cx, cy, ang, missing) {
+  const ring = R * 0.55, hub = R * 0.2;
+  x.beginPath();
+  gearContour(x, cx, cy, R, TH, TEETH, ang, missing);
+  if (ST.pixel) {
+    x.moveTo(cx + ring, cy); x.arc(cx, cy, ring, 0, TAU);
+    x.fill('evenodd');
+    x.lineWidth = ST.S * 1.1;
+  } else {
+    x.lineWidth = 1.8; x.stroke();
+    x.beginPath(); x.arc(cx, cy, ring, 0, TAU); x.lineWidth = 1.3; x.stroke();
+  }
+  x.beginPath();
+  for (let k = 0; k < 3; k++) {
+    const a = ang + 0.3 + (k * TAU) / 3;
+    x.moveTo(cx + Math.cos(a) * hub, cy + Math.sin(a) * hub); x.lineTo(cx + Math.cos(a) * ring, cy + Math.sin(a) * ring);
+  }
+  x.stroke();
+  x.beginPath(); x.arc(cx, cy, hub, 0, TAU);
+  if (ST.pixel) x.fill(); else { x.stroke(); x.beginPath(); x.arc(cx, cy, hub * 0.35, 0, TAU); x.fill(); }
+}
+function flamePath(x, cx, cy, s) {
+  x.moveTo(cx, cy - 16 * s);
+  x.bezierCurveTo(cx + 5 * s, cy - 8 * s, cx + 11 * s, cy - 3 * s, cx + 11 * s, cy + 4 * s);
+  x.arc(cx, cy + 4 * s, 11 * s, 0, Math.PI);
+  x.bezierCurveTo(cx - 11 * s, cy - 3 * s, cx - 5 * s, cy - 8 * s, cx, cy - 16 * s);
+  x.closePath();
+}
+function drawFlame(x, cx, cy) {
+  x.beginPath(); flamePath(x, cx, cy, 1);
+  if (ST.pixel) { flamePath(x, cx, cy + 6, 0.42); x.fill('evenodd'); return; }
+  x.lineWidth = 1.8; x.stroke();
+  x.beginPath(); flamePath(x, cx, cy + 6, 0.42); x.lineWidth = 1.3; x.stroke();
+}
+function drawBoost(x, bx, t, done) {
+  if (ST.pixel) x.fillRect(bx, GY - ST.S * 2, 46, ST.S * 2);
+  else { x.lineWidth = 1.4; x.strokeRect(bx + 0.7, GY - 5, 44.6, 5); }
+  if (done) return;
+  const sh = snap(Math.sin(t * 7) * 3);
+  x.lineWidth = ST.pixel ? ST.S * 1.6 : 2.2;
+  x.beginPath();
+  for (let k = 0; k < 2; k++) { const cx = bx + 9 + k * 15 + sh; x.moveTo(cx, GY - 28); x.lineTo(cx + 9, GY - 19); x.lineTo(cx, GY - 10); }
+  x.stroke();
+}
+function drawBlock(x, bx, by) {
+  const s = 34, cx = bx + s / 2;
+  if (ST.pixel) {
+    x.fillRect(bx, by, s, s);
+    x.save(); x.globalCompositeOperation = 'destination-out';
+    x.lineWidth = ST.S * 1.2; x.beginPath(); x.arc(cx, by + 14, 6, Math.PI, 0); x.stroke();
+    x.fillRect(cx - 8, by + 14, 16, 12);
+    x.restore();
+    x.fillRect(cx - ST.S / 2, by + 17, ST.S, ST.S * 2);
+    return;
+  }
+  x.lineWidth = 1.6; x.strokeRect(bx + 0.8, by + 0.8, s - 1.6, s - 1.6);
+  x.lineWidth = 1.4; x.beginPath(); x.arc(cx, by + 14, 6, Math.PI, 0); x.stroke();
+  x.strokeRect(cx - 8, by + 14, 16, 12);
+  x.beginPath(); x.moveTo(cx, by + 18); x.lineTo(cx, by + 22); x.stroke();
+}
+function drawSpikes(x, sx, w, h) {
+  const n = Math.max(1, Math.round(w / 16)), d = w / n;
+  x.beginPath(); x.moveTo(sx, GY);
+  for (let i = 0; i < n; i++) { x.lineTo(sx + i * d + d / 2, GY - h); x.lineTo(sx + (i + 1) * d, GY); }
+  if (ST.pixel) { x.closePath(); x.fill(); return; }
+  x.lineWidth = 1.6; x.lineJoin = 'miter'; x.stroke(); x.lineJoin = 'round';
+}
+function drawObstacle(x, o) {
+  if (o.t === 'pics') drawSpikes(x, o.x, o.w, o.h);
+  else if (o.t === 'pile') { drawBlock(x, o.x, GY - 68); drawBlock(x, o.x, GY - 34); }
+  else drawBlock(x, o.x, GY - 34);
+}
+function hatch(x, rx, ry, rw, rh, gap) {
+  x.save(); x.beginPath(); x.rect(rx, ry, rw, rh); x.clip();
+  x.lineWidth = 1; x.beginPath();
+  for (let k = -rh; k < rw; k += gap) { x.moveTo(rx + k, ry + rh); x.lineTo(rx + k + rh, ry); }
+  x.stroke(); x.restore();
+}
+function drawPlatform(x, p) {
+  if (ST.pixel) {
+    const S = ST.S;
+    x.fillRect(p.x, p.y, p.w, S * 2);
+    x.fillRect(p.x, p.y + PLAT_H - S, p.w, S);
+    for (let k = 0; k <= p.w - S; k += 12) x.fillRect(p.x + k, p.y, S, PLAT_H);
+    x.fillRect(p.x + p.w - S, p.y, S, PLAT_H);
+    return;
+  }
+  x.lineWidth = 1.6; x.strokeRect(p.x, p.y, p.w, PLAT_H);
+  hatch(x, p.x, p.y, p.w, PLAT_H, 7);
+}
+function drawGround(x, x0, x1, holes) {
+  const seg = (a, b) => {
+    if (b <= a) return;
+    if (ST.pixel) {
+      x.fillRect(a, GY, b - a, ST.S);
+      for (let gx = Math.ceil(a / 18) * 18; gx < b - 12; gx += 18) {
+        const h = hash(gx / 18);
+        if (h % 3 === 0) x.fillRect(gx + ((h >>> 4) % 9), GY + ST.S * (2 + ((h >>> 8) % 4)), ST.S * (1 + ((h >>> 12) % 3)), ST.S);
+      }
+      return;
+    }
+    x.lineWidth = 1.6; x.beginPath(); x.moveTo(a, GY + 0.8); x.lineTo(b, GY + 0.8); x.stroke();
+    x.lineWidth = 1; x.beginPath();
+    for (let gx = Math.ceil(a / 50) * 50; gx <= b; gx += 50) { x.moveTo(gx, GY + 2); x.lineTo(gx, GY + (gx % 250 === 0 ? 9 : 5)); }
+    x.stroke();
+  };
+  let cur = x0;
+  for (const h of holes.filter((q) => q.x + q.w > x0 && q.x < x1).sort((a, b) => a.x - b.x)) {
+    seg(cur, h.x);
+    if (ST.pixel) { x.fillRect(h.x - ST.S, GY, ST.S, 40); x.fillRect(h.x + h.w, GY, ST.S, 40); }
+    else {
+      x.lineWidth = 1.6; x.beginPath(); x.moveTo(h.x, GY); x.lineTo(h.x, H); x.moveTo(h.x + h.w, GY); x.lineTo(h.x + h.w, H); x.stroke();
+      hatch(x, h.x - 10, GY, 10, H - GY, 6); hatch(x, h.x + h.w, GY, 10, H - GY, 6);
+    }
+    cur = h.x + h.w;
+  }
+  seg(cur, x1);
+}
+function drawFinish(x, fx, t) {
+  const c = 10;
+  for (let r = 0; r < 12; r++) for (let k = 0; k < 2; k++) if ((r + k) % 2 === 0) x.fillRect(fx + k * c, GY - (r + 1) * c, c, c);
+  if (!ST.pixel) { x.lineWidth = 1.2; x.strokeRect(fx, GY - 120, 20, 120); }
+  x.lineWidth = ST.pixel ? ST.S : 1.6;
+  x.beginPath(); x.moveTo(fx + 10, GY - 120); x.lineTo(fx + 10, GY - 162); x.stroke();
+  for (let r = 0; r < 3; r++) for (let k = 0; k < 4; k++) {
+    if ((r + k) % 2) continue;
+    x.fillRect(fx + 11 + k * 7, snap(GY - 162 + r * 7 + Math.sin(t * 5 + k) * 2), 7, 7);
+  }
+}
+function drawSpeedLines(x, r) {
+  const k = Math.floor(T * 18);
+  x.lineWidth = ST.pixel ? ST.S : 1.3;
+  for (let i = 0; i < 4; i++) {
+    const h = hash(k * 4 + i), yy = snap(r.y - 18 + i * 12), len = 16 + (h % 26), xx = snap(r.x - RC - 8 - ((h >>> 8) % 26));
+    if (ST.pixel) x.fillRect(xx - len, yy, len, ST.S);
+    else { x.beginPath(); x.moveTo(xx - len, yy); x.lineTo(xx, yy); x.stroke(); }
+  }
+}
+function drawParts(x, r) {
+  for (const p of r.parts) {
+    if (p.kind === 'tooth') {
+      x.save(); x.translate(p.x, p.y); x.rotate(p.a);
+      x.beginPath(); x.moveTo(-5, 5); x.lineTo(-2.5, -5); x.lineTo(2.5, -5); x.lineTo(5, 5); x.closePath();
+      if (ST.pixel) x.fill(); else { x.lineWidth = 1.4; x.stroke(); }
+      x.restore();
+    } else { const s = ST.pixel ? ST.S : 2.6; x.fillRect(p.x - s / 2, p.y - s / 2, s, s); }
+  }
+}
+function drawBackdrop(x, camX) {
+  const off = camX * 0.35, sp = 540, first = Math.floor((off - 300) / sp);
+  x.lineWidth = ST.pixel ? ST.S : 1.4;
+  for (let i = first; i <= first + 3; i++) {
+    const h = hash(i + 7777), rr = 46 + (h % 46);
+    const gx = snap(i * sp + ((h >>> 7) % 180) - off), gy = snap(30 + rr * 0.6 + ((h >>> 13) % 50));
+    const a = (off / rr) * (i % 2 ? 0.8 : -0.8);
+    x.beginPath(); gearContour(x, gx, gy, rr, 8, Math.max(10, Math.round(rr / 4.2)), a, null); x.stroke();
+    x.beginPath(); x.arc(gx, gy, rr * 0.42, 0, TAU); x.stroke();
+  }
+  // Dimension marks every 100 m, like the Plan ambiance.
+  x.font = `11px ${MONO}`;
+  for (let m = Math.max(1, Math.ceil((camX - X0 - 60) / 1000)); X0 + m * 1000 < camX + W + 60; m++) {
+    const sx = snap(X0 + m * 1000 - camX);
+    if (ST.pixel) x.fillRect(sx, GY + ST.S * 2, ST.S, ST.S * 8);
+    else { x.lineWidth = 1; x.beginPath(); x.moveTo(sx, GY + 4); x.lineTo(sx, GY + 34); x.stroke(); x.fillText(`${m * 100} m`, sx + 5, GY + 30); }
+  }
+}
+function drawWorld(x, r, camX) {
+  const c = r.c, x0 = camX - 80, x1 = camX + W + 80, vis = (a, b) => b > x0 && a < x1;
+  drawGround(x, x0, x1, c.holes);
+  for (const p of c.plats) if (vis(p.x, p.x + p.w)) drawPlatform(x, p);
+  if (vis(c.L - 10, c.L + 50)) drawFinish(x, c.L, T);
+  for (const b of c.boosts) if (vis(b.x, b.x + 46)) drawBoost(x, b.x, T, b.taken);
+  for (const b of c.bonus) if (!b.taken && vis(b.x - 14, b.x + 14)) drawFlame(x, snap(b.x), snap(b.y + Math.sin(T * 3 + b.x) * 4));
+  for (const o of c.obs) if (vis(o.x, o.x + o.w)) drawObstacle(x, o);
+  if (r.boost > 0 && state === 'course') drawSpeedLines(x, r);
+  if (!(r.invul > 0 && Math.floor(T * 12) % 2)) drawGear(x, snap(r.x), snap(r.y), r.ang, r.missing);
+  drawParts(x, r);
+}
+function drawHud(o, r, camX) {
+  const c = r.c, meters = Math.max(0, Math.round((Math.min(r.x, c.L) - X0) / 10)), totalM = Math.round((c.L - X0) / 10);
+  o.textBaseline = 'top'; o.textAlign = 'left';
+  o.font = `700 12px ${MONO}`; o.fillText(`COURSE ${c.n}`, 18, 14);
+  o.font = `500 12px ${MONO}`; o.fillText(`${fmt(meters)} / ${fmt(totalM)} m`, 18, 31);
+  const res = reserveOf(), left = Math.max(0, res - r.hits);
+  for (let i = 0; i < res; i++) {
+    const tx = 18 + i * 13, ty = 51;
+    o.beginPath(); o.moveTo(tx, ty + 9); o.lineTo(tx + 2.5, ty); o.lineTo(tx + 7.5, ty); o.lineTo(tx + 10, ty + 9); o.closePath();
+    if (i < left) o.fill(); else { o.lineWidth = 1.2; o.stroke(); }
+  }
+  // Progress to the line.
+  const p0 = 300, p1 = W - 300, py = 21, pr = Math.min(1, Math.max(0, (r.x - X0) / (c.L - X0)));
+  o.globalAlpha = 0.35; o.fillRect(p0, py, p1 - p0, 1.5); o.globalAlpha = 1;
+  o.fillRect(p0, py - 1, (p1 - p0) * pr, 3.5);
+  o.beginPath(); o.arc(p0 + (p1 - p0) * pr, py + 0.75, 5, 0, TAU); o.fill();
+  for (let k = 0; k < 4; k++) if (((k & 1) + (k >> 1)) % 2 === 0) o.fillRect(p1 + 6 + (k & 1) * 4, py - 3.5 + (k >> 1) * 4, 4, 4);
+  if (r.boost > 0) {
+    o.textAlign = 'center'; o.font = `700 11px ${MONO}`; o.fillText('TURBO', W / 2, 33);
+    o.fillRect(W / 2 - 40, 49, (80 * r.boost) / turboOf(), 3);
+  }
+  o.textAlign = 'right';
+  o.font = `700 17px ${MONO}`; o.fillText(fmt(liveScore(r)), W - 18, 12);
+  o.font = `500 11px ${MONO}`; o.globalAlpha = 0.7;
+  o.fillText(`TOTAL ${fmt(save.total)}`, W - 18, 34);
+  o.fillText(`BONUS ${r.bonusN}/2 · TURBO ${r.boostN}/2`, W - 18, 50);
+  o.globalAlpha = 1;
+  o.textAlign = 'center'; o.font = `700 13px ${MONO}`;
+  for (const f of r.floats) { o.globalAlpha = Math.max(0, Math.min(1, f.life * 2)); o.fillText(f.txt, f.x - camX, f.y - (1 - f.life) * 30); }
+  o.globalAlpha = 1;
+}
+
+/* ---------- Rendering: pixel = low-res, thresholded, upscaled ---------- */
+function makeView(canvas, w, h) {
+  const mk = () => { const c = document.createElement('canvas'); c.ctx = c.getContext('2d', { willReadFrequently: true }); return c; };
+  return { canvas, out: canvas.getContext('2d'), W: w, H: h, dim: mk(), main: mk() };
+}
+function binarize(x, w, h) {
+  const d = x.getImageData(0, 0, w, h), a = d.data, [rr, gg, bb] = INK.rgb;
+  for (let i = 0; i < a.length; i += 4) {
+    if (a[i + 3] >= 112) { a[i] = rr; a[i + 1] = gg; a[i + 2] = bb; a[i + 3] = 255; } else a[i + 3] = 0;
+  }
+  x.putImageData(d, 0, 0);
+}
+function render(v, scene) {
+  const cv = v.canvas, cw = cv.clientWidth, ch = cv.clientHeight;
+  if (!cw || !ch) return;
+  const dpr = Math.min(2, window.devicePixelRatio || 1), pw = Math.round(cw * dpr), ph = Math.round(ch * dpr);
+  if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
+  const pix = ST.pixel, S = ST.S;
+  const lw = pix ? Math.ceil(v.W / S) : pw, lh = pix ? Math.ceil(v.H / S) : ph, k = pix ? 1 / S : pw / v.W;
+  for (const [c, fn] of [[v.dim, scene.dim], [v.main, scene.main]]) {
+    if (c.width !== lw || c.height !== lh) { c.width = lw; c.height = lh; }
+    const x = c.ctx;
+    x.setTransform(1, 0, 0, 1, 0, 0); x.clearRect(0, 0, lw, lh);
+    if (!fn) continue;
+    x.setTransform(k, 0, 0, k, 0, 0);
+    x.fillStyle = x.strokeStyle = INK.css; x.globalAlpha = 1;
+    x.lineCap = pix ? 'butt' : 'round'; x.lineJoin = pix ? 'miter' : 'round';
+    x.save(); fn(x); x.restore();
+    if (pix) binarize(x, lw, lh);
+  }
+  const o = v.out, dw = pix ? (lw * S * pw) / v.W : pw, dh = pix ? (lh * S * pw) / v.W : ph;
+  o.setTransform(1, 0, 0, 1, 0, 0); o.globalAlpha = 1;
+  o.fillStyle = BG; o.fillRect(0, 0, pw, ph);
+  o.imageSmoothingEnabled = !pix;
+  o.globalAlpha = 0.22; o.drawImage(v.dim, 0, 0, dw, dh);
+  o.globalAlpha = 1; o.drawImage(v.main, 0, 0, dw, dh);
+  if (scene.hud) { o.setTransform(pw / v.W, 0, 0, pw / v.W, 0, 0); o.fillStyle = o.strokeStyle = INK.css; scene.hud(o); }
+}
+const camOf = (r) => snap(r.x - 170);
+function worldScene(r, camX, hud) {
+  return {
+    dim: (x) => drawBackdrop(x, camX),
+    main: (x) => { x.translate(-camX, 0); drawWorld(x, r, camX); },
+    hud: hud ? (o) => drawHud(o, r, camX) : null,
+  };
+}
+
+/* ---------- Simulation ---------- */
+function burst(r, x, y, n, sp) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, m = sp * (0.4 + Math.random());
+    r.parts.push({ kind: 'dot', x, y, vx: Math.cos(a) * m, vy: Math.sin(a) * m - 120, a: 0, va: 0, life: 0.5 + Math.random() * 0.3 });
+  }
+}
+function hit() {
+  const r = run, step = TAU / TEETH;
+  // The tooth facing forward is the one that breaks.
+  let i = ((Math.round(-r.ang / step - 0.5) % TEETH) + TEETH) % TEETH;
+  for (let k = 0; k < TEETH && r.missing.has(i); k++) i = (i + 1) % TEETH;
+  r.missing.add(i);
+  r.hits++;
+  r.parts.push({ kind: 'tooth', x: r.x + RC - 4, y: r.y, vx: -60 + Math.random() * 140, vy: -420, a: 0, va: 14, life: 1.3 });
+  burst(r, r.x + RC - 6, r.y, 6, 160);
+  if (r.hits > reserveOf()) {
+    state = 'panne'; r.endT = 0; r.vy = -360; r.ground = false;
+    r.floats.push({ txt: 'EN PANNE', x: r.x, y: r.y - 50, life: 1.4 });
+    return;
+  }
+  r.invul = 1.1; r.slow = 0.45;
+  if (r.ground) { r.vy = -320; r.ground = false; }
+  r.floats.push({ txt: '− 1 dent', x: r.x, y: r.y - 46, life: 1 });
+}
+const circleRect = (cx, cy, rad, q) => { const dx = cx - Math.max(q.x, Math.min(cx, q.x + q.w)), dy = cy - Math.max(q.y, Math.min(cy, q.y + q.h)); return dx * dx + dy * dy < rad * rad; };
+
+function update(dt) {
+  T += dt;
+  if (!run) return;
+  const r = run, c = r.c;
+  for (const p of r.parts) { p.vy += GRAV * 0.55 * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.a += p.va * dt; p.life -= dt; }
+  r.parts = r.parts.filter((p) => p.life > 0);
+  for (const f of r.floats) f.life -= dt * 0.9;
+  r.floats = r.floats.filter((f) => f.life > 0);
+  if (state !== 'course' && state !== 'arrivee' && state !== 'panne') return;
+
+  r.t += dt;
+  let v = speedOf() * r.slow * (r.boost > 0 ? BOOST_X : 1);
+  if (state === 'arrivee') { r.endT += dt; v *= Math.max(0.15, 1 - r.endT / 1.3); if (r.endT > 1.1) { finishRun(); return; } }
+  if (state === 'panne') { r.endT += dt; v *= Math.max(0, 1 - r.endT * 1.5); if (r.endT > 1.0) { showPanne(); return; } }
+  r.slow = Math.min(1, r.slow + dt * 0.45);
+  r.boost = Math.max(0, r.boost - dt);
+  r.invul = Math.max(0, r.invul - dt);
+  r.x += v * dt; r.ang += (v * dt) / RC;
+
+  if (state === 'course') {
+    r.buffer = Math.max(0, r.buffer - dt);
+    if (r.buffer > 0 && (r.ground || r.coyote > 0) && !r.falling) { r.vy = -jumpOf(); r.ground = false; r.coyote = 0; r.buffer = 0; }
+  }
+  const prevBottom = r.y + RC;
+  // Released early, the jump is cut short: stronger gravity while rising.
+  r.vy += GRAV * dt * (!r.holding && r.vy < 0 ? 2.4 : 1);
+  r.y += r.vy * dt;
+  const bottom = r.y + RC, vyBefore = r.vy, wasGround = r.ground;
+  r.ground = false;
+  if (!r.falling && r.vy >= 0) {
+    for (const p of c.plats) {
+      if (r.x > p.x - 6 && r.x < p.x + p.w + 6 && prevBottom <= p.y + 2 && bottom >= p.y) { r.y = p.y - RC; r.vy = 0; r.ground = true; break; }
+    }
+    if (!r.ground) {
+      const hole = c.holes.find((h) => r.x > h.x + 4 && r.x < h.x + h.w - 4);
+      if (!hole && bottom >= GY) { r.y = GY - RC; r.vy = 0; r.ground = true; }
+      else if (hole && bottom > GY + 6) { r.falling = true; r.fallHole = hole; }
+    }
+  }
+  if (r.ground && !wasGround && vyBefore > 520) { burst(r, r.x - 14, r.y + RC, 2, 60); burst(r, r.x + 14, r.y + RC, 2, 60); }
+  r.coyote = r.ground ? 0.09 : Math.max(0, r.coyote - dt);
+
+  if (state !== 'course') return;
+  if (r.falling && r.y > H + 70) {
+    const h = r.fallHole;
+    r.x = h.x + h.w + 46; r.y = GY - RC; r.vy = 0; r.falling = false; r.ground = true;
+    hit();
+    if (state === 'course') r.invul = 1.4;
+    return;
+  }
+  if (r.invul <= 0 && !r.falling) {
+    for (const o of c.obs) {
+      if (o.x > r.x + 60 || o.x + o.w < r.x - 60) continue;
+      const q = o.t === 'pics' ? { x: o.x + 3, y: GY - o.h + 7, w: o.w - 6, h: o.h - 7 } : { x: o.x, y: GY - o.h, w: o.w, h: o.h };
+      if (circleRect(r.x, r.y, R + TH * 0.45, q)) { hit(); if (state !== 'course') return; break; }
+    }
+  }
+  if (!r.falling) {
+    for (const b of c.boosts) {
+      if (!b.taken && r.x > b.x - 4 && r.x < b.x + 50 && r.y + RC > GY - 18) {
+        b.taken = true; r.boost = turboOf(); r.boostN++;
+        r.floats.push({ txt: 'TURBO !', x: r.x, y: r.y - 46, life: 1 }); burst(r, r.x, GY - 4, 5, 120);
+      }
+    }
+    const mag = magnetOf();
+    for (const b of c.bonus) {
+      if (b.taken) continue;
+      const dx = r.x - b.x, dy = r.y - b.y, d = Math.hypot(dx, dy);
+      if (mag && d < mag + RC + 12) { const f = Math.min(1, dt * 7); b.x += dx * f; b.y += dy * f; }
+      if (d < RC + 13) { b.taken = true; r.bonusN++; r.floats.push({ txt: '+ 250', x: b.x, y: b.y - 26, life: 1 }); burst(r, b.x, b.y, 10, 200); }
+    }
+  }
+  if (r.x >= c.L) { state = 'arrivee'; r.endT = 0; r.time = r.t; r.floats.push({ txt: 'LIGNE FRANCHIE', x: r.x + 60, y: r.y - 60, life: 1.3 }); }
+}
+
+/* ---------- Screens ---------- */
+const ov = $('#ov');
+function showOverlay(html) { ov.innerHTML = html; ov.classList.add('on'); ovT = T; }
+function hideOverlay() { ov.classList.remove('on'); ov.innerHTML = ''; }
+function ovAccueil() {
+  return `<div class="ov-card ov-center">
+    <div class="ov-title">ROUE LIBRE</div>
+    <p>Espace, clic ou ↑ pour rouler — maintenir pour sauter plus haut</p>
+    <p class="dim">Course ${save.course} · score total ${fmt(save.total)}</p>
+    <div class="ov-btns"><button class="primary" data-act="start">Rouler <kbd>Espace</kbd></button>${save.points ? `<button data-act="reglages">Réglages <span class="badge">${save.points}</span></button>` : ''}</div>
+  </div>`;
+}
+function ovReglages({ recap, stats, points, live }) {
+  const rows = recap ? recap.rows.map(([a, b, n]) => `<tr><td>${a}</td><td class="dim">${b}</td><td class="num">${n ? '+ ' + fmt(n) : '—'}</td></tr>`).join('') : '';
+  const left = recap ? `<div class="reg-recap"><table>${rows}
+      <tr class="sum"><td>Cette course</td><td></td><td class="num">${fmt(recap.total)}</td></tr>
+      <tr class="tot"><td>Score total</td><td></td><td class="num">${fmt(recap.grand)}</td></tr></table></div>` : '';
+  const st = STATS.map((s, i) => {
+    const lv = stats[s.k], can = live && points > 0 && lv < MAXLVL;
+    const pips = Array.from({ length: MAXLVL }, (_, j) => `<i class="${j < lv ? 'on' : ''}"></i>`).join('');
+    return `<div class="st"><kbd>${i + 1}</kbd><span>${s.name}</span><span class="pips">${pips}</span><button data-act="buy" data-k="${s.k}" ${can ? '' : 'disabled'} aria-label="Améliorer ${s.name}">+</button><span class="st-d">${s.desc}</span></div>`;
+  }).join('');
+  const pts = points ? `<b>${points}</b> réglage${points > 1 ? 's' : ''} à placer` : 'Aucun réglage à placer';
+  return `<div class="ov-card reg">
+    <div class="reg-h"><b>${recap ? 'Ligne franchie' : 'Réglages'}</b><span class="dim">${recap ? `Course ${recap.course} · ${fmt(recap.meters)} m` : `Course ${save.course} à venir`}</span></div>
+    <div class="reg-cols${recap ? '' : ' solo'}">${left}<div><div class="pts">${pts} <span class="dim">· +1 par ligne, +1 sans faute</span></div>${st}</div></div>
+    <div class="ov-btns"><button class="primary" data-act="next" ${live ? '' : 'disabled'}>${recap ? 'Course suivante' : 'Rouler'} <kbd>Espace</kbd></button></div>
+  </div>`;
+}
+function ovPanne(p) {
+  return `<div class="ov-card ov-center">
+    <div class="ov-title">EN PANNE</div>
+    <p>Plus de dent de réserve, à ${fmt(p.meters)} m sur ${fmt(p.totalM)}.</p>
+    <p class="dim">Gardé au score : + ${fmt(p.score)} → total ${fmt(save.total)}</p>
+    <div class="ov-btns"><button class="primary" data-act="retry">Rejouer la course <kbd>Espace</kbd></button>${save.points ? `<button data-act="reglages">Réglages <span class="badge">${save.points}</span></button>` : ''}</div>
+  </div>`;
+}
+const ovPause = () => `<div class="ov-card ov-center"><div class="ov-title">PAUSE</div><p>Espace ou Échap pour reprendre</p></div>`;
+
+function toAccueil() { state = 'accueil'; showOverlay(ovAccueil()); }
+function startRun() { state = 'course'; hideOverlay(); run.holding = false; run.buffer = 0; }
+function pause() { state = 'pause'; showOverlay(ovPause()); }
+function resume() { state = 'course'; hideOverlay(); run.holding = false; }
+function openReglages(recap) {
+  lastRecap = recap; state = 'reglages';
+  showOverlay(ovReglages({ recap, stats: save.stats, points: save.points, live: true }));
+}
+function finishRun() {
+  const r = run, c = r.c, meters = Math.round((c.L - X0) / 10), par = (c.L - X0) / BASE_V;
+  const clean = r.hits === 0, chrono = Math.max(0, Math.round((par - r.time) * 25));
+  const rows = [
+    ['Distance', `${fmt(meters)} m`, meters],
+    ['Bonus', `${r.bonusN} / 2`, r.bonusN * 250],
+    ['Ligne franchie', '', 500],
+    ['Sans faute', clean ? 'aucune dent perdue' : `${r.hits} dent${r.hits > 1 ? 's' : ''} perdue${r.hits > 1 ? 's' : ''}`, clean ? 300 : 0],
+    ['Chrono', `${sec(r.time)} s pour ${sec(par)} s`, chrono],
+  ];
+  const total = rows.reduce((a, q) => a + q[2], 0);
+  save.total += total; save.points += clean ? 2 : 1; save.course = c.n + 1; persist();
+  openReglages({ rows, total, grand: save.total, meters, course: c.n });
+}
+function showPanne() {
+  const r = run, meters = Math.max(0, Math.round((r.x - X0) / 10)), score = meters + r.bonusN * 250;
+  save.total += score; persist();
+  state = 'panne-ov';
+  showOverlay(ovPanne({ meters, totalM: Math.round((r.c.L - X0) / 10), score }));
+}
+function buy(k) {
+  if (state !== 'reglages' || save.points <= 0 || save.stats[k] >= MAXLVL) return;
+  save.stats[k]++; save.points--; persist();
+  showOverlay(ovReglages({ recap: lastRecap, stats: save.stats, points: save.points, live: true }));
+}
+function press() {
+  if (state !== 'course' && T - ovT < 0.45) return;   // a mashed jump never skips a screen
+  if (state === 'course') { run.buffer = 0.12; run.holding = true; }
+  else if (state === 'accueil' || state === 'panne-ov' || state === 'reglages') { prepareRun(); startRun(); }
+  else if (state === 'pause') resume();
+}
+ov.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-act]');
+  if (!b || b.disabled) return;
+  const a = b.dataset.act;
+  if (a === 'start' || a === 'next' || a === 'retry') { prepareRun(); startRun(); }
+  else if (a === 'buy') buy(b.dataset.k);
+  else if (a === 'reglages') openReglages(null);
+});
+ov.addEventListener('pointerdown', (e) => {
+  if (e.target.closest('button') || e.target.closest('.reg')) return;
+  if (state === 'accueil' || state === 'panne-ov' || state === 'pause') press();
+});
+
+/* ---------- Static views: B, C, D ---------- */
+const gameView = makeView($('#cvGame'), W, H);
+const demoView = makeView($('#cvDemo'), W, H);
+const stripView = makeView($('#cvStrip'), 600, 90);
+const demoRun = makeRun(buildCourse(3, 4242));
+demoRun.x = demoRun.c.L + 150; demoRun.missing = new Set([5]);
+$('#ovDemo').innerHTML = ovReglages({
+  recap: { rows: [['Distance', '1 120 m', 1120], ['Bonus', '2 / 2', 500], ['Ligne franchie', '', 500], ['Sans faute', '1 dent perdue', 0], ['Chrono', '38,6 s pour 41,5 s', 72]],
+    total: 2192, grand: 14610, meters: 1120, course: 3 },
+  stats: { speed: 2, jump: 1, turbo: 0, armor: 2, magnet: 0 }, points: 1, live: false,
+});
+
+const TILE_W = 240, TILE_H = 170, TILE_G = 146;
+const ground = (x) => drawGround(x, -10, TILE_W + 10, []);
+const TILES = [
+  { name: 'L’engrenage', role: 'Toi. 14 dents ; un choc en casse une, et ça se voit.', draw: (x) => { ground(x); drawGear(x, 120, GY - RC, 0.25, new Set([3])); } },
+  { name: 'Plateforme', role: 'On la traverse par-dessous, on s’y pose par-dessus.', draw: (x) => { ground(x); drawPlatform(x, { x: 40, y: GY - 74, w: 160 }); } },
+  { name: 'Bloc verrouillé', role: 'Un fichier système : on n’y touche jamais.', draw: (x) => { ground(x); drawBlock(x, 103, GY - 34); } },
+  { name: 'Pile', role: 'Deux blocs : saut complet, ou par la plateforme.', draw: (x) => { ground(x); drawBlock(x, 103, GY - 68); drawBlock(x, 103, GY - 34); } },
+  { name: 'Pics', role: 'De deux à cinq dents de scie.', draw: (x) => { ground(x); drawSpikes(x, 72, 96, 20); } },
+  { name: 'Trou', role: 'Y tomber coûte une dent ; on repart au bord.', draw: (x) => drawGround(x, -10, TILE_W + 10, [{ x: 75, w: 90 }]) },
+  { name: 'Turbo × 2', role: 'Vitesse × 1,6 pendant 2,5 s ; le réglage Turbo l’allonge.', draw: (x) => { ground(x); drawBoost(x, 97, 0.2, false); } },
+  { name: 'Bonus × 2', role: 'La flamme de Sindry : + 250 points.', draw: (x) => { ground(x); drawFlame(x, 120, GY - 56); } },
+  { name: 'Arrivée', role: '+ 500, puis les réglages et la course suivante.', draw: (x) => { ground(x); x.save(); x.translate(120, GY); x.scale(0.72, 0.72); x.translate(-120, -GY); drawFinish(x, 110, 0.4); x.restore(); } },
+];
+const tileViews = TILES.map((t) => {
+  const el = document.createElement('div');
+  el.className = 'tile';
+  el.innerHTML = `<canvas></canvas><div><b>${t.name}</b><span>${t.role}</span></div>`;
+  $('#tiles').appendChild(el);
+  return { v: makeView(el.querySelector('canvas'), TILE_W, TILE_H), t };
+});
+
+function redrawStatic() {
+  for (const { v, t } of tileViews) render(v, { main: (x) => { x.translate(0, TILE_G - GY); t.draw(x); } });
+  render(demoView, worldScene(demoRun, snap(demoRun.x - 420), false));
+  render(stripView, { main: (x) => { x.translate(0, 72 - GY); drawGround(x, -10, 610, []); drawGear(x, 60, GY - RC, 0.4, null); } });
+}
+
+/* ---------- UI, secrets, loop ---------- */
+let ui = { style: 'px3', ink: 'text', amb: 'plan-clair' };
+try { ui = Object.assign(ui, JSON.parse(localStorage.getItem(KEY_UI)) || {}); } catch (e) { /* defaults */ }
+function applyUi() {
+  ST = STYLES[ui.style] || STYLES.px3;
+  const a = AMBS[ui.amb] || AMBS['plan-clair'], root = document.documentElement, rs = root.style;
+  for (const [k, val] of Object.entries({ '--bg': a.bg, '--surface': a.surface, '--border': a.border, '--text': a.text, '--text-2': a.text2, '--acc': a.acc })) rs.setProperty(k, val);
+  const ink = ui.ink === 'acc' ? a.acc : a.text;
+  INK = { css: ink, rgb: hexRgb(ink) }; BG = a.surface;
+  rs.setProperty('--g-ink', ink); rs.setProperty('--g-bg', a.surface);
+  rs.colorScheme = a.dark ? 'dark' : 'light';
+  root.dataset.rendu = ST.pixel ? 'pixel' : 'trait';
+  root.classList.toggle('mono', !!a.mono);
+  for (const b of document.querySelectorAll('[data-set]')) b.classList.toggle('on', ui[b.dataset.set] === b.dataset.val);
+  redrawStatic();
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-set]');
+  if (!b) return;
+  ui[b.dataset.set] = b.dataset.val;
+  try { localStorage.setItem(KEY_UI, JSON.stringify(ui)); } catch (err) { /* not kept */ }
+  applyUi(); b.blur();
+});
+
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2400); }
+function reveal(msg) {
+  toast(msg);
+  const g = $('#game');
+  g.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  g.classList.remove('flash'); void g.offsetWidth; g.classList.add('flash');
+  if (state === 'course') pause();
+}
+let clicks = [];
+$('#logo').addEventListener('click', () => {
+  const now = performance.now();
+  clicks = clicks.filter((q) => now - q < 3000).concat(now);
+  $('#logo').style.transform = `rotate(${clicks.length * (360 / 14)}deg)`;
+  if (clicks.length >= 7) { clicks = []; setTimeout(() => { $('#logo').style.transform = ''; }, 300); reveal('7 clics sur le logo : le jeu se réveille'); }
+});
+$('#strip').addEventListener('click', () => reveal('Hors ligne : le jeu se réveille'));
+$('#reset').addEventListener('click', () => { save = fresh(); persist(); prepareRun(); toAccueil(); });
+
+const JUMP = new Set(['Space', 'ArrowUp', 'KeyW']);
+addEventListener('keydown', (e) => {
+  if (e.key && e.key.length === 1 && /[a-z]/i.test(e.key)) {
+    typed = (typed + e.key.toLowerCase()).slice(-6);
+    if (typed === 'sindry') { typed = ''; reveal('« sindry » tapé : le jeu se réveille'); return; }
+  }
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  if (!gameVisible) {
+    if (stripVisible && e.code === 'Space') { e.preventDefault(); reveal('Hors ligne : le jeu se réveille'); }
+    return;
+  }
+  if (JUMP.has(e.code) || (e.code === 'Enter' && state === 'reglages')) { e.preventDefault(); if (!e.repeat) press(); }
+  else if (e.code === 'Escape' || e.code === 'KeyP') { if (state === 'course') pause(); else if (state === 'pause') resume(); }
+  else if (state === 'reglages' && /^Digit[1-5]$/.test(e.code)) buy(STATS[Number(e.code.slice(5)) - 1].k);
+});
+addEventListener('keyup', (e) => { if (JUMP.has(e.code) && run) run.holding = false; });
+$('#cvGame').addEventListener('pointerdown', (e) => { e.preventDefault(); press(); });
+addEventListener('pointerup', () => { if (run) run.holding = false; });
+document.addEventListener('visibilitychange', () => { if (document.hidden && state === 'course') pause(); });
+new IntersectionObserver((es) => {
+  for (const en of es) {
+    if (en.target.id === 'game') { gameVisible = en.intersectionRatio > 0.3; if (!gameVisible && state === 'course') pause(); }
+    else stripVisible = en.intersectionRatio > 0.5;
+  }
+}, { threshold: [0, 0.3, 0.5, 1] }).observe($('#game'));
+new IntersectionObserver((es) => { for (const en of es) stripVisible = en.intersectionRatio > 0.5; }, { threshold: [0, 0.5, 1] }).observe($('#strip'));
+let rz = 0;
+new ResizeObserver(() => { cancelAnimationFrame(rz); rz = requestAnimationFrame(redrawStatic); }).observe($('main'));
+if (document.fonts) document.fonts.ready.then(redrawStatic);
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(1 / 30, Math.max(0, (now - last) / 1000));
+  last = now;
+  update(dt);
+  if (gameVisible && run) render(gameView, worldScene(run, camOf(run), true));
+  requestAnimationFrame(frame);
+}
+applyUi();
+prepareRun();
+toAccueil();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

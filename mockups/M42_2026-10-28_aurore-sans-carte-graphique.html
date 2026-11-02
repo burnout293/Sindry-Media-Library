@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M42 · Aurore sans carte graphique</title>
+<!--
+  Mockup M42: the Aurore identity (plan C of M41), reworked so that it needs no
+  GPU at all — no live blur, no transparency, no drop shadows. The "glass" of
+  the taskbar and start menu is a slice of the wallpaper blurred once, at build
+  time (simulated here with ::before/::after layers placed at the element's
+  offset). Six variants of the same family: anguleux, arrondi, organique,
+  cyber, Windows, and an original one (Vitrail).
+-->
+<style>
+@font-face { font-family: 'Inter'; font-weight: 100 900; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Sindry Mono'; font-weight: 400; src: url('_ressources/sindry-mono-400.woff2') format('woff2'); }
+:root { --page:#0B0F16; --page-2:#111827; --page-3:#1A2333; --ptxt:#E6EAF2; --ptxt-2:#9AA5B8; --line:#263042; --pacc:#7C8CFF; }
+* { box-sizing: border-box; }
+html, body { margin:0; background:var(--page); color:var(--ptxt); font-family:'Inter','Segoe UI',system-ui,sans-serif; }
+body { padding:20px 24px 70px; }
+.wrap { max-width:1400px; margin:0 auto; }
+header.top { display:flex; flex-wrap:wrap; gap:14px 24px; align-items:flex-end; justify-content:space-between; margin-bottom:12px; }
+header.top h1 { margin:0 0 4px; font-size:22px; letter-spacing:-.01em; }
+header.top p { margin:0; color:var(--ptxt-2); font-size:13px; max-width:620px; line-height:1.5; }
+.ctrls { display:flex; flex-wrap:wrap; gap:10px; }
+.seg { display:inline-flex; flex-wrap:wrap; background:var(--page-2); border:1px solid var(--line); border-radius:10px; padding:3px; gap:2px; }
+.seg button { font:inherit; font-size:12.5px; color:var(--ptxt-2); background:none; border:0; padding:7px 12px; border-radius:7px; cursor:pointer; }
+.seg button.on { background:var(--page-3); color:var(--ptxt); box-shadow:inset 0 0 0 1px #34405a; }
+.seg button b { color:var(--pacc); font-weight:700; margin-right:4px; }
+.nogpu { display:grid; grid-template-columns:auto 1fr 1fr 1fr; gap:10px 18px; align-items:start; background:var(--page-2); border:1px solid var(--line); border-radius:10px; padding:12px 16px; margin-bottom:14px; font-size:12.5px; line-height:1.5; color:var(--ptxt-2); }
+.nogpu strong { color:var(--ptxt); display:block; font-size:12px; letter-spacing:.06em; text-transform:uppercase; margin-bottom:2px; }
+.nogpu .t { color:var(--ptxt); font-weight:650; font-size:13px; align-self:center; }
+.frame { position:relative; width:100%; aspect-ratio:1280/760; overflow:hidden; border-radius:10px; border:1px solid var(--line); background:#000; }
+.desk { position:absolute; left:0; top:0; width:1280px; height:760px; transform-origin:0 0; overflow:hidden; user-select:none; }
+.hint { color:var(--ptxt-2); font-size:12px; margin:8px 2px 0; }
+.notes { display:grid; grid-template-columns:1.2fr 1fr 1fr; gap:14px; margin-top:16px; }
+.note { background:var(--page-2); border:1px solid var(--line); border-radius:10px; padding:14px 16px; font-size:13px; line-height:1.55; }
+.note h3 { margin:0 0 8px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:var(--ptxt-2); }
+.note .idee { font-size:16px; font-weight:650; margin:0 0 8px; color:var(--ptxt); }
+.note ul { margin:0; padding-left:18px; }
+.note li { margin:2px 0; }
+.note .pour { color:#7FD3A4; } .note .contre { color:#F59A8B; }
+.note .gpu { margin:10px 0 0; padding-top:8px; border-top:1px solid var(--line); color:#A9B8FF; }
+.sw { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
+.sw span { display:inline-flex; align-items:center; gap:6px; font:11px 'Sindry Mono',monospace; color:var(--ptxt-2); }
+.sw i { width:18px; height:18px; border-radius:5px; border:1px solid rgba(255,255,255,.18); display:inline-block; }
+table.cmp { width:100%; border-collapse:collapse; margin-top:16px; font-size:12.5px; background:var(--page-2); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+table.cmp th, table.cmp td { text-align:left; padding:8px 12px; border-bottom:1px solid var(--line); vertical-align:top; }
+table.cmp th { color:var(--ptxt-2); font-weight:600; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase; }
+table.cmp td:first-child { color:var(--ptxt-2); white-space:nowrap; }
+table.cmp tr:last-child td { border-bottom:0; }
+table.cmp tr.cur td { background:rgba(124,140,255,.09); }
+table.cmp tr.cur td:first-child { color:var(--ptxt); font-weight:650; }
+@media (max-width:900px) { .notes, .nogpu { grid-template-columns:1fr; } body { padding:16px 16px 60px; } table.cmp { display:block; overflow-x:auto; } }
+
+/* ---------- shared desk parts ---------- */
+.i { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:var(--sw,1.8); stroke-linecap:round; stroke-linejoin:round; flex:none; }
+.wall { position:absolute; inset:0; }
+.wall svg { position:absolute; inset:0; width:100%; height:100%; }
+.dicons { position:absolute; left:16px; top:18px; display:flex; flex-direction:column; gap:16px; width:92px; z-index:1; }
+.dicon { display:flex; flex-direction:column; align-items:center; gap:6px; font-size:11.5px; text-align:center; line-height:1.25; }
+.dicon .ic { width:48px; height:48px; display:grid; place-items:center; }
+.dicon .ic .i { width:26px; height:26px; }
+.win { position:absolute; z-index:2; }
+.win .wi { width:100%; height:100%; display:flex; flex-direction:column; overflow:hidden; }
+.win.active { z-index:3; }
+.tb { display:flex; align-items:center; gap:8px; flex:none; }
+.tb .t { flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.tb .ti { display:grid; place-items:center; }
+.tb .ti img { width:16px; height:16px; }
+.ctl { display:flex; align-self:stretch; }
+.ctl button { font:inherit; border:0; background:none; color:inherit; display:grid; place-items:center; cursor:default; padding:0; }
+.ctl .i { width:14px; height:14px; }
+.wbody { flex:1; min-height:0; display:flex; }
+.sy { flex:1; display:flex; flex-direction:column; padding:20px 26px 18px; gap:12px; min-width:0; }
+.sy-steps { display:flex; gap:6px; font-size:11.5px; align-items:center; }
+.sy h2 { margin:6px 0 0; font-size:21px; font-weight:700; letter-spacing:-.01em; }
+.sy .sub { margin:0; font-size:12.5px; color:var(--mut); }
+.sy-list { display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+.card { display:flex; align-items:center; gap:14px; padding:13px 16px; }
+.card .ci { width:40px; height:40px; display:grid; place-items:center; flex:none; }
+.card .ci .i { width:22px; height:22px; }
+.card .cm { flex:1; min-width:0; }
+.card .cm b { display:block; font-size:14px; font-weight:650; margin-bottom:2px; }
+.card .cm span { font-size:12px; color:var(--mut); }
+.card .cm .chip { margin-top:7px; }
+.chip { font-size:11px; padding:3px 8px; display:inline-flex; gap:5px; align-items:center; }
+.chip .i { width:12px; height:12px; }
+.card .act { font:inherit; font-size:12px; padding:7px 12px; cursor:default; flex:none; }
+.sy-foot { margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:11.5px; color:var(--mut); }
+.sy-foot .r { display:flex; gap:8px; }
+.btn { font:inherit; font-size:13px; font-weight:600; padding:10px 18px; border:0; cursor:default; }
+.files { flex:1; display:flex; min-width:0; font-size:12.5px; }
+.files .side { width:170px; padding:12px 8px; display:flex; flex-direction:column; gap:2px; flex:none; }
+.files .side div { display:flex; align-items:center; gap:8px; padding:6px 8px; white-space:nowrap; }
+.files .main { flex:1; min-width:0; display:flex; flex-direction:column; }
+.files .path { padding:10px 14px; font-size:12px; }
+.files .row { display:flex; align-items:center; gap:10px; padding:7px 14px; }
+.files .row span:last-child { margin-left:auto; color:var(--mut); font-size:11.5px; }
+.taskbar { position:absolute; display:flex; align-items:center; z-index:6; }
+.taskbar .apps { display:flex; align-items:center; height:100%; gap:inherit; }
+.taskbar .tray { margin-left:auto; display:flex; align-items:center; height:100%; }
+.taskbar .clock { display:flex; flex-direction:column; align-items:flex-end; line-height:1.25; }
+.tbtn { display:flex; align-items:center; gap:8px; position:relative; cursor:default; white-space:nowrap; }
+.tbtn img { width:22px; height:22px; }
+.startbtn { cursor:pointer; display:grid; place-items:center; position:relative; flex:none; }
+.start-menu { position:absolute; z-index:5; display:none; }
+.desk.menu-open .start-menu { display:flex; }
+.ai { display:grid; place-items:center; flex:none; }
+.ai img { width:70%; height:70%; }
+.ov { position:absolute; inset:0; z-index:10; display:none; }
+.desk[data-view="menu"] .ov-menu, .desk[data-view="splash"] .ov-splash { display:flex; }
+.bm-list { list-style:none; margin:0; padding:0; }
+@media (prefers-reduced-motion: reduce) { * { animation:none !important; } }
+
+/* ---------- Aurore base, shared by every variant ---------- */
+.desk { --r:14px; --rs:10px; --surf:#F7F9FF; --surf2:#fff; --bd:#dfe4f2; --txt:#1b2030; --mut:#5a6178; --acc:#5B6CF0; --acc-t:#fff;
+  --grad:linear-gradient(90deg,#1FB5A3,#5B6CF0 55%,#9A5BE0); --veil:rgba(244,247,255,.76); --gx:0px; --gy:0px; --sw:1.7;
+  color:var(--txt); font-family:'Inter',sans-serif; }
+.wall { background:var(--aur); }
+/* Fake glass: a slice of the (already soft) wallpaper under a light veil — an image computed once, never a live blur */
+.taskbar, .start-menu { isolation:isolate; overflow:hidden; }
+.taskbar::before, .start-menu::before { content:""; position:absolute; left:calc(var(--gx) * -1); top:calc(var(--gy) * -1); width:1280px; height:760px; background:var(--aur); z-index:-2; }
+.taskbar::after, .start-menu::after { content:""; position:absolute; inset:0; background:var(--veil); z-index:-1; }
+.dicon { color:#fff; text-shadow:0 1px 3px rgba(0,0,0,.6); }
+.dicon .ic { border-radius:var(--rs); background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); }
+.win .wi { background:var(--surf); border:1px solid var(--bd); border-radius:var(--r); }
+.win.back .tb { color:var(--mut); }
+.tb { height:40px; padding-left:14px; font-size:12.5px; font-weight:550; }
+.ctl button { width:44px; }
+.ctl button:hover { background:rgba(0,0,0,.06); }
+.ctl button.x:hover { background:#C42B1C; color:#fff; }
+.sy-steps span { padding:4px 10px; border-radius:var(--rs); background:rgba(20,30,60,.06); color:var(--mut); }
+.sy-steps span.on { background:var(--grad); color:#fff; font-weight:600; }
+.card { background:var(--surf2); border:1px solid var(--bd); border-radius:var(--rs); }
+.card.sel { border-color:var(--acc); box-shadow:inset 0 0 0 1px var(--acc); }
+.card .ci { border-radius:var(--rs); background:rgba(91,108,240,.10); color:var(--acc); }
+.chip { border-radius:var(--rs); background:rgba(91,108,240,.10); color:var(--acc); }
+.chip.lock { background:#FDECEC; color:#B3261E; }
+.card .act { border-radius:var(--rs); background:var(--surf); border:1px solid var(--bd); color:var(--txt); }
+.card.sel .act { background:var(--acc); border-color:var(--acc); color:var(--acc-t); }
+.btn { border-radius:var(--rs); }
+.btn.p { background:var(--grad); color:#fff; }
+.btn.g { background:var(--surf2); border:1px solid var(--bd); color:var(--txt); }
+.files .side { border-right:1px solid var(--bd); }
+.files .side div { border-radius:var(--rs); }
+.files .side div.on { background:rgba(91,108,240,.12); color:var(--acc); }
+.files .path { border-bottom:1px solid var(--bd); color:var(--mut); }
+.files .row .i { color:#E0A526; }
+.startbtn img { width:28px; height:28px; }
+.tbtn .i { width:20px; height:20px; color:var(--c); }
+.tray { gap:12px; font-size:12px; padding:0 8px; }
+.start-menu { flex-direction:column; border:1px solid rgba(255,255,255,.7); }
+.am-search { margin:22px 24px 16px; height:40px; border-radius:var(--rs); background:var(--surf2); border:1px solid var(--bd); display:flex; align-items:center; gap:10px; padding:0 14px; font-size:13px; color:var(--mut); flex:none; }
+.am-h { display:flex; justify-content:space-between; align-items:center; margin:0 28px 8px; font-size:13px; font-weight:650; }
+.am-h span { font-size:11.5px; font-weight:500; padding:4px 10px; border-radius:var(--rs); background:var(--surf2); border:1px solid var(--bd); }
+.am-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:4px; margin:0 18px 12px; }
+.sm-tile { display:flex; flex-direction:column; align-items:center; gap:7px; padding:9px 2px; border-radius:var(--rs); font-size:11px; text-align:center; }
+.sm-tile:hover { background:rgba(255,255,255,.7); }
+.sm-tile .ai { width:42px; height:42px; border-radius:var(--rs); background:var(--c); color:#fff; }
+.sm-tile .ai.img { background:#fff; border:1px solid var(--bd); }
+.sm-tile .ai .i { width:22px; height:22px; }
+.am-win { margin:0 24px; display:flex; flex-direction:column; gap:6px; }
+.am-win .r { display:flex; align-items:center; gap:12px; padding:9px 12px; border-radius:var(--rs); font-size:12.5px; background:var(--surf2); border:1px solid var(--bd); }
+.am-win .r > .i { width:22px; height:22px; color:var(--acc); }
+.am-win small { display:block; color:var(--mut); font-size:11px; }
+.am-win .chip { margin-left:auto; }
+.am-foot { margin-top:auto; display:flex; align-items:center; gap:10px; padding:12px 28px; border-top:1px solid var(--bd); background:var(--surf); font-size:12.5px; }
+.am-foot .av { width:30px; height:30px; border-radius:50%; background:var(--grad); display:grid; place-items:center; color:#fff; }
+.am-foot .pw { margin-left:auto; display:flex; gap:6px; }
+.am-foot .pw div { height:34px; padding:0 10px; border-radius:var(--rs); display:flex; align-items:center; gap:6px; }
+.am-foot .pw div:hover { background:rgba(0,0,0,.05); }
+.am-foot .pw div.w { background:rgba(91,108,240,.12); color:var(--acc); }
+.ov-menu, .ov-splash { background:var(--aur); align-items:center; justify-content:center; }
+.bm { width:620px; padding:22px; border-radius:var(--r); background:var(--surf); border:1px solid var(--bd); }
+.bm-head { display:flex; align-items:center; gap:14px; margin:0 6px 18px; font-size:22px; font-weight:650; }
+.bm-head img { width:44px; height:44px; }
+.bm-head small { display:block; font-size:12px; font-weight:400; color:var(--mut); }
+.bm-list li { display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:var(--rs); font-size:14.5px; }
+.bm-list li .i { color:var(--acc); }
+.bm-list li.on { background:var(--grad); color:#fff; }
+.bm-list li.on .i { color:#fff; }
+.bm-foot { margin:16px 8px 0; font-size:12px; color:var(--mut); display:flex; justify-content:space-between; }
+.ov-splash { flex-direction:column; gap:24px; color:#fff; }
+.sp-logo { width:110px; height:110px; }
+.sp-name { font-size:26px; font-weight:600; }
+.dots { position:relative; width:44px; height:44px; }
+.dots i { position:absolute; inset:0; animation:orbit 2.2s cubic-bezier(.5,.15,.5,.85) infinite; }
+.dots i::before { content:""; position:absolute; left:50%; top:0; width:6px; height:6px; margin-left:-3px; border-radius:50%; background:#fff; }
+.dots i:nth-child(2) { animation-delay:.12s; } .dots i:nth-child(3) { animation-delay:.24s; }
+.dots i:nth-child(4) { animation-delay:.36s; } .dots i:nth-child(5) { animation-delay:.48s; }
+.sp-status { font-size:13px; opacity:.85; }
+@keyframes orbit { to { transform:rotate(360deg); } }
+
+/* =================== 1 · PRISME (anguleux) =================== */
+[data-plan="anguleux"] { --r:0px; --rs:0px; --surf:#F8FAFF; --bd:#cfd6ea; --txt:#141a2e; --mut:#56607a; --acc:#3F5BD9; --veil:rgba(248,250,255,.82);
+  --aur:radial-gradient(45% 40% at 25% 30%, #1d8f86, transparent 70%), radial-gradient(40% 35% at 62% 22%, #2f5fb8, transparent 70%), radial-gradient(45% 45% at 85% 45%, #5b3fae, transparent 70%), linear-gradient(160deg,#061226,#0b1d3c 45%,#151440); }
+[data-plan="anguleux"] .win .wi { position:relative; }
+[data-plan="anguleux"] .win.active .wi::before { content:""; position:absolute; left:0; right:0; top:0; height:3px; background:var(--grad); }
+[data-plan="anguleux"] .tb { height:36px; font-size:12px; letter-spacing:.02em; border-bottom:1px solid var(--bd); }
+[data-plan="anguleux"] .sy-steps { gap:2px; }
+[data-plan="anguleux"] .sy-steps span { padding:4px 16px; clip-path:polygon(0 0,calc(100% - 8px) 0,100% 50%,calc(100% - 8px) 100%,0 100%,8px 50%); }
+[data-plan="anguleux"] .card.sel { box-shadow:inset 4px 0 0 var(--acc); }
+[data-plan="anguleux"] .taskbar { left:0; right:0; bottom:0; height:46px; --gy:714px; padding:0 6px 0 0; gap:2px; border-top:1px solid rgba(255,255,255,.85); }
+[data-plan="anguleux"] .startbtn { width:50px; height:46px; }
+[data-plan="anguleux"].menu-open .startbtn, [data-plan="anguleux"] .startbtn:hover { background:rgba(63,91,217,.14); }
+[data-plan="anguleux"] .tbtn { height:46px; padding:0 14px; font-size:12.5px; }
+[data-plan="anguleux"] .tbtn.on { background:rgba(255,255,255,.8); }
+[data-plan="anguleux"] .tbtn.on::after { content:""; position:absolute; left:0; right:0; bottom:0; height:3px; background:var(--grad); }
+[data-plan="anguleux"] .tbtn.open::after { content:""; position:absolute; left:10px; right:10px; bottom:0; height:2px; background:#8a90a6; }
+[data-plan="anguleux"] .start-menu { left:0; bottom:46px; width:620px; height:540px; --gy:174px; }
+[data-plan="anguleux"] .sm-tile .ai { clip-path:polygon(0 0,100% 0,100% 72%,72% 100%,0 100%); }
+[data-plan="anguleux"] .bm { border-top:3px solid #3F5BD9; }
+
+/* =================== 2 · GALET (arrondi) =================== */
+[data-plan="arrondi"] { --r:16px; --rs:12px;
+  --aur:radial-gradient(40% 35% at 28% 28%, rgba(52,225,170,.55), transparent 70%), radial-gradient(38% 30% at 58% 18%, rgba(74,178,231,.45), transparent 70%), radial-gradient(45% 40% at 82% 42%, rgba(119,95,215,.6), transparent 70%), radial-gradient(40% 40% at 18% 78%, rgba(202,40,177,.32), transparent 70%), linear-gradient(160deg,#061226,#0b1d3c 45%,#151440); }
+[data-plan="arrondi"] .win .wi { border-bottom:2px solid #c3cbe2; }
+[data-plan="arrondi"] .ctl button.x { border-top-right-radius:var(--r); }
+[data-plan="arrondi"] .sy-steps span, [data-plan="arrondi"] .chip, [data-plan="arrondi"] .btn, [data-plan="arrondi"] .card .act, [data-plan="arrondi"] .am-search { border-radius:999px; }
+[data-plan="arrondi"] .taskbar { left:10px; right:10px; bottom:10px; height:54px; --gx:10px; --gy:696px; border-radius:18px; border:1px solid rgba(255,255,255,.75); padding:0 10px; gap:4px; }
+[data-plan="arrondi"] .startbtn { width:44px; height:44px; border-radius:12px; }
+[data-plan="arrondi"].menu-open .startbtn, [data-plan="arrondi"] .startbtn:hover { background:rgba(255,255,255,.8); }
+[data-plan="arrondi"] .tbtn { width:44px; height:44px; border-radius:12px; justify-content:center; }
+[data-plan="arrondi"] .tbtn span { display:none; }
+[data-plan="arrondi"] .tbtn .i { width:22px; height:22px; }
+[data-plan="arrondi"] .tbtn.on { background:rgba(255,255,255,.8); }
+[data-plan="arrondi"] .tbtn.on::after { content:""; position:absolute; bottom:3px; left:50%; width:16px; margin-left:-8px; height:3px; border-radius:3px; background:var(--acc); }
+[data-plan="arrondi"] .tbtn.open::after { content:""; position:absolute; bottom:3px; left:50%; width:6px; margin-left:-3px; height:3px; border-radius:3px; background:#8a90a6; }
+[data-plan="arrondi"] .start-menu { left:10px; bottom:74px; width:640px; height:560px; --gx:10px; --gy:126px; border-radius:20px; }
+
+/* =================== 3 · BRUME (organique) =================== */
+[data-plan="organique"] { --r:28px 12px 28px 12px; --rs:16px 6px 16px 6px; --surf:#FBFAFF; --surf2:#fff; --bd:#e4def5; --txt:#233046; --mut:#6b7090; --acc:#6F5FE6;
+  --grad:linear-gradient(90deg,#5FD3AE,#7FA6FF 50%,#B48CFF); --veil:rgba(251,250,255,.66);
+  --aur:radial-gradient(50% 40% at 30% 30%, rgba(127,224,192,.85), transparent 70%), radial-gradient(45% 40% at 70% 25%, rgba(143,184,255,.85), transparent 70%), radial-gradient(50% 45% at 82% 62%, rgba(198,168,255,.8), transparent 70%), linear-gradient(170deg,#2a2f6b,#5a5aa8 45%,#c9b8ea 85%); }
+[data-plan="organique"] .tb { height:44px; padding-left:18px; }
+[data-plan="organique"] .ctl { align-self:center; gap:8px; padding-right:14px; }
+[data-plan="organique"] .ctl button { width:26px; height:26px; border-radius:50%; background:rgba(111,95,230,.10); color:var(--acc); }
+[data-plan="organique"] .ctl button.x:hover { background:#E0645A; color:#fff; }
+[data-plan="organique"] .card .ci, [data-plan="organique"] .sm-tile .ai { border-radius:50% 42% 55% 45% / 45% 55% 42% 52%; }
+[data-plan="organique"] .taskbar { left:0; right:0; bottom:0; height:64px; --gy:696px; padding:14px 14px 0; gap:8px;
+  clip-path:path('M0 16 C 160 0, 320 24, 480 13 S 800 0, 960 13 S 1180 24, 1280 8 L1280 64 L0 64 Z'); }
+[data-plan="organique"] .startbtn { width:48px; height:42px; border-radius:22px 10px 22px 10px; background:rgba(255,255,255,.65); }
+[data-plan="organique"].menu-open .startbtn { background:#fff; }
+[data-plan="organique"] .tbtn { width:48px; height:42px; border-radius:18px 8px 18px 8px; justify-content:center; }
+[data-plan="organique"] .tbtn span { display:none; }
+[data-plan="organique"] .tbtn .i { width:22px; height:22px; }
+[data-plan="organique"] .tbtn.on { background:#fff; }
+[data-plan="organique"] .tbtn.on::after { content:""; position:absolute; bottom:-7px; left:50%; width:8px; height:8px; margin-left:-4px; border-radius:50%; background:var(--acc); }
+[data-plan="organique"] .tbtn.open::after { content:""; position:absolute; bottom:-6px; left:50%; width:5px; height:5px; margin-left:-2.5px; border-radius:50%; background:#9a95c4; }
+[data-plan="organique"] .start-menu { left:14px; bottom:72px; width:620px; height:540px; --gx:14px; --gy:148px; border-radius:34px 14px 34px 14px; }
+
+/* =================== 4 · CIRCUIT (cyber) =================== */
+[data-plan="cyber"] { --r:0px; --rs:0px; --surf:#0B1224; --surf2:#0F1830; --bd:#24314f; --txt:#DDE6FF; --mut:#7f8db0; --acc:#2BE3A6; --acc-t:#04130d;
+  --grad:linear-gradient(90deg,#2BE3A6,#4AB2E7 50%,#9A5BE0); --veil:rgba(8,13,28,.84);
+  --aur:radial-gradient(40% 35% at 25% 25%, rgba(43,227,166,.30), transparent 70%), radial-gradient(40% 35% at 75% 35%, rgba(154,91,224,.32), transparent 70%), radial-gradient(35% 30% at 55% 15%, rgba(74,178,231,.25), transparent 70%), linear-gradient(#050a16,#081025); }
+[data-plan="cyber"] .tb, [data-plan="cyber"] .sy-steps, [data-plan="cyber"] .chip, [data-plan="cyber"] .taskbar, [data-plan="cyber"] .am-h, [data-plan="cyber"] .bm, [data-plan="cyber"] .card .act, [data-plan="cyber"] .btn, [data-plan="cyber"] .dicon, [data-plan="cyber"] .sp-name, [data-plan="cyber"] .sp-status { font-family:'Sindry Mono',ui-monospace,monospace; text-transform:uppercase; letter-spacing:.06em; }
+[data-plan="cyber"] .win .wi { position:relative; }
+[data-plan="cyber"] .win.active .wi::before, [data-plan="cyber"] .win.active .wi::after { content:""; position:absolute; width:16px; height:16px; z-index:2; pointer-events:none; }
+[data-plan="cyber"] .win.active .wi::before { left:0; top:0; border-left:2px solid var(--acc); border-top:2px solid var(--acc); }
+[data-plan="cyber"] .win.active .wi::after { right:0; bottom:0; border-right:2px solid #9A5BE0; border-bottom:2px solid #9A5BE0; }
+[data-plan="cyber"] .tb { height:32px; font-size:11px; border-bottom:1px solid var(--bd); background:var(--surf2); }
+[data-plan="cyber"] .ctl button { width:38px; color:var(--mut); }
+[data-plan="cyber"] .ctl button:hover { background:rgba(255,255,255,.06); }
+[data-plan="cyber"] .ctl button.x:hover { background:#B4234F; color:#fff; }
+[data-plan="cyber"] .sy-steps span { background:transparent; border:1px solid var(--bd); color:var(--mut); font-size:10.5px; }
+[data-plan="cyber"] .sy-steps span.on { background:var(--acc); border-color:var(--acc); color:var(--acc-t); }
+[data-plan="cyber"] .card.sel { box-shadow:none; border-color:var(--acc); background:rgba(43,227,166,.06); }
+[data-plan="cyber"] .card .ci { background:transparent; border:1px solid var(--bd); color:var(--acc); }
+[data-plan="cyber"] .chip { background:transparent; border:1px solid currentColor; color:#4AB2E7; font-size:10px; }
+[data-plan="cyber"] .chip.lock { background:transparent; color:#FF6B8B; }
+[data-plan="cyber"] .card .act { background:transparent; color:var(--txt); font-size:11px; }
+[data-plan="cyber"] .btn { font-size:11.5px; }
+[data-plan="cyber"] .btn.p { background:var(--acc); color:var(--acc-t); }
+[data-plan="cyber"] .btn.g { background:transparent; }
+[data-plan="cyber"] .files .side div.on { background:rgba(43,227,166,.10); color:var(--acc); }
+[data-plan="cyber"] .files .row .i { color:#4AB2E7; }
+[data-plan="cyber"] .dicon { font-size:10px; color:#cfe0ff; text-shadow:none; }
+[data-plan="cyber"] .dicon .ic { background:rgba(11,18,36,.85); border:1px solid #2a3a5c; color:var(--acc); }
+[data-plan="cyber"] .taskbar { left:0; right:0; bottom:0; height:44px; --gy:716px; padding:0 4px 0 0; gap:2px; font-size:11px; border-top:1px solid #2a3a5c; }
+[data-plan="cyber"] .startbtn { width:56px; height:44px; color:var(--acc); }
+[data-plan="cyber"] .startbtn .i { width:24px; height:24px; }
+[data-plan="cyber"].menu-open .startbtn { background:rgba(43,227,166,.12); }
+[data-plan="cyber"] .tbtn { height:44px; padding:0 14px; color:var(--mut); }
+[data-plan="cyber"] .tbtn .i { color:var(--acc); width:18px; height:18px; }
+[data-plan="cyber"] .tbtn.on { color:var(--txt); background:rgba(255,255,255,.05); }
+[data-plan="cyber"] .tbtn.on::after { content:""; position:absolute; left:8px; right:8px; bottom:0; height:2px; background:var(--grad); }
+[data-plan="cyber"] .tray { color:var(--mut); }
+[data-plan="cyber"] .start-menu { left:0; bottom:44px; width:620px; height:520px; --gy:196px; border:1px solid #2a3a5c; }
+[data-plan="cyber"] .am-search { background:rgba(11,18,36,.9); }
+[data-plan="cyber"] .sm-tile:hover { background:rgba(255,255,255,.05); }
+[data-plan="cyber"] .sm-tile .ai { background:transparent; border:1px solid #2a3a5c; color:var(--c); }
+[data-plan="cyber"] .am-win .r { background:rgba(11,18,36,.85); }
+[data-plan="cyber"] .am-foot { background:rgba(11,18,36,.92); }
+[data-plan="cyber"] .am-foot .pw div.w { background:rgba(43,227,166,.12); color:var(--acc); }
+[data-plan="cyber"] .bm { background:rgba(11,18,36,.95); border-color:#2a3a5c; }
+[data-plan="cyber"] .bm-list li.on { background:transparent; color:var(--acc); box-shadow:inset 3px 0 0 var(--acc); }
+[data-plan="cyber"] .bm-list li.on .i { color:var(--acc); }
+[data-plan="cyber"] .cy-bar { font-family:'Sindry Mono',monospace; font-size:15px; color:var(--acc); letter-spacing:.1em; }
+
+/* =================== 5 · ONZE (Windows) =================== */
+[data-plan="windows"] { --r:8px; --rs:6px; --surf:#FAFAFA; --surf2:#fff; --bd:#d9dde6; --txt:#1a1a1a; --mut:#5f6368; --acc:#4F5FE8; --grad:linear-gradient(90deg,#4F5FE8,#4F5FE8); --veil:rgba(240,243,250,.88);
+  --aur:radial-gradient(28% 40% at 50% 56%, #6f7df0, transparent 70%), radial-gradient(22% 28% at 40% 46%, #2BC4A9, transparent 70%), radial-gradient(24% 32% at 61% 42%, #9A5BE0, transparent 70%), linear-gradient(#0a1530,#122149); }
+[data-plan="windows"] .tb { height:32px; background:#EEF1F7; font-size:12px; font-weight:400; }
+[data-plan="windows"] .win.back .tb { background:#F5F6F8; }
+[data-plan="windows"] .ctl button { width:46px; }
+[data-plan="windows"] .ctl button.x { border-top-right-radius:var(--r); }
+[data-plan="windows"] .sy-steps span { background:transparent; padding:4px 0; margin-right:12px; border-bottom:2px solid transparent; border-radius:0; }
+[data-plan="windows"] .sy-steps span.on { background:transparent; color:var(--txt); border-color:var(--acc); }
+[data-plan="windows"] .sy h2 { font-weight:600; font-size:22px; }
+[data-plan="windows"] .taskbar { left:0; right:0; bottom:0; height:48px; --gy:712px; padding:0 8px; gap:2px; border-top:1px solid #fff; }
+[data-plan="windows"] .startbtn { width:40px; height:40px; border-radius:6px; }
+[data-plan="windows"] .startbtn img { width:24px; height:24px; }
+[data-plan="windows"].menu-open .startbtn, [data-plan="windows"] .startbtn:hover { background:rgba(255,255,255,.85); }
+[data-plan="windows"] .tbtn { width:40px; height:40px; border-radius:6px; justify-content:center; }
+[data-plan="windows"] .tbtn span { display:none; }
+[data-plan="windows"] .tbtn.on, [data-plan="windows"] .tbtn:hover { background:rgba(255,255,255,.85); }
+[data-plan="windows"] .tbtn.on::after { content:""; position:absolute; bottom:2px; left:50%; width:16px; margin-left:-8px; height:3px; border-radius:3px; background:var(--acc); }
+[data-plan="windows"] .tbtn.open::after { content:""; position:absolute; bottom:2px; left:50%; width:6px; margin-left:-3px; height:3px; border-radius:3px; background:#8a8f99; }
+[data-plan="windows"] .start-menu { left:12px; bottom:60px; width:640px; height:580px; --gx:12px; --gy:120px; border-radius:8px; border-color:#dfe3ea; }
+[data-plan="windows"] .am-search { border-radius:999px; }
+[data-plan="windows"] .sm-tile .ai, [data-plan="windows"] .sm-tile .ai.img { background:transparent; border:0; color:var(--c); }
+[data-plan="windows"] .sm-tile .ai .i { width:28px; height:28px; }
+[data-plan="windows"] .am-win .r { background:transparent; border-color:transparent; }
+[data-plan="windows"] .am-win .r:hover { background:rgba(255,255,255,.75); }
+[data-plan="windows"] .bm-list li.on { background:var(--acc); }
+
+/* =================== 6 · VITRAIL (original) =================== */
+[data-plan="vitrail"] { --r:4px; --rs:3px; --lead:#141a2e; --surf:#F5F6FB; --surf2:#fff; --bd:#141a2e; --txt:#141a2e; --mut:#4f5873; --acc:#4b4fd6;
+  --aur:linear-gradient(160deg,#061226,#0b1d3c 45%,#151440); }
+[data-plan="vitrail"] .win .wi { border:3px solid var(--lead); }
+[data-plan="vitrail"] .tb { height:38px; background:var(--facet) center/100% 100%; color:#fff; border-bottom:3px solid var(--lead); text-shadow:0 1px 2px rgba(0,0,0,.7); font-weight:650; }
+[data-plan="vitrail"] .win.back .tb { background:var(--facet-pale) center/100% 100%; color:var(--lead); text-shadow:none; }
+[data-plan="vitrail"] .ctl { align-self:center; gap:4px; padding-right:6px; }
+[data-plan="vitrail"] .ctl button { width:28px; height:24px; background:rgba(255,255,255,.92); border:2px solid var(--lead); color:var(--lead); border-radius:3px; }
+[data-plan="vitrail"] .ctl button.x:hover { background:#C42B1C; color:#fff; }
+[data-plan="vitrail"] .sy-steps span { border:2px solid var(--lead); background:#fff; color:var(--lead); }
+[data-plan="vitrail"] .sy-steps span.on { background:var(--facet) center/100% 100%; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.7); }
+[data-plan="vitrail"] .card { border:2px solid var(--lead); }
+[data-plan="vitrail"] .card.sel { border-color:var(--lead); box-shadow:inset 6px 0 0 #2BB59A; }
+[data-plan="vitrail"] .card .ci { transform:rotate(45deg); border:2px solid var(--lead); background:#E6F6F1; width:32px; height:32px; margin:0 4px; color:var(--lead); }
+[data-plan="vitrail"] .card .ci .i { transform:rotate(-45deg); width:18px; height:18px; }
+[data-plan="vitrail"] .chip { border:1.5px solid var(--lead); background:#fff; color:var(--lead); }
+[data-plan="vitrail"] .chip.lock { background:#FDECEC; color:#8f1d1d; border-color:#8f1d1d; }
+[data-plan="vitrail"] .card .act, [data-plan="vitrail"] .btn.g { border:2px solid var(--lead); }
+[data-plan="vitrail"] .card.sel .act, [data-plan="vitrail"] .btn.p { background:#1F9E8A; color:#fff; border:2px solid var(--lead); }
+[data-plan="vitrail"] .files .side { border-right:3px solid var(--lead); }
+[data-plan="vitrail"] .files .side div.on { background:#E6F6F1; color:var(--lead); }
+[data-plan="vitrail"] .files .path { border-bottom:2px solid var(--lead); }
+[data-plan="vitrail"] .dicon .ic { transform:rotate(45deg); width:40px; height:40px; margin:4px 0; border:2px solid var(--lead); background:rgba(255,255,255,.9); color:var(--lead); border-radius:3px; }
+[data-plan="vitrail"] .dicon .ic .i { transform:rotate(-45deg); width:22px; height:22px; }
+[data-plan="vitrail"] .taskbar { left:0; right:0; bottom:0; height:52px; background:var(--facet-bar) center/100% 100%; border-top:3px solid var(--lead); padding:0 8px; gap:6px; }
+[data-plan="vitrail"] .taskbar::before, [data-plan="vitrail"] .taskbar::after, [data-plan="vitrail"] .start-menu::before, [data-plan="vitrail"] .start-menu::after { display:none; }
+[data-plan="vitrail"] .startbtn { width:40px; height:40px; background:#fff; border:2px solid var(--lead); transform:rotate(45deg) scale(.82); border-radius:3px; margin-right:4px; }
+[data-plan="vitrail"] .startbtn img { transform:rotate(-45deg); width:30px; height:30px; }
+[data-plan="vitrail"].menu-open .startbtn { background:#FFF3C4; }
+[data-plan="vitrail"] .tbtn { height:36px; padding:0 12px; background:rgba(255,255,255,.92); border:2px solid var(--lead); border-radius:3px; font-size:12px; color:var(--lead); }
+[data-plan="vitrail"] .tbtn.on { background:#fff; box-shadow:inset 0 -4px 0 #2BB59A; font-weight:650; }
+[data-plan="vitrail"] .tray { background:rgba(255,255,255,.92); border:2px solid var(--lead); height:36px; border-radius:3px; color:var(--lead); }
+[data-plan="vitrail"] .start-menu { left:0; bottom:52px; width:620px; height:540px; background:var(--surf); border:3px solid var(--lead); border-bottom:0; }
+[data-plan="vitrail"] .sm-band { height:46px; flex:none; background:var(--facet) center/100% 100%; border-bottom:3px solid var(--lead); display:flex; align-items:center; padding:0 20px; color:#fff; font-weight:700; letter-spacing:.08em; text-transform:uppercase; text-shadow:0 1px 2px rgba(0,0,0,.7); }
+[data-plan="vitrail"] .am-search { margin-top:16px; }
+[data-plan="vitrail"] .am-search, [data-plan="vitrail"] .am-h span, [data-plan="vitrail"] .am-win .r { border:2px solid var(--lead); }
+[data-plan="vitrail"] .sm-tile .ai { transform:rotate(45deg) scale(.84); border:2px solid var(--lead); border-radius:3px; }
+[data-plan="vitrail"] .sm-tile .ai .i, [data-plan="vitrail"] .sm-tile .ai img { transform:rotate(-45deg); }
+[data-plan="vitrail"] .am-foot { border-top:3px solid var(--lead); }
+[data-plan="vitrail"] .am-foot .pw div.w { border:2px solid var(--lead); background:#E6F6F1; color:var(--lead); }
+[data-plan="vitrail"] .bm { border:3px solid var(--lead); padding:0 0 14px; overflow:hidden; }
+[data-plan="vitrail"] .bm-head { margin:0 0 12px; padding:14px 20px; background:var(--facet) center/100% 100%; color:#fff; border-bottom:3px solid var(--lead); text-shadow:0 1px 2px rgba(0,0,0,.7); }
+[data-plan="vitrail"] .bm-head img { background:#fff; border:2px solid var(--lead); border-radius:3px; padding:3px; }
+[data-plan="vitrail"] .bm-head small { color:#eef; }
+[data-plan="vitrail"] .bm-list { padding:0 14px; }
+[data-plan="vitrail"] .bm-list li { border:2px solid transparent; }
+[data-plan="vitrail"] .bm-list li.on { background:#fff; color:var(--lead); border-color:var(--lead); box-shadow:inset 6px 0 0 #2BB59A; }
+[data-plan="vitrail"] .bm-list li.on .i { color:var(--acc); }
+[data-plan="vitrail"] .bm-foot { margin:16px 22px 0; }
+[data-plan="vitrail"] .ov-splash .sp-logo { background:#fff; border:3px solid var(--lead); padding:10px; transform:rotate(45deg); border-radius:4px; }
+[data-plan="vitrail"] .ov-splash .sp-logo img { transform:rotate(-45deg); width:100%; height:100%; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Aurore, sans carte graphique — six variantes</h1>
+      <p>L'Aurore (plan C de M41), refaite pour tourner sur n'importe quel PC, même sans pilote graphique : aucun flou, aucune transparence, aucune ombre. Mêmes codes Windows partout ; ce qui change d'une variante à l'autre, c'est la forme.</p>
+    </div>
+    <div class="ctrls">
+      <div class="seg" id="plans">
+        <button data-p="anguleux" class="on"><b>1</b>Prisme · anguleux</button>
+        <button data-p="arrondi"><b>2</b>Galet · arrondi</button>
+        <button data-p="organique"><b>3</b>Brume · organique</button>
+        <button data-p="cyber"><b>4</b>Circuit · cyber</button>
+        <button data-p="windows"><b>5</b>Onze · Windows</button>
+        <button data-p="vitrail"><b>6</b>Vitrail · original</button>
+      </div>
+      <div class="seg" id="views">
+        <button data-v="desk" class="on">Bureau</button>
+        <button data-v="menu">Menu de démarrage</button>
+        <button data-v="splash">Chargement</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="nogpu">
+    <div class="t">Sans carte graphique,<br>comment ?</div>
+    <div><strong>Pas de flou en direct</strong>Le « verre » de la barre et du menu est une image du fond d'écran floutée une seule fois, à la construction de SindryOS.</div>
+    <div><strong>Pas de transparence</strong>Sans compositeur, une fenêtre ne peut pas laisser voir ce qu'il y a derrière : les fenêtres sont opaques.</div>
+    <div><strong>Pas d'ombres portées</strong>Des bordures et des liserés séparent les fenêtres. Le tout tourne avec le simple pilote d'affichage de base.</div>
+  </div>
+
+  <div class="frame" id="frame"><div class="desk menu-open" id="desk" data-plan="anguleux" data-view="desk"></div></div>
+  <p class="hint">Cliquer sur le bouton démarrer (en bas à gauche) ouvre ou ferme le menu. Icônes génériques : les vrais logos (Firefox, VLC) seront ceux des logiciels.</p>
+
+  <div class="notes" id="notes"></div>
+
+  <table class="cmp" id="cmp">
+    <thead><tr><th>Variante</th><th>Angles</th><th>Fenêtres</th><th>Barre des tâches</th><th>Effet « verre »</th><th>Plein jour</th><th>Effort pour XFCE</th></tr></thead>
+    <tbody>
+      <tr data-p="anguleux"><td>1 · Prisme</td><td>Droits</td><td>Opaques, filet d'aurore en haut</td><td>Pleine largeur, icône + nom</td><td>Fond flouté d'avance</td><td>Très bon</td><td>Faible</td></tr>
+      <tr data-p="arrondi"><td>2 · Galet</td><td>16 px, pilules</td><td>Opaques, liseré en bas</td><td>Flottante, icônes seules</td><td>Fond flouté d'avance</td><td>Bon</td><td>Faible</td></tr>
+      <tr data-p="organique"><td>3 · Brume</td><td>Asymétriques, galets</td><td>Opaques, boutons ronds</td><td>Bord ondulé, galets</td><td>Fond flouté d'avance, vague dessinée</td><td>Bon</td><td>Moyen</td></tr>
+      <tr data-p="cyber"><td>4 · Circuit</td><td>Droits, crochets</td><td>Sombres, crochets aux coins</td><td>Pleine largeur, capitales</td><td>Fond flouté sombre</td><td>Moyen</td><td>Faible</td></tr>
+      <tr data-p="windows"><td>5 · Onze</td><td>8 px</td><td>Titres teintés (à la place du Mica)</td><td>Claire, icônes seules</td><td>Teinte fixe</td><td>Très bon</td><td>Faible</td></tr>
+      <tr data-p="vitrail"><td>6 · Vitrail</td><td>4 px, plomb</td><td>Bords épais, titres en facettes</td><td>Facettes serties</td><td>Aucun : facettes fixes</td><td>Bon</td><td>Moyen (icônes en losange)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div data-maquette-badge style="position:fixed;left:10px;bottom:10px;z-index:2147483647;pointer-events:none;font:650 12px/1.2 'Segoe UI',system-ui,sans-serif;color:#fff;background:rgba(18,12,26,.9);border:1px solid rgba(255,255,255,.22);padding:6px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.35)">M42 · 28/10/2026 08:11 · Aurore sans carte graphique</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" id="sprite">
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18a14 14 0 0 1 0-18"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+  <symbol id="i-disk" viewBox="0 0 24 24"><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M5 13l2.5-7h9L19 13"/><path d="M16.5 16.5h.01"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol>
+  <symbol id="i-lifebuoy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M5.6 5.6l3.6 3.6M14.8 14.8l3.6 3.6M18.4 5.6l-3.6 3.6M9.2 14.8l-3.6 3.6"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9l3 3-3 3M12 15h5"/></symbol>
+  <symbol id="i-cone" viewBox="0 0 24 24"><path d="M12 3l5.2 15H6.8z"/><path d="M8.4 12h7.2M7.5 15h9M4 19h16"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 16l-5-5L5 20"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></symbol>
+  <symbol id="i-activity" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 15l3-4 3 2 4-5"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M2 9a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0"/><path d="M12 19.5h.01"/></symbol>
+  <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 10v4h4l5 4V6l-5 4z"/><path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a8 8 0 0 1 0 11"/></symbol>
+  <symbol id="i-usb" viewBox="0 0 24 24"><rect x="7" y="9" width="10" height="12" rx="2"/><path d="M9 9V4h6v5M10.5 6.5h.01M13.5 6.5h.01"/></symbol>
+  <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 3v8M6.3 6.3a8 8 0 1 0 11.4 0"/></symbol>
+  <symbol id="i-restart" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 3v5h5"/></symbol>
+  <symbol id="i-windows" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7.5" height="7.5" rx=".5"/><rect x="13" y="3.5" width="7.5" height="7.5" rx=".5"/><rect x="3.5" y="13" width="7.5" height="7.5" rx=".5"/><rect x="13" y="13" width="7.5" height="7.5" rx=".5"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></symbol>
+  <symbol id="i-min" viewBox="0 0 24 24"><path d="M6 12h12"/></symbol>
+  <symbol id="i-max" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="4" rx="1"/><path d="M5 8v11a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8M10 12h4"/></symbol>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M17 6l3 3M15 8l2 2"/></symbol>
+  <symbol id="i-pc" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+</svg>
+
+<script>
+// ---------- geometry helpers ----------
+const TAU = Math.PI * 2;
+// Gear outline: n trapezoid teeth between the root radius r1 and the tip radius r2.
+function gearD(cx, cy, r1, r2, n) {
+  const st = TAU / n, p = (r, a) => (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1);
+  let d = '';
+  for (let k = 0; k < n; k++) {
+    const a = k * st - Math.PI / 2;
+    d += (k ? 'L' : 'M') + p(r1, a - st * .25) + 'L' + p(r2, a - st * .14) + 'A' + r2 + ' ' + r2 + ' 0 0 1 ' + p(r2, a + st * .14)
+       + 'L' + p(r1, a + st * .25) + 'A' + r1 + ' ' + r1 + ' 0 0 1 ' + p(r1, a + st * .75);
+  }
+  return d + 'Z';
+}
+document.getElementById('sprite').insertAdjacentHTML('beforeend',
+  `<symbol id="i-gear" viewBox="0 0 24 24"><path d="${gearD(12, 12, 8, 10.4, 10)}"/><circle cx="12" cy="12" r="3.6"/></symbol>`);
+
+// Stained-glass facets: a jittered grid of triangles, with dark "lead" lines.
+// dark: top and bottom rows take night colors, the middle rows take aurora colors.
+function facets(w, h, cols, rows, seed, dark, pale) {
+  const aur = pale ? ['#cfeee6', '#d6f2e8', '#d4e8f8', '#dde2fb', '#e4dcf7', '#ece0f6', '#f2dcef', '#d8e6f6']
+                   : ['#1FB5A3', '#2BE3A6', '#4AB2E7', '#5B6CF0', '#775FD7', '#9A5BE0', '#CA28B1', '#3B8FD9'];
+  const night = ['#0b1d3c', '#101a44', '#151440', '#0a1530', '#13234a'];
+  const pts = [];
+  for (let j = 0; j <= rows; j++) for (let i = 0; i <= cols; i++) {
+    const jx = (i > 0 && i < cols) ? ((((i * 37 + j * 91 + seed) % 23) - 11) / 23) * (w / cols) * .6 : 0;
+    const jy = (j > 0 && j < rows) ? ((((i * 53 + j * 29 + seed) % 19) - 9) / 19) * (h / rows) * .6 : 0;
+    pts.push((i * w / cols + jx).toFixed(1) + ',' + (j * h / rows + jy).toFixed(1));
+  }
+  const P = (i, j) => pts[j * (cols + 1) + i];
+  let s = '';
+  for (let j = 0; j < rows; j++) for (let i = 0; i < cols; i++) {
+    const pal = dark && (j === 0 || j === rows - 1) ? night : aur;
+    const c1 = pal[(i * 3 + j * 5 + seed) % pal.length], c2 = pal[(i * 7 + j * 3 + seed + 2) % pal.length];
+    s += `<polygon points="${P(i, j)} ${P(i + 1, j)} ${P(i + 1, j + 1)}" fill="${c1}"/><polygon points="${P(i, j)} ${P(i + 1, j + 1)} ${P(i, j + 1)}" fill="${c2}"/>`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none"><g stroke="#141a2e" stroke-width="${dark ? 4 : 3}" stroke-linejoin="round">${s}</g></svg>`;
+}
+const asUrl = svg => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+
+const ic = (id, cls = '') => `<svg class="i ${cls}"><use href="#i-${id}"/></svg>`;
+const LOGO = '_ressources/sindry-256.png';
+
+// ---------- content ----------
+const APPS = [
+  { id: 'sindry',   nom: 'Sindry',                  ic: 'gear',     c: '#FD7D26' },
+  { id: 'firefox',  nom: 'Firefox',                 ic: 'globe',    c: '#FF7139' },
+  { id: 'fichiers', nom: 'Fichiers',                ic: 'folder',   c: '#E9A23B' },
+  { id: 'disques',  nom: 'Disques',                 ic: 'disk',     c: '#4AB2E7' },
+  { id: 'sante',    nom: 'Santé des disques',       ic: 'pulse',    c: '#33B07A' },
+  { id: 'recup',    nom: 'Récupération',            ic: 'lifebuoy', c: '#CA28B1' },
+  { id: 'registre', nom: 'Registre hors ligne',     ic: 'key',      c: '#F8304B' },
+  { id: 'vlc',      nom: 'VLC',                     ic: 'cone',     c: '#F08A00' },
+  { id: 'images',   nom: 'Images',                  ic: 'image',    c: '#775FD7' },
+  { id: 'pdf',      nom: 'Documents',               ic: 'doc',      c: '#E5484D' },
+  { id: 'editeur',  nom: 'Éditeur de texte',        ic: 'pen',      c: '#3B8FD9' },
+  { id: 'archives', nom: 'Archives',                ic: 'archive',  c: '#B7791F' },
+  { id: 'terminal', nom: 'Terminal',                ic: 'terminal', c: '#6B7287' },
+  { id: 'taches',   nom: 'Gestionnaire des tâches', ic: 'activity', c: '#33B07A' },
+  { id: 'reglages', nom: 'Paramètres',              ic: 'sliders',  c: '#6B7287' },
+];
+const A = id => APPS.find(a => a.id === id);
+const usesLogo = p => p !== 'cyber';
+function appIcon(app, plan) {
+  if (app.id === 'sindry' && usesLogo(plan)) return `<span class="ai img" style="--c:${app.c}"><img src="${LOGO}" alt=""></span>`;
+  return `<span class="ai" style="--c:${app.c}">${ic(app.ic)}</span>`;
+}
+
+// ---------- wallpapers (the CSS gradient --aur is the base; these SVGs add the shape language) ----------
+const VB = 'viewBox="0 0 1280 760" preserveAspectRatio="xMidYMid slice"';
+const WALL = {
+  anguleux: () => {
+    const cols = ['#2BE3A6', '#4AB2E7', '#5B6CF0', '#9A5BE0'];
+    let s = '';
+    for (let k = 0; k < 18; k++) {
+      const x = (k * 97) % 1280, y = 60 + (k * 53) % 260, w = 160 + (k * 37) % 140;
+      s += `<polygon points="${x},${y} ${x + w},${y + 30 + (k % 3) * 20} ${(x + w * .4).toFixed(0)},${y + 110 + (k % 4) * 25}" fill="${cols[k % 4]}" opacity="${(.10 + (k % 5) * .05).toFixed(2)}"/>`;
+    }
+    const ridge = 'M0 600 L180 520 L330 585 L520 470 L700 570 L880 500 L1060 590 L1280 520';
+    return `<svg ${VB}>${s}<path d="${ridge} V760 H0Z" fill="#050b1a" opacity=".92"/><path d="${ridge}" fill="none" stroke="#4AB2E7" stroke-opacity=".55" stroke-width="1.5"/></svg>`;
+  },
+  arrondi: () => {
+    let stars = '';
+    for (let k = 0; k < 60; k++) stars += `<circle cx="${(k * 197) % 1280}" cy="${(k * 113) % 420}" r="${(k % 3) * .4 + .5}" fill="#fff" opacity="${(.25 + (k % 5) * .1).toFixed(2)}"/>`;
+    return `<svg ${VB}><defs><linearGradient id="aG" x1="0" x2="1"><stop offset="0" stop-color="#2BE3A6"/><stop offset=".5" stop-color="#4AB2E7"/><stop offset="1" stop-color="#9A5BE0"/></linearGradient>
+      <filter id="aB" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="28"/></filter></defs>${stars}
+      <path d="M-60 330 C 200 160 420 360 700 220 S 1120 120 1340 260" fill="none" stroke="url(#aG)" stroke-width="110" opacity=".5" filter="url(#aB)"/>
+      <path d="M0 640 Q 200 560 420 620 T 840 600 T 1280 610 V760 H0Z" fill="#050b1a" opacity=".9"/></svg>`;
+  },
+  organique: () => `<svg ${VB}><defs><linearGradient id="oG" x1="0" x2="1"><stop offset="0" stop-color="#9BF0D2"/><stop offset=".5" stop-color="#A9C8FF"/><stop offset="1" stop-color="#D7C2FF"/></linearGradient></defs>
+      <path d="M-50 260 C 220 140 460 330 720 220 S 1150 120 1340 230" fill="none" stroke="url(#oG)" stroke-width="70" stroke-linecap="round" opacity=".55"/>
+      <path d="M-50 360 C 260 260 520 420 820 320 S 1180 270 1340 330" fill="none" stroke="url(#oG)" stroke-width="40" stroke-linecap="round" opacity=".45"/>
+      <path d="M-50 430 C 300 360 560 470 900 400 S 1200 380 1340 410" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".25"/>
+      <path d="M0 610 C 160 540 320 560 470 600 S 760 650 930 590 S 1160 540 1280 580 V760 H0Z" fill="#3b3f86" opacity=".75"/>
+      <path d="M0 670 C 200 620 380 640 560 670 S 900 700 1080 650 S 1220 640 1280 650 V760 H0Z" fill="#2a2f6b"/></svg>`,
+  cyber: () => {
+    let c = '', d = '';
+    for (let k = 0; k < 9; k++) { const r = 60 + k * 45; c += `<ellipse cx="900" cy="300" rx="${(r * 1.4).toFixed(0)}" ry="${r}" transform="rotate(${-12 + k * 2} 900 300)"/>`; }
+    for (let y = 40; y < 760; y += 40) for (let x = 40; x < 1280; x += 40) d += `<circle cx="${x}" cy="${y}" r="1"/>`;
+    return `<svg ${VB}><defs><linearGradient id="cyG" x1="0" x2="1"><stop offset="0" stop-color="#2BE3A6"/><stop offset=".5" stop-color="#4AB2E7"/><stop offset="1" stop-color="#9A5BE0"/></linearGradient></defs>
+      <g fill="#1c2a48">${d}</g><g fill="none" stroke="url(#cyG)" stroke-width="1.2" opacity=".7">${c}</g></svg>`;
+  },
+  windows: () => {
+    const cols = ['#2BC4A9', '#4AB2E7', '#5B6CF0', '#9A5BE0', '#CA28B1'];
+    const defs = cols.map((c, k) => `<linearGradient id="wG${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${c}" stop-opacity=".08"/><stop offset="1" stop-color="${c}"/></linearGradient>`).join('');
+    const petals = cols.map((c, k) => `<ellipse cx="640" cy="320" rx="72" ry="210" fill="url(#wG${k})" transform="rotate(${-60 + k * 30} 640 480)" opacity=".85"/>`).join('');
+    return `<svg ${VB}><defs>${defs}</defs>${petals}</svg>`;
+  },
+  vitrail: () => facets(1280, 760, 10, 6, 7, true),
+};
+
+// ---------- start menu (same layout for the whole family; the CSS gives each variant its shape) ----------
+function startMenu(p) {
+  return `${p === 'vitrail' ? '<div class="sm-band">SindryOS</div>' : ''}
+    <div class="am-search">${ic('search')} Rechercher des outils, des réglages, des fichiers</div>
+    <div class="am-h">Épinglés <span>Toutes les applis ›</span></div>
+    <div class="am-grid">${['sindry', 'firefox', 'fichiers', 'disques', 'vlc', 'terminal', 'sante', 'recup', 'registre', 'pdf', 'editeur', 'reglages'].map(id => `<div class="sm-tile">${appIcon(A(id), p)}${A(id).nom}</div>`).join('')}</div>
+    <div class="am-h">${p === 'windows' ? 'Recommandé : Windows détectés' : 'Windows détectés sur ce PC'}</div>
+    <div class="am-win">
+      <div class="r">${ic('windows')}<div>Windows 11 Pro · 24H2<small>Disque 0 · NVMe 512 Go · C:</small></div><span class="chip lock">${ic('lock')}BitLocker</span></div>
+      <div class="r">${ic('windows')}<div>Windows 10 Famille · 22H2<small>Disque 1 · SATA 1 To · D:</small></div><span class="chip">${ic('moon')}Démarrage rapide</span></div>
+    </div>
+    <div class="am-foot"><span class="av">${ic('user')}</span>Session technicien
+      <div class="pw"><div class="w">${ic('windows')}Redémarrer sous Windows</div><div>${ic('restart')}</div><div>${ic('power')}</div></div></div>`;
+}
+
+// ---------- boot menu & splash ----------
+const BOOT = [
+  ['gear', 'SindryOS 1.0'], ['chip', 'SindryOS — affichage de secours'], ['usb', 'SindryOS — tout en mémoire (retirer la clé ensuite)'],
+  ['pulse', 'Tester la mémoire'], ['windows', 'Démarrer Windows'], ['sliders', 'Réglages du micrologiciel (UEFI)'],
+];
+function bootMenu(p) {
+  const logo = p === 'cyber' ? `<span style="color:#2BE3A6">${ic('gear')}</span>` : `<img src="${LOGO}" alt="">`;
+  return `<div class="bm"><div class="bm-head">${logo}<div>SindryOS<small>Choisissez comment démarrer</small></div></div>
+    <ul class="bm-list">${BOOT.map(([i, t], k) => `<li class="${k ? '' : 'on'}">${ic(i)}${t}</li>`).join('')}</ul>
+    <div class="bm-foot"><span>Entrée : démarrer · ↑ ↓ : choisir</span><span>Démarrage automatique dans 5 s</span></div></div>`;
+}
+function splash(p) {
+  const status = `<div class="sp-status">Recherche des disques… 62 %</div>`;
+  if (p === 'cyber') return `<div class="sp-name">SindryOS</div><div class="cy-bar">[■■■■■■■■■■■■□□□□□□□□]</div>${status}`;
+  const logo = p === 'vitrail' ? `<div class="sp-logo"><img src="${LOGO}" alt=""></div>` : `<img class="sp-logo" src="${LOGO}" alt="">`;
+  return `${logo}<div class="sp-name">SindryOS</div><div class="dots"><i></i><i></i><i></i><i></i><i></i></div>${status}`;
+}
+
+// ---------- windows ----------
+const ctl = `<div class="ctl"><button title="Réduire">${ic('min')}</button><button title="Agrandir">${ic('max')}</button><button class="x" title="Fermer">${ic('close')}</button></div>`;
+function winTitleIcon(p, id) {
+  if (id === 'sindry' && usesLogo(p)) return `<span class="ti"><img src="${LOGO}" alt=""></span>`;
+  return `<span class="ti">${ic(A(id).ic)}</span>`;
+}
+function sindryWin(p) {
+  const steps = ['Choisir', 'Analyser', 'Cocher', 'Faire', 'Bilan'].map((s, k) => `<span class="${k ? '' : 'on'}">${k + 1} · ${s}</span>`).join('');
+  return `<div class="win active" style="left:575px;top:104px;width:690px;height:490px"><div class="wi">
+    <div class="tb">${winTitleIcon(p, 'sindry')}<span class="t">${p === 'cyber' ? 'Sindry — choisir le Windows' : 'Sindry'}</span>${ctl}</div>
+    <div class="wbody"><div class="sy">
+      <div class="sy-steps">${steps}</div>
+      <h2>Quel Windows soigner ?</h2>
+      <p class="sub">2 Windows trouvés sur ce PC. Rien n'est modifié tant que vous n'avez pas coché d'action.</p>
+      <div class="sy-list">
+        <div class="card"><span class="ci">${ic('windows')}</span><div class="cm"><b>Windows 11 Pro · 24H2</b><span>Disque 0 · NVMe Samsung 512 Go · C:</span><br><span class="chip lock">${ic('lock')}BitLocker : verrouillé</span></div><button class="act">Déverrouiller…</button></div>
+        <div class="card sel"><span class="ci">${ic('windows')}</span><div class="cm"><b>Windows 10 Famille · 22H2</b><span>Disque 1 · SATA 1 To · D:</span><br><span class="chip">${ic('moon')}Démarrage rapide : à confirmer</span></div><button class="act">Choisi</button></div>
+      </div>
+      <div class="sy-foot"><span>Copie de retour arrière : SINDRY-DATA › Retours</span><div class="r"><button class="btn g">Retour</button><button class="btn p">Analyser ce Windows</button></div></div>
+    </div></div></div></div>`;
+}
+function filesWin(p) {
+  const rows = [['folder', 'Program Files', '12/10/2026'], ['folder', 'ProgramData', '26/10/2026'], ['folder', 'Users', '26/10/2026'], ['folder', 'Windows', '26/10/2026'], ['file', 'hiberfil.sys', '26/10/2026']];
+  return `<div class="win back" style="left:250px;top:44px;width:560px;height:400px"><div class="wi">
+    <div class="tb">${winTitleIcon(p, 'fichiers')}<span class="t">Fichiers — Windows 10 (D:)</span>${ctl}</div>
+    <div class="wbody"><div class="files">
+      <div class="side"><div>${ic('pc')}Ce PC</div><div>${ic('lock')}Windows 11 (C:)</div><div class="on">${ic('windows')}Windows 10 (D:)</div><div>${ic('usb')}SINDRY-DATA</div></div>
+      <div class="main"><div class="path">Ce PC › Windows 10 (D:)</div>${rows.map(([i, n, d]) => `<div class="row">${ic(i)}<span>${n}</span><span>${d}</span></div>`).join('')}</div>
+    </div></div></div></div>`;
+}
+
+// ---------- taskbar & desktop icons ----------
+function taskbar(p) {
+  const items = [['sindry', 'on'], ['fichiers', 'open'], ['firefox', ''], ['terminal', '']];
+  const start = p === 'cyber' ? `<div class="startbtn" id="startbtn">${ic('gear')}</div>` : `<div class="startbtn" id="startbtn"><img src="${LOGO}" alt="Démarrer"></div>`;
+  const btns = items.map(([id, st]) => {
+    const a = A(id);
+    const lead = id === 'sindry' && usesLogo(p) ? `<img src="${LOGO}" alt="">` : ic(a.ic);
+    return `<div class="tbtn ${st}" style="--c:${a.c}">${lead}<span>${a.nom}</span></div>`;
+  }).join('');
+  const tray = `<div class="tray"><span class="kb">FR</span>${ic('usb')}${ic('wifi')}${ic('volume')}<span class="clock"><span>08:11</span><span>28/10/2026</span></span></div>`;
+  return `<div class="taskbar">${start}<div class="apps">${btns}</div>${tray}</div>`;
+}
+function dicons() {
+  const list = [['pc', 'Ce PC'], ['windows', 'Windows 10 (D:)'], ['usb', 'SINDRY-DATA'], ['doc', 'Lisez-moi']];
+  return `<div class="dicons">${list.map(([i, t]) => `<div class="dicon"><span class="ic">${ic(i)}</span>${t}</div>`).join('')}</div>`;
+}
+
+// ---------- notes ----------
+const NOTES = {
+  anguleux: { idee: "Prisme : l'aurore taillée au cordeau, facettes et angles vifs.",
+    forme: ["Angles droits partout ; filet d'aurore sur la fenêtre active", 'Barre pleine largeur, icône + nom, soulignement en dégradé', 'Étapes en chevrons ; fond en facettes, montagnes anguleuses'],
+    pour: ['Net et lisible, très « outil »', 'Le plus simple à reproduire fidèlement sous XFCE'], contre: ['Un peu sévère', "Moins doux que l'Aurore d'origine"],
+    gpu: 'Barre et menu : fond flouté d\'avance. Fenêtres opaques, bordures au lieu des ombres.',
+    pal: ['#061226', '#F8FAFF', '#1d8f86', '#3F5BD9', '#5b3fae', '#cfd6ea'], typo: 'Inter' },
+  arrondi: { idee: "Galet : l'Aurore d'origine, sans le verre. Mêmes formes douces, surfaces opaques.",
+    forme: ['Grands arrondis (16 px), boutons en pilule', 'Barre flottante, icônes seules', 'Un liseré en bas de chaque fenêtre remplace l\'ombre'],
+    pour: ['Le plus proche de ce que tu as choisi', 'Familier pour un utilisateur de Windows 11'], contre: ['Changer de fond d\'écran demande de recalculer le « verre »', 'Peu de différence avec un thème Windows'],
+    gpu: 'Le « verre » de la barre et du menu est une image du fond floutée d\'avance, posée sous un voile clair.',
+    pal: ['#061226', '#F7F9FF', '#1FB5A3', '#5B6CF0', '#9A5BE0', '#dfe4f2'], typo: 'Inter' },
+  organique: { idee: 'Brume : une aube pastel, formes souples et rubans d\'aurore.',
+    forme: ['Arrondis asymétriques (28 / 12 px), icônes en galets', 'Barre à bord ondulé', 'Palette pastel : menthe, ciel, lilas'],
+    pour: ['Original et doux', 'Apaisant pendant un dépannage'], contre: ['Moins « pro »', 'Le bord ondulé est dessiné pour ce fond-là'],
+    gpu: 'La vague de la barre fait partie de son image de fond : aucune transparence réelle.',
+    pal: ['#2a2f6b', '#FBFAFF', '#5FD3AE', '#7FA6FF', '#B48CFF', '#e4def5'], typo: 'Inter' },
+  cyber: { idee: 'Circuit : l\'aurore vue par un écran de contrôle. Lignes fines, crochets, chasse fixe.',
+    forme: ['Sombre, filets d\'aurore de 1 px, crochets aux coins de la fenêtre active', 'Titres et barre en capitales Sindry Mono', 'Fond : courbes de niveau et grille de points'],
+    pour: ['Identité forte, technique', 'Aucune lueur : tout reste net et léger'], contre: ['Sombre : moyen en plein jour', 'Peut sembler froid à un débutant'],
+    gpu: 'Pas de lueurs ni d\'ombres : uniquement des traits.',
+    pal: ['#050a16', '#0B1224', '#2BE3A6', '#4AB2E7', '#9A5BE0', '#24314f'], typo: 'Sindry Mono pour les titres, Inter pour les textes' },
+  windows: { idee: 'Onze : Windows 11 trait pour trait, avec l\'aurore en fond et sans effets.',
+    forme: ['Arrondis de 8 px, barres de titre teintées (à la place du Mica)', 'Barre claire, icônes seules, indicateur sous l\'appli active', 'Menu : recherche, épinglés, « Recommandé » = Windows détectés'],
+    pour: ['Zéro apprentissage', 'Très sobre, très lisible'], contre: ["Peu d'identité propre", 'On le prendra pour Windows… sur un PC où l\'on soigne Windows'],
+    gpu: 'Le Mica et l\'acrylique de Windows sont remplacés par des teintes fixes.',
+    pal: ['#0a1530', '#FAFAFA', '#EEF1F7', '#4F5FE8', '#2BC4A9', '#9A5BE0'], typo: 'Inter' },
+  vitrail: { idee: 'Vitrail : l\'aurore en vitrail, facettes de couleur serties de plomb sombre.',
+    forme: ['Traits sombres épais autour de chaque élément', 'Barres de titre et barre des tâches en facettes d\'aurore', 'Icônes en losanges, chargement : le logo dans un losange'],
+    pour: ['Unique : rien d\'autre ne ressemble à ça', 'Rien que des images fixes : idéal sans carte graphique'], contre: ['Chargé si on en abuse', 'Les losanges demandent un jeu d\'icônes dédié'],
+    gpu: 'Tout est image fixe : les facettes sont dessinées à la construction.',
+    pal: ['#141a2e', '#F5F6FB', '#1FB5A3', '#4AB2E7', '#775FD7', '#CA28B1'], typo: 'Inter' },
+};
+function notes(p) {
+  const n = NOTES[p];
+  return `<div class="note"><h3>L'idée</h3><p class="idee">${n.idee}</p><ul>${n.forme.map(x => `<li>${x}</li>`).join('')}</ul></div>
+    <div class="note"><h3>Pour / contre</h3><ul>${n.pour.map(x => `<li class="pour">${x}</li>`).join('')}${n.contre.map(x => `<li class="contre">${x}</li>`).join('')}</ul><p class="gpu">${n.gpu}</p></div>
+    <div class="note"><h3>Palette et police</h3><div class="sw">${n.pal.map(c => `<span><i style="background:${c}"></i>${c}</span>`).join('')}</div><p style="margin:10px 0 0">${n.typo}</p></div>`;
+}
+
+// ---------- render ----------
+const desk = document.getElementById('desk');
+desk.style.setProperty('--facet', asUrl(facets(600, 40, 14, 1, 3)));
+desk.style.setProperty('--facet-pale', asUrl(facets(600, 40, 14, 1, 3, false, true)));
+desk.style.setProperty('--facet-bar', asUrl(facets(1280, 52, 26, 1, 5)));
+let plan = 'anguleux', view = 'desk', menuOpen = true;
+function render() {
+  desk.dataset.plan = plan; desk.dataset.view = view;
+  desk.classList.toggle('menu-open', menuOpen);
+  desk.innerHTML = `<div class="wall">${WALL[plan]()}</div>${dicons()}${filesWin(plan)}${sindryWin(plan)}
+    <div class="start-menu">${startMenu(plan)}</div>${taskbar(plan)}
+    <div class="ov ov-menu">${bootMenu(plan)}</div><div class="ov ov-splash">${splash(plan)}</div>`;
+  document.getElementById('notes').innerHTML = notes(plan);
+  document.querySelectorAll('#cmp tbody tr').forEach(tr => tr.classList.toggle('cur', tr.dataset.p === plan));
+}
+desk.addEventListener('click', e => {
+  if (e.target.closest('#startbtn')) { menuOpen = !menuOpen; desk.classList.toggle('menu-open', menuOpen); }
+});
+document.getElementById('plans').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  plan = b.dataset.p; document.querySelectorAll('#plans button').forEach(x => x.classList.toggle('on', x === b)); render();
+});
+document.getElementById('views').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  view = b.dataset.v; desk.dataset.view = view; document.querySelectorAll('#views button').forEach(x => x.classList.toggle('on', x === b));
+});
+const frame = document.getElementById('frame');
+new ResizeObserver(() => { desk.style.transform = `scale(${frame.clientWidth / 1280})`; }).observe(frame);
+render();
+</script>
+</body>
+</html>
