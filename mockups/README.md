@@ -4,7 +4,7 @@ Tous les mockups de Sindry, **tous projets confondus** (Sindry App, Sindry OS, S
 Sindry Script, Sindry Icons…), sont déposés ici. Le site les montre, avec un aperçu, sur
 <https://burnout293.github.io/Sindry-Media-Library/#mockups>.
 
-La médiathèque commence à **M40**. M01 à M39 restent dans le dépôt Sindry (`docs/mockups/`).
+La médiathèque commence à **M30** (repris des archives). M01 à M29 restent dans le dépôt Sindry (`docs/mockups/`).
 
 ## Déposer un mockup
 
@@ -12,7 +12,7 @@ La médiathèque commence à **M40**. M01 à M39 restent dans le dépôt Sindry 
    <https://github.com/burnout293/Sindry-Media-Library>.
 2. **Prendre un numéro** : `max(plancher, plus grand "n" du registre) + 1`.
    [`registre.json`](registre.json) fait foi, avec une seule numérotation pour tous les projets.
-   Un mockup qui a déjà un numéro (M40 et suivants) le garde.
+   Un mockup qui a déjà un numéro le garde. Prochain numéro libre : voir le registre (M49 au 03/11/2026).
 3. **Nommer le fichier** `M<nn>_<AAAA-MM-JJ>_<nom-court>.html`, par exemple
    `M47_2026-11-02_colonnes.html`. Le nom court s'écrit en minuscules, chiffres et tirets.
    - De préférence en **HTML**. Une image (`.png`, `.webp`, `.jpg`) convient pour un rendu figé.
@@ -70,5 +70,6 @@ Le site en ligne reste alors celui d'avant, et l'échec apparaît dans l'onglet 
 
 | Plage | Où |
 |---|---|
-| M01 à M39 | Dépôt Sindry, `docs/mockups/` et son `registre.json` (pas repris ici) |
-| M40 et suivants | Ici. `plancher` (46) est le dernier numéro attribué avant la médiathèque |
+| M01 à M29 | Dépôt Sindry, `docs/mockups/` et son `registre.json` (pas repris ici) |
+| M30 à M48 | Ici, repris des archives le 02/11/2026 (`plancher` : 48) |
+| M49 et suivants | Ici, déposés directement |

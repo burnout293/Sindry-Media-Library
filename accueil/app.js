@@ -265,7 +265,7 @@
     if (!liste.length) {
       sec.corps.append(el('div', { class: 'vide' },
         el('b', null, 'Aucun mockup pour l\'instant. '),
-        'La médiathèque commence à M40 : chaque conversation Sindry y dépose ses mockups. ',
+        'Chaque conversation Sindry y dépose ses mockups. ',
         el('a', { href: `https://github.com/${contexte.depot}/blob/${contexte.branche}/mockups/README.md` }, 'Les règles de dépôt')));
       return;
     }

@@ -8,7 +8,7 @@ contient le dépôt, avec une recherche et un aperçu de chaque mockup.
 
 | Dossier | Contenu | Règles |
 |---|---|---|
-| `mockups/` | Les mockups de tous les projets Sindry, numérotés à partir de M40, et leur registre | [mockups/README.md](mockups/README.md) |
+| `mockups/` | Les mockups de tous les projets Sindry, numérotés à partir de M30, et leur registre | [mockups/README.md](mockups/README.md) |
 | `icons/` | Les icônes officielles des applications que propose le catalogue (script « Installer des applications »). **Lu par l'application Sindry** | [ci-dessous](#les-icônes-icons) |
 | `images/` | Les autres images : captures, visuels, exports | [images/README.md](images/README.md) |
 
