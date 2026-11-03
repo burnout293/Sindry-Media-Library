@@ -10,11 +10,14 @@
   const BRANCHE = 'main';
   const PAS_DES_DONNEES = new Set(['outils', 'accueil', 'node_modules']);
   const SECTIONS = {
-    mockups: { titre: 'Mockups', un: 'mockup', texte: "Les maquettes de tous les projets Sindry, numérotées dans l'ordre de création. La plus récente en tête." },
-    icons: { titre: 'Icônes', un: 'icône', texte: "Les icônes des applications du catalogue. Quand un script écrit appicon=<nom>, Sindry télécharge icons/<nom>.png." },
-    images: { titre: 'Images', un: 'image', texte: 'Captures, visuels et exports, rangés par projet.' },
+    mockups: { titre: 'Mockups', un: 'mockup', des: 'mockups', texte: "Les maquettes de tous les projets Sindry, numérotées dans l'ordre de création. La plus récente en tête." },
+    'icones-sindry': { titre: 'Icônes de Sindry', un: 'icône de Sindry', des: 'icônes de Sindry', texte: "L'icône de Sindry, ses variantes, ses tailles et ses animations. Les planches qui les comparent sont des mockups.",
+      vide: 'Aucune icône de Sindry pour l\'instant. Elles se rangent dans icones-sindry/. ' },
+    icons: { titre: "Icônes d'applis", un: "icône d'appli", des: "icônes d'applis", texte: "Les icônes des applications du catalogue. Quand un script écrit appicon=<nom>, Sindry télécharge icons/<nom>.png." },
+    images: { titre: 'Images', un: 'image', des: 'images', texte: 'Captures, visuels et exports, rangés par projet.',
+      vide: 'Aucune image pour l\'instant. Elles se rangent dans images/<projet>/. ' },
   };
-  const ORDRE = ['mockups', 'icons', 'images'];
+  const ORDRE = ['mockups', 'icones-sindry', 'icons', 'images'];
   const EXT_IMAGES = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ico', 'avif', 'bmp']);
   const EXT_PAGES = new Set(['html', 'htm']);
   const ICONE_MAX = 128 * 1024;
@@ -351,9 +354,8 @@
     sec.compte = fichiers.length;
     if (!fichiers.length) {
       sec.corps.append(el('div', { class: 'vide' },
-        el('b', null, 'Aucune image pour l\'instant. '),
-        'Elles se rangent dans images/<projet>/. ',
-        el('a', { href: `https://github.com/${contexte.depot}/blob/${contexte.branche}/images/README.md` }, 'Les règles de dépôt')));
+        el('b', null, (SECTIONS[racine] && SECTIONS[racine].vide) || `Aucun fichier dans ${racine}/ pour l'instant. `),
+        el('a', { href: `https://github.com/${contexte.depot}/blob/${contexte.branche}/${racine}/README.md` }, 'Les règles de dépôt')));
       return;
     }
     const groupes = new Map();
@@ -451,7 +453,7 @@
         el('div', null, el('h2', { id: `t-${id}` }, info.titre, compteur), el('p', null, info.texte)),
         outils),
       corps, aucun);
-    const sec = { id, titre: info.titre, un: info.un || null, noeud, corps, outils, compteur, aucun, compte: 0 };
+    const sec = { id, titre: info.titre, un: info.un || null, des: info.des || null, noeud, corps, outils, compteur, aucun, compte: 0 };
     sections.push(sec);
     return sec;
   }
@@ -474,7 +476,7 @@
       const sec = creerSection(id);
       if (id === 'mockups') sectionMockups(sec, donnees, fichiers);
       else if (id === 'icons') sectionIcones(sec, fichiers);
-      else if (id === 'images') sectionImages(sec, fichiers, id);
+      else if (id === 'images' || id === 'icones-sindry') sectionImages(sec, fichiers, id);
       else { sec.compte = fichiers.length; sec.corps.append(listeFichiers(fichiers, `${id}/`)); }
       conteneur.append(sec.noeud);
     }
@@ -483,7 +485,7 @@
     const stats = document.getElementById('stats');
     for (const sec of sections) {
       nav.append(el('a', { href: `#${sec.id}` }, sec.titre, el('span', { class: 'n' }, sec.compte)));
-      stats.append(el('li', null, el('a', { href: `#${sec.id}` }, el('b', null, sec.compte), ` ${sec.un ? (sec.compte > 1 ? sec.titre.toLowerCase() : sec.un) : `dans ${sec.id}/`}`)));
+      stats.append(el('li', null, el('a', { href: `#${sec.id}` }, el('b', null, sec.compte), ` ${sec.un ? (sec.compte > 1 ? sec.des : sec.un) : `dans ${sec.id}/`}`)));
     }
 
     const version = document.getElementById('version');

@@ -63,8 +63,9 @@ Le site en ligne reste alors celui d'avant, et l'échec apparaît dans l'onglet 
   d'utilisateur Windows dans les chemins (`C:\Users\…`), ni nom de PC, ni clé.
 - Ne pas réutiliser le numéro d'un mockup publié pour un autre mockup : un nouveau mockup prend
   un nouveau numéro. Corriger une coquille ou un défaut d'affichage reste possible.
-- Ne rien déposer dans `icons/` : ce dossier est lu par l'application Sindry. Les images qui ne
-  sont pas des mockups vont dans [`images/`](../images).
+- Ne rien déposer dans `icons/` : ce dossier est lu par l'application Sindry. L'icône de Sindry
+  et ses variantes vont dans [`icones-sindry/`](../icones-sindry/README.md), les autres images
+  dans [`images/`](../images).
 
 ## Numéros
 
