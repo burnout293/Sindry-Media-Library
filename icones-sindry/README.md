@@ -19,3 +19,26 @@ du catalogue, celles que l'application Sindry télécharge.
   Une icône retenue va aussi dans `icones-sindry/officielle/`.
 - Les fichiers sont poussés directement sur `main`, comme les mockups
   ([règles](../mockups/README.md#déposer-un-mockup)).
+
+## L'icône officielle (`officielle/`)
+
+La variante T3 de [M49](../mockups/M49_2026-11-02_icone-flammes-derriere.html), retenue le
+02/11/2026 : un engrenage à huit dents et deux flammes nées derrière lui, à 1 h 15 et 2 h 30.
+Les douze SVG partagent le même cadre : engrenage et flammes se superposent exactement et
+redonnent l'icône complète.
+
+| | Couleurs | Noir | Blanc |
+|---|---|---|---|
+| Icône complète | `sindry-icon-color.svg` | `sindry-icon-black.svg` | `sindry-icon-white.svg` |
+| Engrenage | `sindry-gear-color.svg` | `sindry-gear-black.svg` | `sindry-gear-white.svg` |
+| Flammes | `sindry-flames-color.svg` | `sindry-flames-black.svg` | `sindry-flames-white.svg` |
+| Animée | `sindry-icon-color-animated.svg` | `sindry-icon-black-animated.svg` | `sindry-icon-white-animated.svg` |
+
+- **Des copies** : la source est dans le dépôt Sindry, `design/icon/`, d'où
+  `npm run icon:layers` génère ces fichiers. Une retouche se fait là-bas, puis se recopie ici.
+- **Des classes pour les thèmes** : `.gear-body`, `.gear-ring`, `.gear-hub`, `.flame`. Une icône
+  insérée dans une page (pas par `<img>`) se recolore en CSS.
+- **L'icône animée ne sert qu'aux écrans de chargement** ([M51](../mockups/M51_2026-11-03_icone-animee.html)) :
+  la roue tourne dans le sens antihoraire, un tour en 8 s, et les flammes vacillent. Elle reste
+  immobile si le système demande moins d'animations. Insérée dans une page, une seule copie par
+  page : deux copies partageraient l'identifiant de masque `#sindry-cut`.

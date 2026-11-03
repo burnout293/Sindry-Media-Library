@@ -1,0 +1,812 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M50 · Roue libre Lite</title>
+<!--
+  Mockup M50: the Lite version of Sindry's hidden game, the one that ships in
+  the app (the Full one will live in its own GitHub repository). The whole flow
+  in a mock Sindry window wearing the new icon (M49, T3, two layers): ten quick
+  clicks turn the icon's gear a tenth of a turn each, then the Fall (M47, 1):
+  the gear leaves the flames, drops into the window and lands on the ground.
+  Lite: no levels, the wheel keeps speeding up, three lives, boosts to pick up;
+  the score is the distance, the record stays on this computer. Escape plays
+  the Fall backwards, from wherever the run is. Code in English, visible text
+  in French.
+-->
+<style>
+@font-face { font-family: 'Inter'; font-weight: 100 900; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Sindry Mono'; font-weight: 400; src: url('_ressources/sindry-mono-400.woff2') format('woff2'); }
+:root {
+  --bg: #F6F4EF; --surface: #FFFFFF; --border: #DCD7CC; --text: #141A24; --text-2: #5C6778; --acc: #E2640F;
+  --icone-corps: #A9B1C1; --icone-anneau: #6F788B; --icone-moyeu: #D7DCE5; --icone-flammes: var(--acc);
+  --ui: 'Inter', 'Segoe UI', system-ui, sans-serif; --mono: 'Sindry Mono', Consolas, monospace;
+  color-scheme: light;
+}
+:root.mono { --ui: var(--mono); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.5 var(--ui); }
+button { font: inherit; color: inherit; }
+
+/* The icon, as in Sindry 2.5.0: flames, then the gear, on the same frame. */
+.marque { position: relative; display: block; flex-shrink: 0; cursor: pointer; }
+.marque svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+.marque .gear-body { fill: var(--icone-corps); }
+.marque .gear-ring { fill: var(--icone-anneau); }
+.marque .gear-hub { fill: var(--icone-moyeu); }
+.marque .flame { fill: var(--icone-flammes); }
+.marque .gear { transform-box: view-box; transform-origin: 0 0; }
+
+.top { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); }
+.brand { display: flex; gap: 10px; align-items: center; user-select: none; }
+.brand .marque { width: 32px; height: 32px; }
+.brand h1 { margin: 0; font-size: 15px; }
+.brand p { margin: 0; color: var(--text-2); font-size: 12px; }
+.ctl { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.grp { display: flex; align-items: center; gap: 7px; }
+.grp > span { font-size: 10.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: .07em; }
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 5px 10px; font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button:hover { color: var(--text); }
+.seg button.on { background: var(--acc); color: var(--bg); }
+
+main { max-width: 1040px; margin: 0 auto; padding: 20px 16px 90px; display: grid; gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+.sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 12px; }
+.sec-h h2 { margin: 0; font-size: 15px; }
+.sec-h p { margin: 0; flex-basis: 100%; color: var(--text-2); font-size: 12px; }
+.tag { font: 700 11px var(--mono); color: var(--acc); border: 1px solid var(--border); border-radius: 6px; padding: 0 6px; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-top: 12px; color: var(--text-2); font-size: 12px; }
+.bar .btns { display: flex; gap: 8px; }
+.btn { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn.acc { background: var(--acc); color: var(--bg); border-color: transparent; }
+.btn:disabled { opacity: .4; cursor: default; }
+kbd.k { font: 600 10.5px var(--mono); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--text); }
+
+/* The mock Sindry window, drawn at 960 x 526 and scaled to fit. */
+.stage { position: relative; width: 100%; max-width: 960px; margin: 0 auto; aspect-ratio: 960 / 526; }
+.win { position: absolute; left: 0; top: 0; width: 960px; height: 526px; transform-origin: 0 0; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg); box-shadow: 0 8px 30px rgba(0, 0, 0, .12); user-select: none; }
+.tb { position: absolute; left: 0; right: 0; top: 0; height: 46px; display: flex; align-items: center; gap: 10px; padding: 0 12px;
+  background: var(--surface); border-bottom: 1px solid var(--border); }
+.tb .marque { width: 30px; height: 30px; }
+.tb b { font-size: 15.5px; font-weight: 800; letter-spacing: -.4px; }
+.tb span { font: 10px var(--mono); color: var(--text-2); }
+.tb .wc { margin-left: auto; display: flex; gap: 18px; color: var(--text-2); font-size: 12px; }
+.ui { position: absolute; left: 0; right: 0; top: 46px; bottom: 0; display: grid; grid-template-columns: 190px 1fr; }
+.side { border-right: 1px solid var(--border); padding: 14px 10px; display: flex; flex-direction: column; gap: 4px; background: var(--surface); }
+.nav { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--text-2); font-weight: 600; font-size: 12.5px; }
+.nav i { width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid currentColor; }
+.nav.on { background: color-mix(in srgb, var(--acc) 14%, transparent); color: var(--text); }
+.nav.on i { border-color: var(--acc); }
+.main { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.mh { display: flex; align-items: baseline; gap: 12px; }
+.mh b { font-size: 18px; font-weight: 800; letter-spacing: -.3px; }
+.mh span { color: var(--text-2); font-size: 12px; }
+.search { height: 34px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-2); padding: 0 12px; display: flex; align-items: center; font-size: 12.5px; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.cardx { height: 132px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+.cardx i { width: 26px; height: 26px; border-radius: 7px; background: color-mix(in srgb, var(--acc) 18%, transparent); margin-bottom: 4px; }
+.cardx b { font-size: 12.5px; }
+.cardx span { color: var(--text-2); font-size: 11.5px; line-height: 1.35; }
+.cardx em { margin-top: auto; align-self: flex-start; font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--acc); }
+#fx { position: absolute; left: 0; top: 0; width: 960px; height: 526px; pointer-events: none; }
+.hit { position: absolute; left: 0; right: 0; top: 46px; bottom: 0; display: none; touch-action: manipulation; }
+.hit.on { display: block; }
+
+/* The game's screens, in the window body. */
+.gov { position: absolute; left: 0; right: 0; top: 46px; bottom: 0; display: flex; align-items: center; justify-content: center;
+  color: var(--text); font: 12px/1.4 var(--mono); opacity: 0; pointer-events: none; }
+.gov.live { pointer-events: auto; }
+.gov-card { background: var(--surface); border: 1.5px solid var(--text); border-radius: 6px; padding: 14px 28px; text-align: center; margin-top: -40px; }
+.gov-title { font-size: 20px; font-weight: 700; letter-spacing: .3em; margin-bottom: 4px; }
+.gov p { margin: 3px 0; }
+.gov .dim { opacity: .62; }
+.gov button { margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; font: 600 12px var(--mono);
+  color: var(--surface); background: var(--text); border: 1.5px solid var(--text); border-radius: 4px; cursor: pointer; }
+.gov kbd { font: 600 10px var(--mono); border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; opacity: .8; }
+
+table.t { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.t th { text-align: left; font-size: 10.5px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; padding: 0 10px 6px 0; border-bottom: 1px solid var(--border); }
+table.t td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.t tr:last-child td { border-bottom: 0; }
+table.t td:first-child { font-weight: 600; white-space: nowrap; }
+.pill { font-size: 11px; font-weight: 600; white-space: nowrap; border-radius: 999px; padding: 1px 8px; border: 1px solid var(--border); color: var(--text-2); }
+.pill.ok { color: var(--acc); border-color: var(--acc); }
+</style>
+</head>
+<body>
+<div data-maquette-badge style="position:fixed;left:10px;bottom:10px;z-index:2147483647;pointer-events:none;font:650 12px/1.2 'Segoe UI',system-ui,sans-serif;color:#fff;background:rgba(18,12,26,.9);border:1px solid rgba(255,255,255,.22);padding:6px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.35)">M50 · 02/11/2026 20:11 · Roue libre Lite</div>
+
+<template id="icon"><svg class="brand-flames" viewBox="-132.06 -211.64 323.63 323.63" aria-hidden="true"><g class="flames"><path class="flame flame-1" d="M35.24 -80.09C36.55 -83.18 38.12 -86.35 39.95 -89.6C58.4 -122.36 110.63 -123.15 112.72 -199.65C132.36 -154.07 149.74 -88.19 121.86 -43.47C115.57 -32.3 108.46 -24.32 100.96 -19.06L100.24 -19.65L99.46 -20.18L98.66 -20.65L97.76 -21.08L97.24 -21.3L84.28 -26.37L83.88 -26.59L83.57 -26.84L83.31 -27.13L83.1 -27.49L82.94 -27.87L82.48 -29.22L81.88 -30.86L81.37 -32.17L80.83 -33.51L80.25 -34.88L79.64 -36.24L79.07 -37.47L78.26 -39.16L78.17 -39.42L78.11 -39.67L78.08 -39.9L78.07 -40.14L78.1 -40.37L78.15 -40.63L78.22 -40.89L78.33 -41.16L83.83 -53.71L84.12 -54.43L84.34 -55.11L84.55 -55.86L84.71 -56.64L84.83 -57.43L84.88 -58.15L84.89 -58.96L84.85 -59.69L84.76 -60.42L84.61 -61.22L84.44 -61.85L84.24 -62.48L84 -63.09L83.74 -63.68L83.44 -64.26L83.08 -64.87L82.69 -65.47L82.28 -66.03L81.06 -67.53L79.8 -69.01L78.54 -70.43L77.24 -71.87L75.93 -73.25L74.57 -74.63L73.18 -75.99L71.77 -77.32L69.71 -79.19L67.59 -81L65.98 -82.32L65.41 -82.74L64.87 -83.08L64.26 -83.44L63.62 -83.77L62.95 -84.06L62.27 -84.31L61.57 -84.52L60.93 -84.67L60.2 -84.79L59.55 -84.86L58.96 -84.89L58.3 -84.89L57.72 -84.85L57.07 -84.78L56.42 -84.67L55.79 -84.53L55.17 -84.36L54.57 -84.16L53.65 -83.8L41.19 -78.34L40.83 -78.2L40.48 -78.11L40.16 -78.07L39.86 -78.08L39.54 -78.13L39.22 -78.24L38.93 -78.36L36.97 -79.3L35.24 -80.09Z"/><path class="flame flame-2" d="M82.54 -29.03C106.96 -33.12 135.34 -33.66 159.5 -76.54C156.04 -32.86 142.44 25.75 102.24 49.16C96.15 53.08 90.34 55.84 84.84 57.59L84.73 56.71L84.55 55.86L84.3 54.97L83.99 54.1L78.25 40.97L78.12 40.52L78.07 40.11L78.1 39.71L78.21 39.3L78.35 38.95L79 37.63L79.71 36.08L80.3 34.76L80.86 33.43L81.42 32.05L81.95 30.66L82.44 29.34L83.02 27.65L83.15 27.4L83.28 27.18L83.43 26.98L83.6 26.81L83.78 26.67L83.98 26.53L84.22 26.4L84.48 26.28L97.24 21.3L97.95 21L98.59 20.68L99.28 20.29L99.88 19.9L100.52 19.43L101.08 18.96L101.66 18.4L102.16 17.85L102.62 17.27L103.03 16.67L103.38 16.1L103.68 15.52L103.96 14.92L104.22 14.25L104.44 13.57L104.62 12.87L104.77 12.18L104.88 11.48L105.06 9.65L105.2 7.89L105.32 6.13L105.41 4.32L105.47 2.55L105.5 0.78L105.5 -0.99L105.46 -2.8L105.35 -5.66L105.16 -8.52L105.02 -10.03L104.87 -11.55L104.77 -12.18L104.66 -12.74L104.46 -13.5L104.25 -14.18L103.99 -14.86L103.68 -15.52L103.34 -16.17L102.95 -16.79L102.53 -17.39L102.06 -17.96L101.66 -18.4L101.19 -18.86L100.75 -19.25L100.24 -19.65L99.76 -19.98L99.22 -20.33L98.66 -20.65L98.08 -20.94L97.24 -21.3L84.52 -26.27L84.04 -26.49L83.78 -26.67L83.55 -26.86L83.36 -27.06L83.2 -27.31L83.08 -27.54L82.96 -27.8L82.54 -29.03Z"/></g></svg><svg class="brand-gear" viewBox="-132.06 -211.64 323.63 323.63" aria-hidden="true"><g class="gear"><path class="gear-body" d="M-21.13 -82.56L-16.2 -95.18Q-14.75 -98.91 -10.78 -99.42A100 100 0 0 1 10.78 -99.42Q14.75 -98.91 16.2 -95.18L21.13 -82.56Q22.58 -78.83 26.4 -77.63A82 82 0 0 1 36.23 -73.56Q39.77 -71.71 43.44 -73.32L55.85 -78.76Q59.51 -80.36 62.68 -77.92A100 100 0 0 1 77.92 -62.68Q80.36 -59.51 78.76 -55.85L73.32 -43.44Q71.71 -39.77 73.56 -36.23A82 82 0 0 1 77.63 -26.4Q78.83 -22.58 82.56 -21.13L95.18 -16.2Q98.91 -14.75 99.42 -10.78A100 100 0 0 1 99.42 10.78Q98.91 14.75 95.18 16.2L82.56 21.13Q78.83 22.58 77.63 26.4A82 82 0 0 1 73.56 36.23Q71.71 39.77 73.32 43.44L78.76 55.85Q80.36 59.51 77.92 62.68A100 100 0 0 1 62.68 77.92Q59.51 80.36 55.85 78.76L43.44 73.32Q39.77 71.71 36.23 73.56A82 82 0 0 1 26.4 77.63Q22.58 78.83 21.13 82.56L16.2 95.18Q14.75 98.91 10.78 99.42A100 100 0 0 1 -10.78 99.42Q-14.75 98.91 -16.2 95.18L-21.13 82.56Q-22.58 78.83 -26.4 77.63A82 82 0 0 1 -36.23 73.56Q-39.77 71.71 -43.44 73.32L-55.85 78.76Q-59.51 80.36 -62.68 77.92A100 100 0 0 1 -77.92 62.68Q-80.36 59.51 -78.76 55.85L-73.32 43.44Q-71.71 39.77 -73.56 36.23A82 82 0 0 1 -77.63 26.4Q-78.83 22.58 -82.56 21.13L-95.18 16.2Q-98.91 14.75 -99.42 10.78A100 100 0 0 1 -99.42 -10.78Q-98.91 -14.75 -95.18 -16.2L-82.56 -21.13Q-78.83 -22.58 -77.63 -26.4A82 82 0 0 1 -73.56 -36.23Q-71.71 -39.77 -73.32 -43.44L-78.76 -55.85Q-80.36 -59.51 -77.92 -62.68A100 100 0 0 1 -62.68 -77.92Q-59.51 -80.36 -55.85 -78.76L-43.44 -73.32Q-39.77 -71.71 -36.23 -73.56A82 82 0 0 1 -26.4 -77.63Q-22.58 -78.83 -21.13 -82.56Z"/><path class="gear-ring" d="M57 0A57 57 0 1 1 -57 0A57 57 0 1 1 57 0Z"/><path class="gear-hub" d="M34 0A34 34 0 1 1 -34 0A34 34 0 1 1 34 0Z"/></g></svg></template>
+
+<header class="top">
+  <div class="brand">
+    <span class="marque" id="logo" title="Sindry"></span>
+    <div>
+      <h1>Roue libre Lite</h1>
+      <p>Le jeu caché de Sindry, en version courte : une course sans fin qui accélère.</p>
+    </div>
+  </div>
+  <div class="ctl">
+    <div class="grp"><span>Ambiance</span><div class="seg">
+      <button data-set="amb" data-val="plan-clair">Plan clair</button><button data-set="amb" data-val="plan-sombre">Plan sombre</button><button data-set="amb" data-val="foret">Forêt</button><button data-set="amb" data-val="ardente">Braise</button><button data-set="amb" data-val="synthwave">Synthwave</button><button data-set="amb" data-val="terminal">Terminal</button>
+    </div></div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="sec-h"><span class="tag">A</span><h2>Dans Sindry</h2>
+      <p>Clique 10 fois vite sur l'icône de la fenêtre : l'engrenage tourne d'un dixième de tour à chaque clic, puis quitte ses flammes et tombe dans la fenêtre. Échap le ramène, de n'importe où dans la course.</p></div>
+    <div class="stage" id="stage">
+      <div class="win" id="win">
+        <div class="tb"><span class="marque brand-mark" id="mark"></span><b>Sindry</b><span>2.5.0</span><span class="wc">— ▢ ✕</span></div>
+        <div class="ui" id="ui">
+          <aside class="side">
+            <div class="nav on"><i></i>Catalogue</div>
+            <div class="nav"><i></i>Installés</div>
+            <div class="nav"><i></i>Analyse</div>
+            <div class="nav"><i></i>Journaux</div>
+            <div class="nav"><i></i>Réglages</div>
+          </aside>
+          <section class="main">
+            <div class="mh"><b>Catalogue</b><span>42 scripts · à jour</span></div>
+            <div class="search">Rechercher un script…</div>
+            <div class="cards">
+              <div class="cardx"><i></i><b>Restes de Webroot</b><span>Retire ce que la désinstallation laisse derrière elle.</span><em>Lancer</em></div>
+              <div class="cardx"><i></i><b>Installeur d'applis</b><span>Tes logiciels habituels, en une fois.</span><em>Lancer</em></div>
+              <div class="cardx"><i></i><b>Clé SindryOS</b><span>Prépare une clé USB démarrable.</span><em>Lancer</em></div>
+              <div class="cardx"><i></i><b>Diagnostic réseau</b><span>Trouve où la connexion coince.</span><em>Lancer</em></div>
+              <div class="cardx"><i></i><b>Mises à jour Windows</b><span>Vérifie et installe ce qui manque.</span><em>Lancer</em></div>
+              <div class="cardx"><i></i><b>Point de restauration</b><span>Une sauvegarde avant de toucher au système.</span><em>Lancer</em></div>
+            </div>
+          </section>
+        </div>
+        <canvas id="fx"></canvas>
+        <div class="hit" id="hit"></div>
+        <div class="gov" id="gov"></div>
+      </div>
+    </div>
+    <div class="bar">
+      <span><kbd class="k">Espace</kbd> <kbd class="k">↑</kbd> ou clic : sauter, maintenir pour sauter plus haut · <kbd class="k">P</kbd> pause · <kbd class="k">Échap</kbd> retour à Sindry</span>
+      <span class="btns"><button class="btn acc" id="replay">Rejouer l'entrée</button><button class="btn" id="reset">Effacer le record</button></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><span class="tag">B</span><h2>Lite et Full</h2><p>Lite vit dans Sindry, cachée. Full sera un jeu à part, sur son propre dépôt GitHub, et grandira à côté.</p></div>
+    <table class="t">
+      <tr><th></th><th>Lite, dans Sindry</th><th>Full, sur GitHub</th></tr>
+      <tr><td>Le parcours</td><td>Sans fin : la roue va de plus en plus vite.</td><td>Des courses avec une ligne d'arrivée, de plus en plus longues (M45).</td></tr>
+      <tr><td>Les vies</td><td>3, perdues pour de bon jusqu'à la fin de la partie.</td><td>3, gardées d'une course à l'autre ; Réparer pour 1 réglage.</td></tr>
+      <tr><td>Les boosts</td><td>Des turbos à ramasser sur la route.</td><td>2 turbos et 2 bonus par course, des réglages sans limite.</td></tr>
+      <tr><td>Le score</td><td>La distance, et le record à battre.</td><td>Score total, record, et ce qu'on y ajoutera.</td></tr>
+      <tr><td>L'entrée</td><td>10 clics sur l'icône, puis la Chute.</td><td>Un jeu à lancer seul.</td></tr>
+    </table>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><span class="tag">C</span><h2>À valider</h2><p>Ce que la maquette a choisi pour la Lite en attendant ton avis.</p></div>
+    <table class="t">
+      <tr><th>Point</th><th>Dans la maquette</th><th></th></tr>
+      <tr><td>L'accélération</td><td>De ×1 à ×2,4 en 2 minutes, puis la vitesse plafonne : au-delà, les sauts ne passent plus.</td><td><span class="pill">à valider</span></td></tr>
+      <tr><td>Le turbo</td><td>×1,5 pendant 3 s, l'engrenage en feu brûle les blocs et les pics qu'il touche. Les trous restent des trous.</td><td><span class="pill">à valider</span></td></tr>
+      <tr><td>Les turbos sur la route</td><td>Un tous les 180 à 320 m environ, jamais sur un obstacle.</td><td><span class="pill">à valider</span></td></tr>
+      <tr><td>Les vies</td><td>3 ; chaque choc casse une dent, visible sur l'engrenage. Aucune ne revient pendant la partie.</td><td><span class="pill">à valider</span></td></tr>
+      <tr><td>Les bonus +250</td><td>Retirés de la Lite : le score, c'est la distance. Ils restent pour la Full.</td><td><span class="pill">à valider</span></td></tr>
+      <tr><td>Le retour</td><td>Échap à tout moment : la Chute à l'envers, depuis l'endroit où l'on est. P met en pause.</td><td><span class="pill">à valider</span></td></tr>
+      <tr><td>Le rendu, l'entrée</td><td>Trait, encre Texte ; 10 clics sur l'icône ; la Chute de M47.</td><td><span class="pill ok">ta demande</span></td></tr>
+    </table>
+  </section>
+</main>
+
+<script>
+'use strict';
+(() => {
+const $ = (s) => document.querySelector(s);
+const TAU = Math.PI * 2;
+const WW = 960, WH = 526, TB = 46;              // the window and its title bar
+// The game world (M45's units): ground at GY, shown GAME_DY lower in the window.
+const GY = 252, GAME_DY = 466 - GY, FALL_Y = WH - GAME_DY + 70;
+const GX = 170;                                 // where the gear sits on screen: the camera follows it
+// The icon (design/icon, M49 T3): gear centred on (0, 0) of its view box, tip
+// radius 100, roots 82, ring 57, hub 34, one tooth straight up at rest.
+const VIEW = { x: -132.06, y: -211.64, s: 323.63 };
+const MARK = { x: 12, y: 8, s: 30 };            // the title bar icon, in window units
+const IG = { x: MARK.x - VIEW.x * MARK.s / VIEW.s, y: MARK.y - VIEW.y * MARK.s / VIEW.s, r: 100 * MARK.s / VIEW.s };
+const RC = 3 * IG.r;                            // the game's gear: the icon's, three times
+const GEAR_PATH = new Path2D($('#icon').content.querySelector('.gear-body').getAttribute('d'));
+const TEETH = 8, TOOTH_HALF = 0.3;              // a tooth's half angle at its root, fillets included
+const HIT_R = RC * 0.9;
+const GRAV = 2300, VJ = 800, BASE_V = 270, X0 = 160, PLAT_H = 15, LIVES = 3;
+const V_RAMP = 0.012, V_MAX = 2.4;              // +1.2 % of speed per second, up to x2.4
+const TURBO_X = 1.5, TURBO_S = 3, SPIN_MAX = 19;
+const CLICKS = 10, CLICK_GAP = 600;
+const MONO = "'Sindry Mono', Consolas, monospace";
+const KEY = 'sindry.m50', KEY_UI = 'sindry.m50.ui';
+
+const AMBS = {
+  'plan-clair':  { bg: '#F6F4EF', surface: '#FFFFFF', border: '#DCD7CC', text: '#141A24', text2: '#5C6778', acc: '#E2640F' },
+  'plan-sombre': { bg: '#0B0F16', surface: '#0F1520', border: '#2A3445', text: '#E9EEF5', text2: '#8C9AAE', acc: '#FD7D26', dark: true },
+  'foret':       { bg: '#07110C', surface: '#0C1912', border: '#1E3529', text: '#E6F2EA', text2: '#9DB5A5', acc: '#7CE38B', dark: true },
+  'ardente':     { bg: '#0F0A14', surface: '#18111F', border: '#2C2236', text: '#F7F1FA', text2: '#B9A9C6', acc: '#FEC923', dark: true },
+  'synthwave':   { bg: '#120326', surface: '#1C0838', border: '#3A1A66', text: '#FBF0FF', text2: '#CDB6EE', acc: '#FF2BD6', dark: true },
+  'terminal':    { bg: '#020A04', surface: '#06140A', border: '#164A24', text: '#6CFF94', text2: '#4CCF72', acc: '#6CFF94', dark: true, mono: true },
+};
+let INK = '#141A24', BG = '#FFFFFF';
+
+const clamp01 = (u) => Math.max(0, Math.min(1, u));
+const span = (t, a, b) => clamp01((t - a) / (b - a));
+const lerp = (a, b, u) => a + (b - a) * u;
+const easeOut = (u) => 1 - (1 - u) * (1 - u);
+const easeInOut = (u) => (u < 0.5 ? 2 * u * u : 1 - (-2 * u + 2) ** 2 / 2);
+const fmt = (n) => Math.round(n).toLocaleString('fr-FR');
+const hash = (n) => { n = Math.imul((n | 0) ^ 0x9e3779b9, 0x85ebca6b); n ^= n >>> 13; n = Math.imul(n, 0xc2b2ae35); n ^= n >>> 16; return n >>> 0; };
+function rng(seed) {
+  let a = seed >>> 0;
+  return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+}
+
+/* ---------- The record ---------- */
+let record = 0;
+try { record = Number(JSON.parse(localStorage.getItem(KEY)).record) || 0; } catch (e) { /* none yet */ }
+function keepRecord() { try { localStorage.setItem(KEY, JSON.stringify({ record })); } catch (e) { /* not kept */ } }
+
+/* ---------- A run: an endless course, generated ahead of the gear ---------- */
+const speedOf = (r) => Math.min(V_MAX, 1 + V_RAMP * r.t);
+function makeRun() {
+  return { x: X0, y: GY - RC, vy: 0, ground: true, coyote: 0, buffer: 0, holding: false, ang: 0, missing: new Set(), lives: LIVES,
+    invul: 0, slow: 1, boost: 0, ember: 0, falling: false, fallHole: null, t: 0, endT: 0, parts: [], floats: [],
+    holes: [], plats: [], obs: [], pads: [], genX: 1150, padX: 1900, rand: rng((Math.random() * 1e9) | 0) };
+}
+const metersOf = (r) => Math.max(0, Math.round((r.x - X0) / 10));
+// The first screen stays empty, so the game's first frame is the Fall's last.
+function generate(r, until) {
+  const R = r.rand;
+  while (r.genX < until) {
+    const diff = Math.min(1, (r.genX - X0) / 8000), vf = speedOf(r);
+    let x = r.genX;
+    const p = R();
+    if (p < 0.2) { r.obs.push({ t: 'bloc', x, w: 34, h: 34 }); x += 34; }
+    else if (p < 0.38) { const k = 2 + Math.floor(R() * (2 + 2 * diff)); r.obs.push({ t: 'pics', x, w: k * 16, h: 20 }); x += k * 16; }
+    else if (p < 0.54) { const w = Math.round(70 + R() * (35 + 45 * diff)); r.holes.push({ x, w }); x += w; }
+    else if (p < 0.74) {
+      const w = Math.round(170 + R() * 150), h = Math.round(72 + R() * 38);
+      r.plats.push({ x, y: GY - h, w });
+      if (R() < 0.45 + 0.4 * diff) { const k = Math.max(2, Math.floor((w - 70) / 16)); r.obs.push({ t: 'pics', x: x + 35, w: k * 16, h: 20 }); }
+      x += w;
+    } else if (p < 0.88) {
+      r.plats.push({ x, y: GY - 74, w: 130 });
+      const x2 = x + 175;
+      r.plats.push({ x: x2, y: GY - 146, w: 190 });
+      r.obs.push({ t: 'pile', x: x2 + 70, w: 34, h: 68 });
+      x = x2 + 190;
+    } else { r.obs.push({ t: 'pile', x, w: 34, h: 68 }); x += 34; }
+    // Faster, the gear jumps further: the gaps grow with the speed.
+    r.genX = x + Math.round((320 - 110 * diff + R() * 260) * (0.55 + 0.45 * vf));
+  }
+  // Boosts on the road, never on a hazard.
+  const busy = (xx) => r.obs.some((o) => xx > o.x - 90 && xx < o.x + o.w + 40) || r.holes.some((h) => xx > h.x - 90 && xx < h.x + h.w + 40);
+  while (r.padX < until - 400) {
+    let xx = r.padX;
+    for (let i = 0; i < 30 && busy(xx); i++) xx += 40;
+    r.pads.push({ x: xx, taken: false });
+    r.padX = xx + Math.round((1800 + R() * 1400) * (0.6 + 0.4 * speedOf(r)));
+  }
+}
+function prune(r, camX) {
+  const gone = (a, b) => b < camX - 220;
+  r.obs = r.obs.filter((o) => !gone(o.x, o.x + o.w));
+  r.holes = r.holes.filter((h) => !gone(h.x, h.x + h.w));
+  r.plats = r.plats.filter((p) => !gone(p.x, p.x + p.w));
+  r.pads = r.pads.filter((p) => !gone(p.x, p.x + 46));
+}
+
+/* ---------- Drawing ---------- */
+// The icon's gear, exact (its own path), in the game's ink; broken teeth are
+// covered over and replaced by a jagged stump.
+function gearTrait(x, cx, cy, rt, ang, missing, a = 1) {
+  if (a <= 0) return;
+  const s = rt / 100;
+  x.save(); x.globalAlpha *= a;
+  x.translate(cx, cy); x.rotate(ang); x.scale(s, s);
+  x.fillStyle = BG; x.fill(GEAR_PATH);
+  x.lineWidth = 1.8 / s; x.stroke(GEAR_PATH);
+  if (missing) for (const i of missing) {
+    const m = -Math.PI / 2 + i * TAU / TEETH, at = (rad, da) => [Math.cos(m + da) * rad, Math.sin(m + da) * rad];
+    x.beginPath(); x.moveTo(...at(79, -TOOTH_HALF)); x.lineTo(...at(108, -TOOTH_HALF)); x.lineTo(...at(108, TOOTH_HALF)); x.lineTo(...at(79, TOOTH_HALF)); x.closePath();
+    x.fill();
+    x.beginPath(); x.arc(0, 0, 82, m - TOOTH_HALF - 0.02, m - 0.25);
+    x.lineTo(...at(91, -0.17)); x.lineTo(...at(85, -0.05)); x.lineTo(...at(90, 0.07)); x.lineTo(...at(84, 0.18));
+    x.arc(0, 0, 82, m + 0.25, m + TOOTH_HALF + 0.02);
+    x.stroke();
+  }
+  x.beginPath(); x.arc(0, 0, 57, 0, TAU); x.moveTo(34, 0); x.arc(0, 0, 34, 0, TAU);
+  x.globalAlpha *= 0.16; x.fillStyle = INK; x.fill('evenodd'); x.globalAlpha /= 0.16;
+  x.lineWidth = 1.3 / s;
+  x.beginPath(); x.arc(0, 0, 57, 0, TAU); x.stroke();
+  x.beginPath(); x.arc(0, 0, 34, 0, TAU); x.stroke();
+  x.restore();
+}
+// The same gear in the icon's own colours.
+function gearIcon(x, cx, cy, rt, ang, a = 1) {
+  if (a <= 0) return;
+  const s = rt / 100, css = getComputedStyle(document.documentElement);
+  x.save(); x.globalAlpha *= a;
+  x.translate(cx, cy); x.rotate(ang); x.scale(s, s);
+  x.fillStyle = css.getPropertyValue('--icone-corps'); x.fill(GEAR_PATH);
+  x.fillStyle = css.getPropertyValue('--icone-anneau'); x.beginPath(); x.arc(0, 0, 57, 0, TAU); x.fill();
+  x.fillStyle = css.getPropertyValue('--icone-moyeu'); x.beginPath(); x.arc(0, 0, 34, 0, TAU); x.fill();
+  x.restore();
+}
+function gearMorph(x, cx, cy, rt, ang, m) { gearIcon(x, cx, cy, rt, ang, 1 - m); gearTrait(x, cx, cy, rt, ang, null, m); }
+
+const TONGUES = [[-0.35, 0, 2.4, -0.42, 0.3], [-0.6, 0.38, 1.9, -0.78, 0.26], [0.02, -0.3, 1.9, -0.12, 0.26]];
+function tonguePath(x, h, b) {
+  const r0 = 0.27 * h;
+  x.moveTo(r0, 0);
+  x.bezierCurveTo(r0, -0.45 * h, 0.1 * h - b * h * 0.3, -0.72 * h, -b * h, -h);
+  x.bezierCurveTo(-0.1 * h - b * h * 0.5, -0.66 * h, -r0, -0.42 * h, -r0, 0);
+  x.arc(0, 0, r0, Math.PI, 0, true);
+  x.closePath();
+}
+function gearFire(x, cx, cy, t, k) {
+  if (k <= 0) return;
+  const tongues = (scale) => {
+    x.beginPath();
+    TONGUES.forEach(([dx, dy, hh, lean, bend], i) => {
+      const h = hh * RC * scale * (0.5 + 0.5 * k) * (1 + 0.07 * Math.sin(t * 15 + i * 2.3));
+      x.save(); x.translate(cx + dx * RC, cy + dy * RC); x.rotate(lean + 0.08 * Math.sin(t * 11 + i * 1.9));
+      tonguePath(x, h, bend + 0.08 * Math.sin(t * 9 + i * 2.7));
+      x.restore();
+    });
+  };
+  x.save();
+  tongues(1); x.lineWidth = 3.6; x.stroke(); x.fillStyle = BG; x.fill();
+  x.globalAlpha *= 0.12; x.fillStyle = INK; x.fill(); x.globalAlpha /= 0.12;
+  tongues(0.55); x.lineWidth = 2.6; x.stroke(); x.fillStyle = BG; x.fill();
+  x.restore();
+}
+function cogContour(x, cx, cy, r, th, n, ang) {
+  const step = TAU / n;
+  for (let i = 0; i < n; i++) {
+    const a = ang + i * step;
+    const pts = [[r, 0], [r, 0.2], [r + th, 0.34], [r + th, 0.66], [r, 0.8]];
+    for (let j = 0; j < pts.length; j++) {
+      const aa = a + pts[j][1] * step, px = cx + Math.cos(aa) * pts[j][0], py = cy + Math.sin(aa) * pts[j][0];
+      if (i === 0 && j === 0) x.moveTo(px, py); else x.lineTo(px, py);
+    }
+  }
+  x.closePath();
+}
+function drawBoost(x, bx, t, done) {
+  x.lineWidth = 1.4; x.strokeRect(bx + 0.7, GY - 5, 44.6, 5);
+  if (done) return;
+  const sh = Math.sin(t * 7) * 3;
+  x.lineWidth = 2.2; x.beginPath();
+  for (let k = 0; k < 2; k++) { const cx = bx + 9 + k * 15 + sh; x.moveTo(cx, GY - 28); x.lineTo(cx + 9, GY - 19); x.lineTo(cx, GY - 10); }
+  x.stroke();
+}
+function drawBlock(x, bx, by) {
+  const s = 34, cx = bx + s / 2;
+  x.lineWidth = 1.6; x.strokeRect(bx + 0.8, by + 0.8, s - 1.6, s - 1.6);
+  x.lineWidth = 1.4; x.beginPath(); x.arc(cx, by + 14, 6, Math.PI, 0); x.stroke();
+  x.strokeRect(cx - 8, by + 14, 16, 12);
+  x.beginPath(); x.moveTo(cx, by + 18); x.lineTo(cx, by + 22); x.stroke();
+}
+function drawSpikes(x, sx, w, h) {
+  const n = Math.max(1, Math.round(w / 16)), d = w / n;
+  x.beginPath(); x.moveTo(sx, GY);
+  for (let i = 0; i < n; i++) { x.lineTo(sx + i * d + d / 2, GY - h); x.lineTo(sx + (i + 1) * d, GY); }
+  x.lineWidth = 1.6; x.lineJoin = 'miter'; x.stroke(); x.lineJoin = 'round';
+}
+function drawObstacle(x, o) {
+  if (o.t === 'pics') drawSpikes(x, o.x, o.w, o.h);
+  else if (o.t === 'pile') { drawBlock(x, o.x, GY - 68); drawBlock(x, o.x, GY - 34); }
+  else drawBlock(x, o.x, GY - 34);
+}
+function hatch(x, rx, ry, rw, rh, gap) {
+  x.save(); x.beginPath(); x.rect(rx, ry, rw, rh); x.clip();
+  x.lineWidth = 1; x.beginPath();
+  for (let k = -rh; k < rw; k += gap) { x.moveTo(rx + k, ry + rh); x.lineTo(rx + k + rh, ry); }
+  x.stroke(); x.restore();
+}
+function drawPlatform(x, p) { x.lineWidth = 1.6; x.strokeRect(p.x, p.y, p.w, PLAT_H); hatch(x, p.x, p.y, p.w, PLAT_H, 7); }
+function drawParts(x, r) {
+  for (const p of r.parts) {
+    if (p.kind === 'tooth') {
+      const s = RC / 100;
+      x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.scale(s, s);
+      x.beginPath(); x.moveTo(-21, 9); x.lineTo(-11, -9); x.lineTo(11, -9); x.lineTo(21, 9); x.closePath();
+      x.lineWidth = 1.4 / s; x.stroke(); x.restore();
+    } else { const s = p.kind === 'ember' ? 2.2 : 2.6; x.fillRect(p.x - s / 2, p.y - s / 2, s, s); }
+  }
+}
+
+/* ---------- Layers, in window units (the Fall fades them in and out) ---------- */
+function layerBody(x, a) {
+  if (a <= 0) return;
+  x.save(); x.globalAlpha *= a; x.fillStyle = BG; x.fillRect(0, TB, WW, WH - TB); x.restore();
+}
+function layerBackdrop(x, camX, a) {
+  if (a <= 0) return;
+  x.save(); x.globalAlpha *= 0.22 * a; x.lineWidth = 1.4; x.translate(0, GAME_DY);
+  const off = camX * 0.35, sp = 540, first = Math.floor((off - 300) / sp);
+  for (let i = first; i <= first + 3; i++) {
+    const h = hash(i + 7777), rr = 46 + (h % 46);
+    const gx = i * sp + ((h >>> 7) % 180) - off, gy = 30 + rr * 0.6 + ((h >>> 13) % 50);
+    x.beginPath(); cogContour(x, gx, gy, rr, 8, Math.max(10, Math.round(rr / 4.2)), (off / rr) * (i % 2 ? 0.8 : -0.8)); x.stroke();
+    x.beginPath(); x.arc(gx, gy, rr * 0.42, 0, TAU); x.stroke();
+  }
+  x.font = `11px ${MONO}`;                      // a mark every 100 m, like the Plan ambiance
+  for (let m = Math.max(1, Math.ceil((camX - X0 - 60) / 1000)); X0 + m * 1000 < camX + WW + 60; m++) {
+    const sx = X0 + m * 1000 - camX;
+    x.lineWidth = 1; x.beginPath(); x.moveTo(sx, GY + 4); x.lineTo(sx, GY + 34); x.stroke(); x.fillText(`${m * 100} m`, sx + 5, GY + 30);
+  }
+  x.restore();
+}
+// The ground line from xa to xb on screen; the holes are cut out of it with alpha holeA.
+function layerGround(x, camX, xa, xb, holes, holeA) {
+  if (xb <= xa) return;
+  x.save(); x.translate(0, GAME_DY);
+  x.lineWidth = 1.6; x.beginPath(); x.moveTo(xa, GY + 0.8); x.lineTo(xb, GY + 0.8); x.stroke();
+  x.lineWidth = 1; x.beginPath();
+  for (let wx = Math.ceil((xa + camX) / 50) * 50; wx - camX <= xb; wx += 50) { const sx = wx - camX; x.moveTo(sx, GY + 2); x.lineTo(sx, GY + (wx % 250 === 0 ? 9 : 5)); }
+  x.stroke();
+  if (holeA > 0) {
+    x.globalAlpha *= holeA;
+    for (const h of holes) {
+      const hx = h.x - camX;
+      if (hx > WW + 20 || hx + h.w < -20) continue;
+      x.fillStyle = BG; x.fillRect(hx, GY - 1, h.w, 12);
+      x.lineWidth = 1.6; x.beginPath(); x.moveTo(hx, GY); x.lineTo(hx, WH); x.moveTo(hx + h.w, GY); x.lineTo(hx + h.w, WH); x.stroke();
+      hatch(x, hx - 10, GY, 10, WH - GY, 6); hatch(x, hx + h.w, GY, 10, WH - GY, 6);
+    }
+  }
+  x.restore();
+}
+function layerWorld(x, r, camX, a) {
+  if (a <= 0) return;
+  const x0 = camX - 80, x1 = camX + WW + 80, vis = (p, q) => q > x0 && p < x1;
+  x.save(); x.globalAlpha *= a; x.translate(-camX, GAME_DY);
+  for (const p of r.plats) if (vis(p.x, p.x + p.w)) drawPlatform(x, p);
+  for (const b of r.pads) if (vis(b.x, b.x + 46)) drawBoost(x, b.x, T, b.taken);
+  for (const o of r.obs) if (vis(o.x, o.x + o.w)) drawObstacle(x, o);
+  x.restore();
+}
+function drawLives(x, x0, y0, lives) {
+  for (let i = 0; i < LIVES; i++) {
+    const tx = x0 + i * 15;
+    x.beginPath(); x.moveTo(tx, y0 + 9); x.lineTo(tx + 2.5, y0); x.lineTo(tx + 8.5, y0); x.lineTo(tx + 11, y0 + 9); x.closePath();
+    if (i < lives) x.fill(); else { x.lineWidth = 1.2; x.stroke(); }
+  }
+}
+function layerHud(x, r, a) {
+  if (a <= 0) return;
+  x.save(); x.globalAlpha *= a; x.translate(0, TB);
+  x.textBaseline = 'top'; x.textAlign = 'left';
+  drawLives(x, 18, 16, r.lives);
+  x.font = `500 12px ${MONO}`; x.fillText(`VITESSE ×${speedOf(r).toFixed(1).replace('.', ',')}`, 18, 33);
+  if (r.boost > 0) {
+    x.textAlign = 'center'; x.font = `700 11px ${MONO}`; x.fillText('TURBO', WW / 2, 16);
+    x.fillRect(WW / 2 - 40, 32, (80 * r.boost) / TURBO_S, 3);
+  }
+  x.textAlign = 'right';
+  x.font = `700 17px ${MONO}`; x.fillText(`${fmt(metersOf(r))} m`, WW - 18, 12);
+  x.font = `500 11px ${MONO}`; x.globalAlpha *= 0.7;
+  x.fillText(`RECORD ${fmt(Math.max(record, metersOf(r)))} m`, WW - 18, 34);
+  x.restore();
+  x.save(); x.textAlign = 'center'; x.textBaseline = 'top'; x.font = `700 13px ${MONO}`; x.translate(0, GAME_DY);
+  for (const f of r.floats) { x.globalAlpha = a * Math.max(0, Math.min(1, f.life * 2)); x.fillText(f.txt, f.x - camOf(r), f.y - (1 - f.life) * 30); }
+  x.restore();
+}
+const camOf = (r) => r.x - GX;
+const fireOf = (r) => Math.max(0, Math.min(1, r.boost / 0.5, (TURBO_S - r.boost) / 0.25));
+function layerGear(x, r, camX) {
+  x.save(); x.translate(-camX, GAME_DY);
+  if (r.boost > 0) gearFire(x, r.x, r.y, T, fireOf(r));
+  if (!(r.invul > 0 && Math.floor(T * 12) % 2)) gearTrait(x, r.x, r.y, RC, r.ang, r.missing);
+  drawParts(x, r);
+  x.restore();
+}
+function drawGame(x, r) {
+  const camX = camOf(r);
+  layerBody(x, 1); layerBackdrop(x, camX, 1);
+  layerGround(x, camX, 0, WW, r.holes, 1);
+  layerWorld(x, r, camX, 1); layerGear(x, r, camX); layerHud(x, r, 1);
+}
+
+/* ---------- The Fall (M47, 1), played forwards to enter, backwards to leave ---------- */
+const FALL_D = 1.7, FALL_SPIN = TAU - 0.4;
+const HOPS = [[0.3, 22], [0.18, 7]];
+function hopHeight(s) {
+  let t0 = 0;
+  for (const [d, h] of HOPS) { if (s < t0 + d) { const u = (s - t0) / d; return h * 4 * u * (1 - u); } t0 += d; }
+  return 0;
+}
+const GEAR_Y = GY - RC + GAME_DY;               // the gear's centre at rest, in window units
+// leave: where the gear really was when Escape was pressed (height above rest, extra angle).
+function drawFall(x, t, r, leave) {
+  const camX = camOf(r);
+  const fade = easeInOut(span(t, 0.15, 0.6));
+  setUi({ opacity: 1 - fade, dy: 10 * fade });
+  layerBody(x, fade);
+  const g = easeOut(span(t, 0.5, 1)), wa = span(t, 1.1, 1.5);
+  layerGround(x, camX, GX - g * (GX + 10), GX + g * (WW - GX + 10), r.holes, wa);
+  layerBackdrop(x, camX, wa); layerWorld(x, r, camX, wa);
+  layerHud(x, r, span(t, 1.2, 1.6));
+  setGear({ out: t > 0 });
+  if (t <= 0) return;
+  const extra = leave ? leave.ang * span(t, 0.12, FALL_D) : 0;
+  if (t < 0.12) { gearIcon(x, IG.x, IG.y, IG.r * (1 + 0.3 * Math.sin(span(t, 0, 0.12) * Math.PI / 2)), 0); return; }
+  if (t < 1) {
+    const u = span(t, 0.12, 1);
+    const cx = lerp(IG.x, GX, easeOut(u)), cy = IG.y + (GEAR_Y - IG.y) * u * u - 120 * u * (1 - u);
+    gearMorph(x, cx, cy, lerp(IG.r * 1.3, RC, easeOut(u)), u * FALL_SPIN + extra, span(t, 0.15, 0.6));
+    return;
+  }
+  const s = t - 1, lift = leave ? leave.dy * span(t, FALL_D - 0.15, FALL_D) : 0;
+  const squash = s < 0.07 ? 1 - s / 0.07 : (s > 0.3 && s < 0.36 ? 0.5 * (1 - (s - 0.3) / 0.06) : 0);
+  x.save(); x.translate(GX, GEAR_Y + RC); x.scale(1 + 0.1 * squash, 1 - 0.12 * squash); x.translate(-GX, -GEAR_Y - RC);
+  if (leave && leave.fire > 0) gearFire(x, GX, GEAR_Y - hopHeight(s) - lift, T, leave.fire * span(t, FALL_D - 0.3, FALL_D));
+  gearTrait(x, GX, GEAR_Y - hopHeight(s) - lift, RC, FALL_SPIN + 0.8 * Math.min(s, 0.5) + extra, r.missing);
+  x.restore();
+  if (s < 0.4) {                                // dust from the first contact
+    const u = s / 0.4;
+    x.save(); x.globalAlpha *= 1 - u;
+    for (let i = 0; i < 6; i++) {
+      const side = i % 2 ? 1 : -1, sp = 30 + (i >> 1) * 22;
+      x.fillRect(GX + side * (14 + sp * u) - 1.3, GEAR_Y + RC - 4 - 60 * u * (1 - u) * (1 + (i >> 1) * 0.4) - 1.3, 2.6, 2.6);
+    }
+    x.restore();
+  }
+}
+
+/* ---------- Simulation ---------- */
+let T = 0;
+function burst(r, x, y, n, sp) {
+  for (let i = 0; i < n; i++) {
+    const a = Math.random() * TAU, m = sp * (0.4 + Math.random());
+    r.parts.push({ kind: 'dot', x, y, vx: Math.cos(a) * m, vy: Math.sin(a) * m - 120, a: 0, va: 0, life: 0.5 + Math.random() * 0.3 });
+  }
+}
+function hit(r) {
+  const step = TAU / TEETH;
+  // The tooth facing forward breaks.
+  let i = ((Math.round((Math.PI / 2 - r.ang) / step) % TEETH) + TEETH) % TEETH;
+  for (let k = 0; k < TEETH && r.missing.has(i); k++) i = (i + 1) % TEETH;
+  r.missing.add(i); r.lives--;
+  r.parts.push({ kind: 'tooth', x: r.x + RC - 4, y: r.y, vx: -60 + Math.random() * 140, vy: -420, a: 0, va: 14, life: 1.3 });
+  burst(r, r.x + RC - 6, r.y, 6, 160);
+  if (r.lives <= 0) {
+    game = 'panne'; r.endT = 0; r.vy = -360; r.ground = false; r.boost = 0;
+    r.floats.push({ txt: 'EN PANNE', x: r.x, y: r.y - 50, life: 1.4 });
+    return;
+  }
+  r.invul = 1.1; r.slow = 0.45;
+  if (r.ground) { r.vy = -320; r.ground = false; }
+  r.floats.push({ txt: '− 1 vie', x: r.x, y: r.y - 46, life: 1 });
+}
+const circleRect = (cx, cy, rad, q) => { const dx = cx - Math.max(q.x, Math.min(cx, q.x + q.w)), dy = cy - Math.max(q.y, Math.min(cy, q.y + q.h)); return dx * dx + dy * dy < rad * rad; };
+function update(r, dt) {
+  for (const p of r.parts) { p.vy += (p.kind === 'ember' ? -260 : GRAV * 0.55) * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.a += p.va * dt; p.life -= dt; }
+  r.parts = r.parts.filter((p) => p.life > 0);
+  for (const f of r.floats) f.life -= dt * 0.9;
+  r.floats = r.floats.filter((f) => f.life > 0);
+  if (game !== 'course' && game !== 'panne') return;
+  let v = BASE_V * speedOf(r) * r.slow * (r.boost > 0 ? TURBO_X : 1);
+  if (game === 'panne') { r.endT += dt; v *= Math.max(0, 1 - r.endT * 1.5); if (r.endT > 1) { gameOver(r); return; } }
+  else r.t += dt;
+  r.slow = Math.min(1, r.slow + dt * 0.45);
+  r.boost = Math.max(0, r.boost - dt);
+  r.invul = Math.max(0, r.invul - dt);
+  r.x += v * dt; r.ang += Math.min(v / RC, SPIN_MAX) * dt;
+  generate(r, r.x + WW + 600); prune(r, camOf(r));
+  if (r.boost > 0 && (r.ember -= dt) <= 0) {
+    r.ember = 0.05;
+    const k = fireOf(r);
+    r.parts.push({ kind: 'ember', x: r.x - RC * (1.2 + Math.random() * 1.6 * k), y: r.y - RC * (0.4 + Math.random() * 1.8 * k),
+      vx: v * (0.55 + Math.random() * 0.3), vy: -40 - Math.random() * 60, a: 0, va: 0, life: 0.3 + Math.random() * 0.25 });
+  }
+  if (game === 'course') {
+    r.buffer = Math.max(0, r.buffer - dt);
+    if (r.buffer > 0 && (r.ground || r.coyote > 0) && !r.falling) { r.vy = -VJ; r.ground = false; r.coyote = 0; r.buffer = 0; }
+  }
+  const prevBottom = r.y + RC;
+  r.vy += GRAV * dt * (!r.holding && r.vy < 0 ? 2.4 : 1);   // released early, the jump is cut short
+  r.y += r.vy * dt;
+  const bottom = r.y + RC, vyBefore = r.vy, wasGround = r.ground;
+  r.ground = false;
+  if (!r.falling && r.vy >= 0) {
+    for (const p of r.plats) {
+      if (r.x > p.x - 6 && r.x < p.x + p.w + 6 && prevBottom <= p.y + 2 && bottom >= p.y) { r.y = p.y - RC; r.vy = 0; r.ground = true; break; }
+    }
+    if (!r.ground) {
+      const hole = r.holes.find((h) => r.x > h.x + 4 && r.x < h.x + h.w - 4);
+      if (!hole && bottom >= GY) { r.y = GY - RC; r.vy = 0; r.ground = true; }
+      else if (hole && bottom > GY + 6) { r.falling = true; r.fallHole = hole; }
+    }
+  }
+  if (r.ground && !wasGround && vyBefore > 520) { burst(r, r.x - 14, r.y + RC, 2, 60); burst(r, r.x + 14, r.y + RC, 2, 60); }
+  r.coyote = r.ground ? 0.09 : Math.max(0, r.coyote - dt);
+  if (game !== 'course') return;
+  if (r.falling && r.y > FALL_Y) {
+    const h = r.fallHole;
+    r.x = h.x + h.w + 46; r.y = GY - RC; r.vy = 0; r.falling = false; r.ground = true;
+    hit(r);
+    if (game === 'course') r.invul = 1.4;
+    return;
+  }
+  if (!r.falling) {
+    for (const o of r.obs) {
+      if (o.x > r.x + 60 || o.x + o.w < r.x - 60) continue;
+      const q = o.t === 'pics' ? { x: o.x + 3, y: GY - o.h + 7, w: o.w - 6, h: o.h - 7 } : { x: o.x, y: GY - o.h, w: o.w, h: o.h };
+      if (!circleRect(r.x, r.y, HIT_R, q)) continue;
+      if (r.boost > 0) {                         // on fire, the gear burns through
+        r.obs = r.obs.filter((k) => k !== o);
+        burst(r, o.x + o.w / 2, GY - o.h / 2, 12, 220);
+        r.floats.push({ txt: 'BRÛLÉ', x: o.x + o.w / 2, y: GY - o.h - 20, life: 0.8 });
+        break;
+      }
+      if (r.invul <= 0) { hit(r); if (game !== 'course') return; }
+      break;
+    }
+    for (const b of r.pads) {
+      if (!b.taken && r.x > b.x - 4 && r.x < b.x + 50 && r.y + RC > GY - 18) {
+        b.taken = true; r.boost = TURBO_S; r.ember = 0;
+        r.floats.push({ txt: 'TURBO !', x: r.x, y: r.y - 46, life: 1 }); burst(r, r.x, GY - 4, 5, 120);
+      }
+    }
+  }
+}
+
+/* ---------- The mock app ---------- */
+const ui = $('#ui'), gov = $('#gov'), hitPad = $('#hit');
+for (const el of document.querySelectorAll('.marque')) el.append($('#icon').content.cloneNode(true));
+const gearSvg = $('#mark .brand-gear'), gearG = $('#mark .gear');
+function setUi({ opacity = 1, dy = 0 } = {}) { ui.style.opacity = opacity; ui.style.transform = dy ? `translateY(${dy}px)` : ''; }
+function setOv(a) { gov.style.opacity = a; gov.classList.toggle('live', a > 0.9); }
+function setGear({ out = false } = {}) { gearSvg.style.visibility = out ? 'hidden' : ''; }
+
+/* ---------- Phases: app, in (the Fall), game, out (the Fall rewound) ---------- */
+let phase = 'app', t = 0, game = 'accueil', run = makeRun(), leave = null, scale = 1;
+const fx = $('#fx'), fxx = fx.getContext('2d');
+function frame() {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), s = scale * dpr;
+  const pw = Math.round(WW * s), ph = Math.round(WH * s);
+  if (fx.width !== pw || fx.height !== ph) { fx.width = pw; fx.height = ph; }
+  fxx.setTransform(1, 0, 0, 1, 0, 0); fxx.clearRect(0, 0, pw, ph);
+  if (phase === 'app') return;
+  fxx.setTransform(s, 0, 0, s, 0, 0);
+  fxx.fillStyle = fxx.strokeStyle = INK; fxx.lineCap = fxx.lineJoin = 'round'; fxx.globalAlpha = 1;
+  if (phase === 'game') drawGame(fxx, run);
+  else drawFall(fxx, t, run, phase === 'out' ? leave : null);
+}
+const ovAccueil = () => `<div class="gov-card"><div class="gov-title">ROUE LIBRE</div>
+  <p>Espace, clic ou ↑ pour sauter — maintenir pour sauter plus haut</p>
+  <p class="dim">${record ? `Record ${fmt(record)} m · ` : ''}Échap : retour à Sindry</p>
+  <button data-act="go">Rouler <kbd>Espace</kbd></button></div>`;
+const ovPause = () => `<div class="gov-card"><div class="gov-title">PAUSE</div><p>Espace ou P pour reprendre</p><p class="dim">Échap : retour à Sindry</p></div>`;
+const ovFin = (m, best) => `<div class="gov-card"><div class="gov-title">EN PANNE</div>
+  <p>Plus de vie, à <b>${fmt(m)} m</b>.</p><p class="dim">${best ? 'Nouveau record !' : `Record ${fmt(record)} m`}</p>
+  <button data-act="go">Rejouer <kbd>Espace</kbd></button></div>`;
+let ovAt = 0;
+function showOv(html) { gov.innerHTML = html; setOv(1); ovAt = performance.now(); }
+function hideOv() { setOv(0); }
+function enter() {
+  if (phase !== 'app') return;
+  run = makeRun(); generate(run, run.x + WW + 600);
+  game = 'accueil'; gov.innerHTML = ovAccueil();
+  phase = 'in'; t = 0;
+}
+function finishEnter() { phase = 'game'; showOv(ovAccueil()); hitPad.classList.add('on'); }
+function startRun() {
+  if (game === 'fin') { run = makeRun(); generate(run, run.x + WW + 600); }
+  game = 'course'; hideOv(); run.holding = false; run.buffer = 0;
+}
+function gameOver(r) {
+  const m = metersOf(r), best = m > record;
+  if (best) { record = m; keepRecord(); }
+  game = 'fin'; showOv(ovFin(m, best));
+}
+function pause() { if (game === 'course') { game = 'pause'; showOv(ovPause()); } }
+function exitGame() {
+  if (phase !== 'game') return;
+  // Rewind the Fall from where the gear really is.
+  // The Fall ends on a full turn: the gear's angle beyond it is unwound during the flight.
+  leave = { dy: Math.max(0, GY - RC - run.y), ang: ((run.ang % TAU) + TAU) % TAU, fire: run.boost > 0 ? fireOf(run) : 0 };
+  run.y = GY - RC; run.falling = false; run.boost = 0; run.parts = []; run.floats = [];
+  phase = 'out'; t = FALL_D; hitPad.classList.remove('on');
+}
+function press() {
+  if (phase !== 'game') return;
+  if (game === 'course') { run.buffer = 0.12; run.holding = true; return; }
+  if (performance.now() - ovAt < 400) return;   // a mashed jump never skips a screen
+  if (game === 'accueil' || game === 'fin') startRun();
+  else if (game === 'pause') { game = 'course'; hideOv(); run.holding = false; }
+}
+gov.addEventListener('click', (e) => { if (e.target.closest('[data-act="go"]')) { ovAt = 0; press(); } });
+gov.addEventListener('pointerdown', (e) => { if (!e.target.closest('.gov-card')) press(); });
+hitPad.addEventListener('pointerdown', (e) => { e.preventDefault(); press(); });
+addEventListener('pointerup', () => { run.holding = false; });
+
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(1 / 30, Math.max(0, (now - last) / 1000));
+  last = now; T += dt;
+  if (phase === 'in') { t = Math.min(FALL_D, t + dt); if (t >= FALL_D) finishEnter(); }
+  else if (phase === 'out') {
+    t = Math.max(0, t - dt);
+    if (t <= 0) { phase = 'app'; setUi(); setOv(0); setGear(); }
+  } else if (phase === 'game') update(run, dt);
+  if (phase === 'in' || phase === 'out') setOv(span(t, 1.35, 1.65) * (phase === 'out' ? 0 : 1));
+  frame();
+  requestAnimationFrame(loop);
+}
+
+// Ten quick clicks on the icon, each turning its gear a tenth of a turn.
+function secretIcon(mark, onDone) {
+  let n = 0, lastClick = 0, undo = 0;
+  const g = mark.querySelector('.gear');
+  const turn = (deg, ms) => { g.style.transition = ms ? `transform ${ms}ms` : 'none'; g.style.transform = deg ? `rotate(${deg}deg)` : ''; };
+  mark.addEventListener('click', () => {
+    if (phase !== 'app') return;
+    const now = performance.now();
+    n = now - lastClick < CLICK_GAP ? n + 1 : 1; lastClick = now;
+    clearTimeout(undo);
+    turn(n * (360 / CLICKS), 80);
+    if (n >= CLICKS) { n = 0; setTimeout(() => { turn(0, 0); onDone(); }, 90); return; }
+    undo = setTimeout(() => { n = 0; turn(0, 350); }, CLICK_GAP);
+  });
+  return () => mark.click();
+}
+const spamWindow = secretIcon($('#mark'), enter);
+secretIcon($('#logo'), () => { $('#stage').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(enter, 450); });
+$('#replay').addEventListener('click', () => {
+  if (phase !== 'app') return;
+  let k = 0;
+  const tick = () => { spamWindow(); if (++k < CLICKS) setTimeout(tick, 85); };
+  tick();
+});
+$('#reset').addEventListener('click', () => { record = 0; keepRecord(); if (game === 'accueil' && phase === 'game') showOv(ovAccueil()); });
+
+const JUMP = new Set(['Space', 'ArrowUp', 'KeyW']);
+addEventListener('keydown', (e) => {
+  if (phase !== 'game' || e.ctrlKey || e.altKey || e.metaKey) return;
+  if (JUMP.has(e.code)) { e.preventDefault(); if (!e.repeat) press(); }
+  else if (e.code === 'Escape') exitGame();
+  else if (e.code === 'KeyP') { if (game === 'course') pause(); else if (game === 'pause') press(); }
+});
+addEventListener('keyup', (e) => { if (JUMP.has(e.code)) run.holding = false; });
+document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+new IntersectionObserver((es) => { for (const en of es) if (en.intersectionRatio < 0.3) pause(); }, { threshold: [0, 0.3, 1] }).observe($('#stage'));
+
+let uiPrefs = { amb: 'plan-clair' };
+try { uiPrefs = Object.assign(uiPrefs, JSON.parse(localStorage.getItem(KEY_UI)) || {}); } catch (e) { /* defaults */ }
+function applyUi() {
+  const a = AMBS[uiPrefs.amb] || AMBS['plan-clair'], root = document.documentElement, rs = root.style;
+  for (const [k, val] of Object.entries({ '--bg': a.bg, '--surface': a.surface, '--border': a.border, '--text': a.text, '--text-2': a.text2, '--acc': a.acc })) rs.setProperty(k, val);
+  INK = a.text; BG = a.surface;
+  rs.colorScheme = a.dark ? 'dark' : 'light';
+  root.classList.toggle('mono', !!a.mono);
+  for (const b of document.querySelectorAll('[data-set]')) b.classList.toggle('on', uiPrefs[b.dataset.set] === b.dataset.val);
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-set]');
+  if (!b) return;
+  uiPrefs[b.dataset.set] = b.dataset.val;
+  try { localStorage.setItem(KEY_UI, JSON.stringify(uiPrefs)); } catch (err) { /* not kept */ }
+  applyUi(); b.blur();
+});
+new ResizeObserver(() => { scale = $('#stage').clientWidth / WW; $('#win').style.transform = `scale(${scale})`; }).observe($('#stage'));
+
+applyUi();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

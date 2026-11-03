@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M51 · Icône animée</title>
+<!--
+  Mockup M51: Sindry's icon (T3 of M49, as in design/icon), animated. The gear
+  turns and the flames move a little. While the gear turns, its teeth must keep
+  passing in front of the flames' bases, so the flames are whole again here,
+  cut by a mask whose gear turns in step with the visible one. Each flame moves
+  in its own frame (origin at its base, up along its axis): a skew sways the tip,
+  a vertical scale makes it breathe, the base stays put. Plain CSS animations,
+  so that the exported file can stop for "reduce motion". The geometry below
+  is copied from design/icon/source.svg. Code in English, visible text in French.
+-->
+<style>
+@font-face { font-family: 'Inter'; font-weight: 100 900; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Sindry Mono'; font-weight: 400; src: url('_ressources/sindry-mono-400.woff2') format('woff2'); }
+:root {
+  --bg: #F6F4EF; --surface: #FFFFFF; --border: #DCD7CC; --text: #141A24; --text-2: #5C6778; --acc: #E2640F;
+  --light: #F6F4EF; --dark: #0B0F16;
+  --ui: 'Inter', 'Segoe UI', system-ui, sans-serif; --mono: 'Sindry Mono', Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.5 var(--ui); }
+button, input { font: inherit; color: inherit; }
+
+.top { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); }
+.brand { display: flex; gap: 10px; align-items: center; }
+.brand .mark { width: 32px; height: 32px; }
+.brand .mark svg { width: 100%; height: 100%; display: block; }
+.brand h1 { margin: 0; font-size: 15px; }
+.brand p { margin: 0; color: var(--text-2); font-size: 12px; }
+.ctl { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.grp { display: flex; align-items: center; gap: 7px; }
+.grp > span { font-size: 10.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: .07em; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 5px 10px; font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button:hover { color: var(--text); }
+.seg button.on { background: var(--acc); color: var(--bg); }
+
+main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 90px; display: grid; gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+.sec-h { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-bottom: 12px; }
+.sec-h h2 { margin: 0; font-size: 15px; }
+.sec-h p { margin: 0; flex-basis: 100%; color: var(--text-2); font-size: 12.5px; }
+.tag { font: 700 11px var(--mono); color: var(--acc); border: 1px solid var(--border); border-radius: 6px; padding: 0 6px; }
+.btn { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn:hover { border-color: var(--acc); }
+.btn.acc { background: var(--acc); color: var(--bg); border-color: transparent; }
+.l { background: var(--light); }
+.d { background: var(--dark); }
+svg.ic { display: block; }
+
+/* Preview. */
+.stage { display: grid; grid-template-columns: minmax(0, 340px) 1fr; gap: 18px; align-items: start; }
+.big { aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--border); padding: 8%; display: grid; place-items: center; }
+.big svg { width: 100%; height: 100%; }
+.side { display: grid; gap: 12px; align-content: start; }
+.sizes { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px; padding: 14px; border-radius: 10px; border: 1px solid var(--border); }
+.sizes figure { margin: 0; display: grid; justify-items: center; gap: 4px; font-size: 11px; color: var(--text-2); }
+.sizes.d figure { color: #8C9AAE; }
+.titlebar { display: flex; align-items: center; gap: 9px; height: 42px; padding: 0 12px; border-radius: 10px; border: 1px solid var(--border); font-weight: 600; font-size: 13px; }
+.titlebar .wc { margin-left: auto; color: var(--text-2); font-weight: 400; letter-spacing: .3em; }
+.titlebar.d { color: #E9EEF5; border-color: #2A3445; }
+.titlebar .mk { width: 30px; height: 30px; }
+.titlebar .mk svg { width: 100%; height: 100%; }
+.titlebar .state { font: 11px var(--mono); color: var(--acc); font-weight: 400; }
+.how { margin: 0; padding-left: 18px; color: var(--text-2); font-size: 12.5px; display: grid; gap: 4px; }
+.how b { color: var(--text); font-weight: 600; }
+.sum { padding: 8px 10px; border-radius: 8px; background: var(--bg); font: 11px/1.5 var(--mono); color: var(--text-2); }
+.acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.acts .msg { font-size: 11.5px; color: var(--text-2); }
+.warn { margin: 0; padding: 8px 10px; border-radius: 8px; border: 1px solid #E8B4A8; background: #FBEDE9; color: #9A3324; font-size: 12px; }
+.warn[hidden] { display: none; }
+.scrub { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-2); }
+.scrub input { width: 180px; accent-color: var(--acc); }
+.scrub output { font: 11px var(--mono); color: var(--text); min-width: 48px; }
+.scrub[hidden] { display: none; }
+
+/* Choices. */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.tile { border: 1px solid var(--border); border-radius: 10px; padding: 8px; cursor: pointer; display: grid; gap: 6px; align-content: start; background: var(--surface); text-align: left; }
+.tile:hover { border-color: color-mix(in srgb, var(--acc) 50%, var(--border)); }
+.tile.on { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc); }
+.tile b { font-size: 12.5px; display: flex; gap: 6px; align-items: center; }
+.tile .pv { aspect-ratio: 1; border-radius: 8px; padding: 10%; display: grid; place-items: center; }
+.tile .pv svg { width: 100%; height: 100%; }
+.tile span { font-size: 11.5px; color: var(--text-2); line-height: 1.4; }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin-top: 12px; font-size: 12px; color: var(--text-2); }
+
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th, td { text-align: left; vertical-align: top; padding: 7px 8px; border-top: 1px solid var(--border); }
+th { font-size: 11px; color: var(--text-2); font-weight: 600; border-top: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.pill { display: inline-block; font-size: 11px; padding: 0 8px; border-radius: 99px; border: 1px solid var(--border); color: var(--text-2); white-space: nowrap; }
+.pill.ok { border-color: #2E9E5B; color: #2E9E5B; }
+.pill.no { border-color: #C0362C; color: #C0362C; }
+.pill.ask { border-color: var(--acc); color: var(--acc); }
+
+@media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div data-maquette-badge style="position:fixed;left:10px;bottom:10px;z-index:2147483647;pointer-events:none;font:650 12px/1.2 'Segoe UI',system-ui,sans-serif;color:#fff;background:rgba(18,12,26,.9);border:1px solid rgba(255,255,255,.22);padding:6px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.35)">M51 · 03/11/2026 12:11 · Icône animée</div>
+<header class="top">
+  <div class="brand">
+    <div class="mark" id="brandMark"></div>
+    <div><h1>Icône animée</h1><p>La roue tourne, les flammes bougent légèrement</p></div>
+  </div>
+  <div class="ctl">
+    <div class="grp"><span>Version</span><div class="seg" data-set="version">
+      <button data-val="white">Blanc</button><button data-val="black">Noir</button><button data-val="color">Couleurs</button></div></div>
+    <div class="grp"><span>Fond</span><div class="seg" data-set="bg">
+      <button data-val="auto">Auto</button><button data-val="d">Sombre</button><button data-val="l">Clair</button></div></div>
+    <div class="grp"><span>Vitesse</span><div class="seg" data-set="rate">
+      <button data-val="1">Normale</button><button data-val="0.25">Ralenti ×4</button></div></div>
+    <div class="grp"><span>Lecture</span><div class="seg" data-set="play">
+      <button data-val="1">En marche</button><button data-val="0">Pause</button></div></div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="sec-h"><span class="tag">M51</span><h2>Aperçu</h2>
+      <p>Oui, c'est possible : un SVG animé, sans image ni script. Choisis le mouvement des flammes et celui de la roue plus bas, puis enregistre le fichier.</p></div>
+    <div class="stage">
+      <div class="big" id="big"></div>
+      <div class="side">
+        <div class="sizes" id="sizes"></div>
+        <div class="titlebar" id="tbar"><span class="mk" id="tbarMark"></span>Sindry <span class="state" id="tbarState">au repos</span><span class="wc">— ▢ ✕</span></div>
+        <div class="acts"><button class="btn" id="action">Lancer une action (4 s)</button><span class="msg">Une idée pour la barre de titre : la roue ne tourne que pendant une action, et s'arrête sur une dent.</span></div>
+        <p class="warn" id="reduced" hidden>Ton Windows demande moins d'animations (« Effets d'animation » désactivés). Cette maquette les montre quand même, mais le fichier enregistré restera immobile chez toi, comme voulu pour les personnes que le mouvement gêne.</p>
+        <div class="scrub" id="scrub" hidden><span>Image à</span><input type="range" id="time" min="0" max="16" step="0.05" value="0"><output id="timeOut">0,00 s</output></div>
+        <div class="sum" id="sum"></div>
+        <div class="acts"><button class="btn acc" id="save">Enregistrer le SVG animé</button><button class="btn" id="copy">Copier les réglages</button><span class="msg" id="msg"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><h2>Les flammes</h2><p>Chaque flamme bouge autour de sa base, cachée sous la roue : la pointe se balance, le corps s'étire. Les deux ne vont pas au même rythme, pour ne pas faire mécanique.</p></div>
+    <div class="tiles" id="motions"></div>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><h2>La roue</h2><p>Ses dents passent devant la base des flammes en tournant. Huit dents : un huitième de tour suffit pour revenir à l'image de départ.</p></div>
+    <div class="tiles" id="spins"></div>
+    <div class="row"><span>Sens</span><div class="seg" data-set="dir"><button data-val="cw">Horaire (elle roule vers la droite)</button><button data-val="ccw">Antihoraire</button></div></div>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><h2>Où elle peut servir</h2></div>
+    <table>
+      <thead><tr><th>Endroit</th><th>Ce qui se passe</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>Barre de titre</td><td>Les deux calques y sont déjà : la roue peut tourner pendant une action, les flammes vaciller. À régler pour ne pas distraire en continu.</td><td><span class="pill ask">à décider</span></td></tr>
+        <tr><td>Accueil, chargement</td><td>L'icône en grand pendant le démarrage ou une longue analyse.</td><td><span class="pill ok">possible</span></td></tr>
+        <tr><td>Site, README GitHub</td><td>Un SVG animé s'affiche tel quel, même dans un README.</td><td><span class="pill ok">possible</span></td></tr>
+        <tr><td>Partage (Discord, mail)</td><td>Le SVG n'y est pas toujours lu : un GIF ou un WebP animé tiré du même dessin.</td><td><span class="pill ok">sur demande</span></td></tr>
+        <tr><td>Icônes de Windows</td><td>Barre des tâches, raccourcis, installeur : Windows n'anime pas une icône (.ico).</td><td><span class="pill no">impossible</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><h2>Comment c'est fait</h2></div>
+    <ul class="how">
+      <li><b>Les flammes redeviennent entières</b> : dans les calques fixes, elles sont découpées autour des dents. Si la roue tourne, la découpe doit tourner avec elle : ici, un masque, dont la roue tourne en même temps que la roue visible.</li>
+      <li><b>Chaque flamme bouge dans son propre repère</b> : origine à sa base, axe vers sa pointe. Un cisaillement balance la pointe, un étirement la fait respirer ; la base ne bouge jamais.</li>
+      <li><b>De simples animations CSS</b> dans le fichier : il se lit dans un navigateur, l'appli, un README ; il s'arrête si Windows demande moins d'animations.</li>
+      <li><b>Même cadre que les calques fixes</b> : l'icône animée remplace l'icône fixe sans changer de taille.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+(() => {
+const $ = (s) => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+// From design/icon/source.svg: the gear, the whole flames (before any cut),
+// each flame's base (under the gear) and the angle of its axis, base to tip.
+const DATA = {"vb":"-132.06 -211.64 323.63 323.63","gear":"M-21.13 -82.56L-16.2 -95.18Q-14.75 -98.91 -10.78 -99.42A100 100 0 0 1 10.78 -99.42Q14.75 -98.91 16.2 -95.18L21.13 -82.56Q22.58 -78.83 26.4 -77.63A82 82 0 0 1 36.23 -73.56Q39.77 -71.71 43.44 -73.32L55.85 -78.76Q59.51 -80.36 62.68 -77.92A100 100 0 0 1 77.92 -62.68Q80.36 -59.51 78.76 -55.85L73.32 -43.44Q71.71 -39.77 73.56 -36.23A82 82 0 0 1 77.63 -26.4Q78.83 -22.58 82.56 -21.13L95.18 -16.2Q98.91 -14.75 99.42 -10.78A100 100 0 0 1 99.42 10.78Q98.91 14.75 95.18 16.2L82.56 21.13Q78.83 22.58 77.63 26.4A82 82 0 0 1 73.56 36.23Q71.71 39.77 73.32 43.44L78.76 55.85Q80.36 59.51 77.92 62.68A100 100 0 0 1 62.68 77.92Q59.51 80.36 55.85 78.76L43.44 73.32Q39.77 71.71 36.23 73.56A82 82 0 0 1 26.4 77.63Q22.58 78.83 21.13 82.56L16.2 95.18Q14.75 98.91 10.78 99.42A100 100 0 0 1 -10.78 99.42Q-14.75 98.91 -16.2 95.18L-21.13 82.56Q-22.58 78.83 -26.4 77.63A82 82 0 0 1 -36.23 73.56Q-39.77 71.71 -43.44 73.32L-55.85 78.76Q-59.51 80.36 -62.68 77.92A100 100 0 0 1 -77.92 62.68Q-80.36 59.51 -78.76 55.85L-73.32 43.44Q-71.71 39.77 -73.56 36.23A82 82 0 0 1 -77.63 26.4Q-78.83 22.58 -82.56 21.13L-95.18 16.2Q-98.91 14.75 -99.42 10.78A100 100 0 0 1 -99.42 -10.78Q-98.91 -14.75 -95.18 -16.2L-82.56 -21.13Q-78.83 -22.58 -77.63 -26.4A82 82 0 0 1 -73.56 -36.23Q-71.71 -39.77 -73.32 -43.44L-78.76 -55.85Q-80.36 -59.51 -77.92 -62.68A100 100 0 0 1 -62.68 -77.92Q-59.51 -80.36 -55.85 -78.76L-43.44 -73.32Q-39.77 -71.71 -36.23 -73.56A82 82 0 0 1 -26.4 -77.63Q-22.58 -78.83 -21.13 -82.56Z","cut":11,"ring":"M57 0A57 57 0 1 1 -57 0A57 57 0 1 1 57 0Z","hub":"M34 0A34 34 0 1 1 -34 0A34 34 0 1 1 34 0Z","colors":["#A9B1C1","#6F788B","#D7DCE5"],"flameColor":"#FD7D26","flames":[{"d":"M112.72 -199.65C132.36 -154.07 149.74 -88.19 121.86 -43.47C102.49 -9.07 75.34 -4.94 53.23 -17.39C31.12 -29.85 20.58 -55.2 39.95 -89.6C58.4 -122.36 110.63 -123.15 112.72 -199.65Z","base":[53.23,-17.39],"tip":[112.72,-199.65],"psi":18.08,"len":191.7},{"d":"M159.5 -76.54C156.04 -32.86 142.44 25.75 102.24 49.16C72.92 68.03 50.03 60.07 37.9 41.23C25.77 22.38 28 -1.75 57.31 -20.62C85.22 -38.59 126.33 -17.68 159.5 -76.54Z","base":[37.9,41.23],"tip":[159.5,-76.54],"psi":45.92,"len":169.3}]};
+const VB = DATA.vb.split(' ').map(Number);
+const INKS = { white: '#FFFFFF', black: '#000000' };
+
+// Flame movements: per flame, a duration and keyframes [percent, skew (deg), stretch].
+const MOTIONS = {
+  A: { name: 'Respiration', desc: 'Elles s\'étirent doucement, sans pencher.', f: [
+    { dur: 2.4, kf: [[0, 0, 1], [50, 0, 1.045], [100, 0, 1]] },
+    { dur: 2.0, kf: [[0, 0, 1], [50, 0, 1.05], [100, 0, 1]] }] },
+  B: { name: 'Balancement', desc: 'La pointe se balance de gauche à droite.', f: [
+    { dur: 2.2, kf: [[0, 0, 1], [30, -3, 1], [70, 2.2, 1], [100, 0, 1]] },
+    { dur: 1.8, kf: [[0, 0, 1], [35, 2.5, 1], [70, -2, 1], [100, 0, 1]] }] },
+  C: { name: 'Vacillement', desc: 'Les deux à la fois, irrégulier : une vraie flamme, en discret.', f: [
+    { dur: 1.9, kf: [[0, 0, 1], [22, -2.2, 1.03], [48, 1.4, 0.98], [71, -1, 1.025], [100, 0, 1]] },
+    { dur: 1.5, kf: [[0, 0, 1], [26, 1.8, 1.035], [55, -1.6, 0.975], [78, 0.8, 1.02], [100, 0, 1]] }] },
+  D: { name: 'Danse', desc: 'Plus ample et plus vif : un feu qui prend.', f: [
+    { dur: 1.2, kf: [[0, 0, 1], [25, -5, 1.06], [50, 3, 0.95], [75, -2, 1.04], [100, 0, 1]] },
+    { dur: 1.0, kf: [[0, 0, 1], [30, 4.5, 1.06], [60, -4, 0.95], [100, 0, 1]] }] },
+  E: { name: 'Immobiles', desc: 'Seule la roue bouge.', f: null },
+};
+// Gear movements: seconds per turn, or a tick of one tooth at a time.
+const SPINS = {
+  stop:  { name: 'Arrêt', desc: 'La roue ne bouge pas.' },
+  slow:  { name: 'Lente', desc: 'Un tour en 16 s.', dur: 16 },
+  calm:  { name: 'Douce', desc: 'Un tour en 8 s.', dur: 8 },
+  fast:  { name: 'Vive', desc: 'Un tour en 3 s.', dur: 3 },
+  tick:  { name: 'Cran par cran', desc: 'Une dent à la fois, comme une horloge, avec un léger rebond.', dur: 8.8, tick: true },
+};
+
+const UI = { version: 'white', bg: 'auto', rate: '1', play: '1', motion: 'C', spin: 'calm', dir: 'cw' };
+const KEY = 'sindry.m51';
+const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; } };
+const keep = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch { /* private window */ } };
+const S = { ...UI, ...load() };
+// ?version=black&motion=D&t=2.5… opens the page on a given choice (t: paused at that time).
+const Q = new URLSearchParams(location.search);
+for (const [k, v] of Q) if (k in UI) S[k] = v;
+if (Q.has('t')) S.play = '0';
+let pausedAt = Q.has('t') ? +Q.get('t') : 0;
+
+/* ---------- Keyframes, shared by every preview on the page ---------- */
+const kfName = (m, i) => `m51-${m}-${i}`;
+function flameKeyframes(name, kf) {
+  return `@keyframes ${name} {` + kf.map(([p, sk, sc]) => ` ${p}% { transform: skewX(${sk}deg) scaleY(${sc}); }`).join('') + ' }';
+}
+function spinKeyframes(name, spin, dir) {
+  const sign = dir === 'ccw' ? -1 : 1;
+  if (!spin.tick) return `@keyframes ${name} { from { transform: rotate(0deg); } to { transform: rotate(${sign * 360}deg); } }`;
+  // Eight ticks of one tooth: each moves in its first 35 %, with a small overshoot, then rests.
+  let s = `@keyframes ${name} {`;
+  for (let k = 0; k < 8; k++) {
+    s += ` ${(k / 8 * 100).toFixed(3)}% { transform: rotate(${sign * k * 45}deg); animation-timing-function: cubic-bezier(.34, 1.56, .64, 1); }`;
+    s += ` ${((k + 0.35) / 8 * 100).toFixed(3)}% { transform: rotate(${sign * (k + 1) * 45}deg); animation-timing-function: linear; }`;
+  }
+  return s + ` 100% { transform: rotate(${sign * 360}deg); } }`;
+}
+const pageCSS = [];
+for (const [m, M] of Object.entries(MOTIONS)) if (M.f) M.f.forEach((f, i) => pageCSS.push(flameKeyframes(kfName(m, i + 1), f.kf)));
+for (const [k, sp] of Object.entries(SPINS)) if (sp.dur) for (const dir of ['cw', 'ccw']) pageCSS.push(spinKeyframes(`m51-spin-${k}-${dir}`, sp, dir));
+const style = document.createElement('style');
+style.textContent = pageCSS.join('\n') + '\n.ic .sp, .ic .fl { transform-box: view-box; transform-origin: 0 0; }';
+document.head.appendChild(style);
+
+/* ---------- One icon ---------- */
+let uid = 0;
+// o: { version, motion, spin, dir, px, standalone }. Standalone files carry
+// their own style; on the page, animations are set inline on each element.
+function iconSVG(o) {
+  const id = o.standalone ? 'sindry-cut' : `m51k${++uid}`, sp = SPINS[o.spin], M = MOTIONS[o.motion];
+  const spinAnim = sp.dur ? (o.standalone ? '' : ` style="animation: m51-spin-${o.spin}-${o.dir} ${sp.dur}s linear infinite"`) : '';
+  const flameAnim = (i) => !M.f ? '' : o.standalone ? '' : ` style="animation: ${kfName(o.motion, i + 1)} ${M.f[i].dur}s ease-in-out infinite"`;
+  const ink = INKS[o.version], fill = ink || DATA.flameColor;
+  const [x, y, w, h] = VB;
+  const mask = `<mask id="${id}" maskUnits="userSpaceOnUse" x="${x}" y="${y}" width="${w}" height="${h}"><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff"/>`
+    + `<g class="sp"${spinAnim}><path d="${DATA.gear}" fill="#000" stroke="#000" stroke-width="${DATA.cut}" stroke-linejoin="round"/></g></mask>`;
+  const flames = DATA.flames.map((f, i) => `<g transform="translate(${f.base[0]} ${f.base[1]}) rotate(${f.psi})"><g class="fl fl-${i + 1}"${flameAnim(i)}>`
+    + `<g transform="rotate(${-f.psi}) translate(${-f.base[0]} ${-f.base[1]})"><path class="flame flame-${i + 1}" fill="${fill}" d="${f.d}"/></g></g></g>`).join('');
+  const gear = ink
+    ? `<path fill="${ink}" fill-rule="evenodd" d="${DATA.gear}${DATA.ring}${DATA.hub}"/>`
+    : `<path class="gear-body" fill="${DATA.colors[0]}" d="${DATA.gear}"/><path class="gear-ring" fill="${DATA.colors[1]}" d="${DATA.ring}"/><path class="gear-hub" fill="${DATA.colors[2]}" d="${DATA.hub}"/>`;
+  const size = o.px ? ` width="${o.px}" height="${o.px}"` : '';
+  return `<svg xmlns="${NS}" class="ic" viewBox="${DATA.vb}"${size}>${o.standalone ? `<style>${o.standalone}</style>` : ''}<defs>${mask}</defs>`
+    + `<g mask="url(#${id})">${flames}</g><g class="gear sp"${spinAnim}>${gear}</g></svg>`;
+}
+
+// The standalone file: classes, its own keyframes, and a stop for "reduce motion".
+function standaloneCSS(o) {
+  const sp = SPINS[o.spin], M = MOTIONS[o.motion], out = ['.sp, .fl { transform-box: view-box; transform-origin: 0 0; }'];
+  if (sp.dur) out.push(`.sp { animation: sindry-spin ${sp.dur}s linear infinite; }`, spinKeyframes('sindry-spin', sp, o.dir));
+  if (M.f) M.f.forEach((f, i) => out.push(`.fl-${i + 1} { animation: sindry-flame-${i + 1} ${f.dur}s ease-in-out infinite; }`, flameKeyframes(`sindry-flame-${i + 1}`, f.kf)));
+  out.push('@media (prefers-reduced-motion: reduce) { .sp, .fl { animation: none; } }');
+  return out.join('\n');
+}
+
+/* ---------- Page ---------- */
+const bgOf = (version) => S.bg !== 'auto' ? S.bg : version === 'black' ? 'l' : 'd';
+const cur = (over = {}) => ({ version: S.version, motion: S.motion, spin: S.spin, dir: S.dir, ...over });
+const describe = () => `${({ white: 'blanc', black: 'noir', color: 'couleurs' })[S.version]} · flammes : ${MOTIONS[S.motion].name.toLowerCase()}`
+  + ` · roue : ${SPINS[S.spin].name.toLowerCase()}${SPINS[S.spin].dur ? `, ${S.dir === 'ccw' ? 'antihoraire' : 'horaire'}` : ''}`;
+
+function render() {
+  const bg = bgOf(S.version);
+  document.querySelectorAll('.seg[data-set]').forEach((seg) => seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.val === S[seg.dataset.set])));
+  $('#brandMark').innerHTML = iconSVG(cur({ version: 'color' }));
+  $('#big').className = `big ${bg}`;
+  $('#big').innerHTML = iconSVG(cur());
+  $('#sizes').className = `sizes ${bg}`;
+  $('#sizes').innerHTML = [128, 64, 30, 16].map((px) => `<figure>${iconSVG(cur({ px }))}${px} px</figure>`).join('');
+  $('#tbar').className = `titlebar ${bg}`;
+  renderBar();
+  $('#motions').innerHTML = Object.entries(MOTIONS).map(([k, M]) => `<button class="tile${k === S.motion ? ' on' : ''}" data-motion="${k}">`
+    + `<b><span class="tag">${k}</span>${M.name}</b><div class="pv ${bg}">${iconSVG(cur({ motion: k, spin: 'stop' }))}</div><span>${M.desc}</span></button>`).join('');
+  $('#spins').innerHTML = Object.entries(SPINS).map(([k, sp]) => `<button class="tile${k === S.spin ? ' on' : ''}" data-spin="${k}">`
+    + `<b>${sp.name}</b><div class="pv ${bg}">${iconSVG(cur({ spin: k, motion: 'E' }))}</div><span>${sp.desc}</span></button>`).join('');
+  $('#sum').textContent = `M51 · ${describe()}`;
+  $('#scrub').hidden = S.play === '1';
+  timing();
+}
+
+// The title bar: flames as chosen, the gear only while an action runs.
+let busy = false;
+function renderBar() {
+  $('#tbarMark').innerHTML = iconSVG(cur({ spin: busy ? (S.spin === 'stop' ? 'calm' : S.spin) : 'stop' }));
+  $('#tbarState').textContent = busy ? 'action en cours…' : 'au repos';
+}
+$('#action').addEventListener('click', () => {
+  if (busy) return;
+  busy = true; renderBar(); timing();
+  setTimeout(() => {
+    // Stop on a tooth: wait for the end of the current eighth of a turn, which looks like the start.
+    const anims = document.querySelector('#tbarMark').getAnimations({ subtree: true }).filter((a) => a.animationName.startsWith('m51-spin'));
+    const sp = SPINS[S.spin === 'stop' ? 'calm' : S.spin], eighth = sp.dur * 1000 / 8;
+    const left = anims.length ? eighth - ((anims[0].currentTime ?? 0) % eighth) : 0;
+    setTimeout(() => { busy = false; renderBar(); timing(); }, left / (+S.rate));
+  }, 4000);
+});
+
+// Speed and pause apply to every animation on the page.
+function timing() {
+  for (const a of document.getAnimations()) {
+    a.playbackRate = +S.rate;
+    if (S.play === '0') { a.pause(); a.currentTime = pausedAt * 1000; } else if (a.playState === 'paused') a.play();
+  }
+  $('#time').value = pausedAt;
+  $('#timeOut').textContent = `${pausedAt.toFixed(2).replace('.', ',')} s`;
+}
+$('#time').addEventListener('input', (e) => { pausedAt = +e.target.value; timing(); });
+
+document.querySelectorAll('.seg[data-set]').forEach((seg) => seg.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  S[seg.dataset.set] = b.dataset.val; keep();
+  if (seg.dataset.set === 'rate' || seg.dataset.set === 'play') {
+    document.querySelectorAll('.seg[data-set]').forEach((s) => s.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x.dataset.val === S[s.dataset.set])));
+    $('#scrub').hidden = S.play === '1'; timing();
+  } else render();
+}));
+$('#motions').addEventListener('click', (e) => { const t = e.target.closest('[data-motion]'); if (t) { S.motion = t.dataset.motion; keep(); render(); } });
+$('#spins').addEventListener('click', (e) => { const t = e.target.closest('[data-spin]'); if (t) { S.spin = t.dataset.spin; keep(); render(); } });
+
+$('#save').addEventListener('click', () => {
+  const o = cur();
+  const text = `<!-- Sindry, icône animée (${describe()}). Made with mockup M51 from design/icon/source.svg. -->\n`
+    + iconSVG({ ...o, px: 1024, standalone: standaloneCSS(o) }).replace(/ style="animation[^"]*"/g, '') + '\n';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type: 'image/svg+xml' }));
+  a.download = `sindry-icon-${S.version}-animated.svg`;
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+});
+$('#copy').addEventListener('click', () => {
+  const text = $('#sum').textContent, msg = $('#msg');
+  const select = () => { getSelection().selectAllChildren($('#sum')); msg.textContent = 'Sélectionnés : Ctrl+C pour copier.'; };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => { msg.textContent = 'Copiés.'; }, select); else select();
+});
+
+$('#reduced').hidden = !matchMedia('(prefers-reduced-motion: reduce)').matches;
+render();
+})();
+</script>
+</body>
+</html>

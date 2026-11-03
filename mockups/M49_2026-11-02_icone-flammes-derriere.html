@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M49 · Icône, flammes nées derrière la roue</title>
+<!--
+  Mockup M49: M48's variants C (Vent) and G (Trait), the ones the user kept,
+  with the flames now starting behind the gear. Each flame is a long shape
+  whose base sits under the gear; a mask removes it under the gear's
+  silhouette (widened by the gap, if any), and its base is turned round the
+  centre until the visible part is centred on its hour (1:15 and 2:30).
+  Twenty variants in five families (size, shape, contact, slant, line), and a
+  workshop where any of them can be tuned; tuned settings are kept per variant
+  in the browser. Code in English, visible text in French.
+-->
+<style>
+@font-face { font-family: 'Inter'; font-weight: 100 900; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Sindry Mono'; font-weight: 400; src: url('_ressources/sindry-mono-400.woff2') format('woff2'); }
+:root {
+  --bg: #F6F4EF; --surface: #FFFFFF; --border: #DCD7CC; --text: #141A24; --text-2: #5C6778; --acc: #E2640F;
+  --light: #F6F4EF; --dark: #0B0F16;
+  --ui: 'Inter', 'Segoe UI', system-ui, sans-serif; --mono: 'Sindry Mono', Consolas, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.5 var(--ui); }
+button, input { font: inherit; color: inherit; }
+
+.top { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); }
+.brand { display: flex; gap: 10px; align-items: center; }
+.brand img { width: 32px; height: 32px; }
+.brand h1 { margin: 0; font-size: 15px; }
+.brand p { margin: 0; color: var(--text-2); font-size: 12px; }
+.ctl { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.grp { display: flex; align-items: center; gap: 7px; }
+.grp > span { font-size: 10.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: .07em; }
+.seg { display: inline-flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 5px 10px; font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button:hover { color: var(--text); }
+.seg button.on { background: var(--acc); color: var(--bg); }
+
+main { max-width: 1400px; margin: 0 auto; padding: 20px 16px 90px; display: grid; grid-template-columns: minmax(0, 1fr) 470px; gap: 18px; align-items: start; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+.sec-h { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-bottom: 12px; }
+.sec-h h2 { margin: 0; font-size: 15px; }
+.sec-h p { margin: 0; flex-basis: 100%; color: var(--text-2); font-size: 12.5px; }
+.tag { font: 700 11px var(--mono); color: var(--acc); border: 1px solid var(--border); border-radius: 6px; padding: 0 6px; }
+.mod { font-size: 10.5px; font-weight: 500; color: var(--acc); }
+.btn { padding: 6px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn:hover { border-color: var(--acc); }
+.btn.on { background: var(--acc); color: var(--bg); border-color: transparent; }
+
+.intro { grid-column: 1 / -1; }
+.gallery { grid-column: 1; grid-row: 2; display: grid; gap: 18px; min-width: 0; }
+.atelier { grid-column: 2; grid-row: 2 / span 2; position: sticky; top: 72px; max-height: calc(100vh - 84px); overflow: auto; }
+.decide { grid-column: 1; }
+@media (max-width: 1080px) {
+  main { grid-template-columns: 1fr; }
+  .gallery, .atelier, .decide { grid-column: 1; grid-row: auto; }
+  .atelier { position: static; max-height: none; }
+}
+
+/* What changed since M48. */
+.brief { display: grid; grid-template-columns: 112px 1fr; gap: 14px 22px; align-items: start; }
+.brief figure { margin: 0; text-align: center; color: var(--text-2); font-size: 11.5px; }
+.brief figure img { width: 100px; height: 100px; display: block; margin: 0 auto 4px; }
+.checks { margin: 0; padding: 0; list-style: none; display: grid; gap: 5px; }
+.checks li { display: grid; grid-template-columns: 18px 1fr; gap: 6px; }
+.checks li::before { content: '✓'; color: #2E9E5B; font-weight: 700; }
+.checks b { font-weight: 600; }
+.checks span { color: var(--text-2); }
+@media (max-width: 640px) { .brief { grid-template-columns: 1fr; } }
+
+/* Gallery. */
+.tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(178px, 1fr)); gap: 10px; }
+.tile { border: 1px solid var(--border); border-radius: 10px; padding: 8px; cursor: pointer; display: grid; gap: 6px; align-content: start; background: var(--surface); }
+.tile:hover { border-color: color-mix(in srgb, var(--acc) 50%, var(--border)); }
+.tile.sel { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc); }
+.tile header { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; min-height: 22px; }
+.star { margin-left: auto; border: 0; background: none; cursor: pointer; font-size: 16px; line-height: 1; color: var(--text-2); padding: 0 2px; }
+.star.on { color: var(--acc); }
+.tile .box { padding: 5%; }
+.tile p { margin: 0; font-size: 11.5px; color: var(--text-2); line-height: 1.4; }
+.mini { display: flex; gap: 4px; }
+.mini span { flex: 1; display: grid; place-items: center; height: 48px; border-radius: 6px; }
+.mini .l { background: #F3F3F3; }
+.mini .d { background: #202020; }
+.mini svg { display: block; }
+
+.box { aspect-ratio: 1; border-radius: 10px; border: 1px solid var(--border); display: grid; place-items: center; padding: 7%; }
+.box.l { background: var(--light); }
+.box.d { background: var(--dark); border-color: var(--dark); }
+.box svg { width: 100%; height: 100%; display: block; }
+
+/* Workshop. */
+.pv { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.pv figure { margin: 0; display: grid; gap: 3px; }
+.pv figcaption { font-size: 11px; color: var(--text-2); text-align: center; }
+.strips { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 10px; }
+.strip { display: flex; align-items: flex-end; justify-content: space-around; gap: 6px; padding: 8px; border-radius: 8px; }
+.strip.l { background: #F3F3F3; border: 1px solid var(--border); }
+.strip.d { background: #202020; border: 1px solid #202020; }
+.strip svg { display: block; }
+.warn { margin: 8px 0 0; color: #C0362C; font-size: 12px; font-weight: 600; }
+.warn:empty { display: none; }
+.knobs { display: grid; gap: 7px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+.knob { display: grid; grid-template-columns: 138px 1fr 62px; align-items: center; gap: 8px; font-size: 12px; color: var(--text-2); }
+.knob.s { grid-template-columns: 138px 1fr; }
+.knob input { width: 100%; accent-color: var(--acc); }
+.knob output { font: 11px var(--mono); color: var(--text); text-align: right; }
+.knob[hidden] { display: none; }
+.sum { margin-top: 12px; padding: 8px 10px; border-radius: 8px; background: var(--bg); font: 11px/1.5 var(--mono); color: var(--text-2); }
+.acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; align-items: center; }
+.acts .msg { font-size: 11.5px; color: var(--text-2); }
+
+table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+th, td { text-align: left; vertical-align: top; padding: 7px 8px; border-top: 1px solid var(--border); }
+th { font-size: 11px; color: var(--text-2); font-weight: 600; border-top: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.pill { display: inline-block; font-size: 11px; padding: 0 8px; border-radius: 99px; border: 1px solid var(--acc); color: var(--acc); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div data-maquette-badge style="position:fixed;left:10px;bottom:10px;z-index:2147483647;pointer-events:none;font:650 12px/1.2 'Segoe UI',system-ui,sans-serif;color:#fff;background:rgba(18,12,26,.9);border:1px solid rgba(255,255,255,.22);padding:6px 11px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.35)">M49 · 02/11/2026 19:06 · Icône, flammes nées derrière la roue</div>
+<header class="top">
+  <div class="brand">
+    <img src="_ressources/marque.png" alt="Sindry" draggable="false">
+    <div><h1>Icône, flammes nées derrière la roue</h1><p>Les variantes C et G de M48, en taille, forme, contact, inclinaison et trait</p></div>
+  </div>
+  <div class="ctl">
+    <div class="grp"><span>Couleurs</span><div class="seg" data-set="pal">
+      <button data-val="braise">Braise</button><button data-val="feu">Feu</button><button data-val="ormag">Or et magenta</button></div></div>
+    <div class="grp"><span>Encre mono</span><div class="seg" data-set="ink">
+      <button data-val="encre">Encre</button><button data-val="braise">Orange</button><button data-val="prune">Prune</button></div></div>
+    <div class="grp"><span>Fond</span><div class="seg" data-set="tile">
+      <button data-val="0">Aucun</button><button data-val="1">Tuile</button></div></div>
+    <div class="grp"><span>Galerie</span><div class="seg" data-set="gal">
+      <button data-val="l">Clair</button><button data-val="d">Sombre</button></div></div>
+    <div class="grp"><span>Repère</span><div class="seg" data-set="guide">
+      <button data-val="1">Heures</button><button data-val="0">Masqué</button></div></div>
+  </div>
+</header>
+
+<main>
+  <section class="card intro">
+    <div class="sec-h"><span class="tag">M49</span><h2>Depuis M48</h2></div>
+    <div class="brief">
+      <figure><img src="_ressources/marque.png" alt="Icône actuelle" draggable="false">Icône actuelle</figure>
+      <ul class="checks">
+        <li><div><b>La base des flammes est derrière la roue</b> <span>— chaque flamme naît sous l'engrenage, qui la cache, et en sort ; la partie visible est centrée sur 1 h 15 et 2 h 30.</span></div></li>
+        <li><div><b>Tu as gardé C et G</b> <span>— toutes les variantes partent de la langue de feu penchée de C, en aplat ou au trait comme G.</span></div></li>
+        <li><div><b>Taille, forme, contact, inclinaison, trait</b> <span>— vingt variantes en cinq familles. Clique une variante pour l'ouvrir dans l'atelier et la régler : tes réglages sont gardés.</span></div></li>
+        <li><div><b>Retenues :</b> <span id="picks">aucune pour l'instant — l'étoile d'une variante la marque.</span></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="card atelier" id="atelier">
+    <div class="sec-h" id="at-head"></div>
+    <div class="pv" id="at-pv"></div>
+    <div class="strips" id="at-strips"></div>
+    <p class="warn" id="at-warn"></p>
+    <div class="knobs" id="knobs"></div>
+    <div class="sum" id="at-sum"></div>
+    <div class="acts">
+      <button class="btn" id="at-reset">Revenir à la variante</button>
+      <button class="btn" id="at-copy">Copier les réglages</button>
+      <button class="btn" data-save="flat">SVG couleurs</button>
+      <button class="btn" data-save="mono">SVG mono</button>
+      <span class="msg" id="at-msg"></span>
+    </div>
+  </section>
+
+  <div class="gallery" id="gallery"></div>
+
+  <section class="card decide">
+    <div class="sec-h"><h2>À trancher</h2></div>
+    <table>
+      <thead><tr><th>Point</th><th>Les pistes</th><th></th></tr></thead>
+      <tbody>
+        <tr><td>La taille</td><td>Petites (T1) à grandes (T3), inégales (T4) ou jumelles (T5) — ou tes propres réglages.</td><td><span class="pill">à choisir</span></td></tr>
+        <tr><td>La forme</td><td>Langue unie, trois tons, ondulée, taillée, goutte.</td><td><span class="pill">à choisir</span></td></tr>
+        <tr><td>Le contact</td><td>Collées à la roue, écart fin, liseré large, ou nées juste sous les dents.</td><td><span class="pill">à choisir</span></td></tr>
+        <tr><td>Aplat ou trait</td><td>Ou les deux : l'aplat pour l'icône, le trait pour le site ou la documentation.</td><td><span class="pill">à choisir</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+(() => {
+const $ = (s) => document.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+const TAU = Math.PI * 2, DEG = Math.PI / 180;
+// The gear of Sindry's icon, as measured for M45 on the original image: 8 teeth,
+// roots at 0.82 of the tip radius, a darker ring from 0.34 to 0.57, one tooth
+// straight up at rest. R is the tip radius, in drawing units.
+const R = 100, TEETH = 8, ROOT = 0.82, RING = 0.57, HUB = 0.34, TIP_HALF = 0.148, ROOT_HALF = 0.279;
+const HOURS = [37.5, 75];                       // 1:15 and 2:30, in degrees clockwise from noon
+const ASPECT = 0.5;                             // a flame's width, as a share of its height
+const ANCHOR = 0.4;                             // a flame's visual centre, up its axis, as a share of its height
+
+const GEAR = { body: '#A9B1C1', ring: '#6F788B', hub: '#D7DCE5' };
+// Three tones per flame, deep to light: one tone uses the middle one.
+const PALETTES = {
+  braise: { f1: ['#FD5632', '#FD7D26', '#FEC923'], f2: ['#FD5632', '#FD7D26', '#FEC923'] },
+  feu:    { f1: ['#DC1178', '#F8304B', '#FD9E21'], f2: ['#DC1178', '#F8304B', '#FD9E21'] },
+  ormag:  { f1: ['#FD7D26', '#FD9E21', '#FEC923'], f2: ['#89088B', '#DC1178', '#FD5632'] },
+};
+const INKS = { encre: '#141A24', braise: '#E2640F', prune: '#89088B' };
+const DARK = '#0F0A14', WHITE = '#F7F1FA';
+
+// Variant C of M48, born behind the gear: every variant below changes some of this.
+// sizes: height of each flame, base to tip (× R); depth: where its base sits,
+// from the centre (× R); turn: 0 upright, 1 along its hour; curl: the tip's lean
+// (× width); gap: empty band between gear and flames (× R), 0 when they touch.
+const BASE = { sizes: [1.3, 1], width: 1, depth: 0.75, turn: 0.5, curl: -0.5, shape: 'tongue', tones: 2, gap: 0.05,
+  line: false, lineW: 11, flat: false, coreLine: false };
+const VARIANTS = [
+  { id: 'T1', name: 'Petites', p: { sizes: [0.9, 0.7], depth: 0.8 }, desc: 'Deux petites langues qui dépassent à peine : la roue domine.' },
+  { id: 'T2', name: 'Moyennes', p: {}, desc: 'La C de M48, désormais née derrière la roue. La référence.' },
+  { id: 'T3', name: 'Grandes', p: { sizes: [1.9, 1.45], depth: 0.62 }, desc: 'Le feu prend autant de place que la roue, comme dans l\'icône actuelle.' },
+  { id: 'T4', name: 'Inégales', p: { sizes: [1.75, 0.8] }, desc: 'Une grande à 1 h 15, une petite à 2 h 30 : plus de mouvement.' },
+  { id: 'T5', name: 'Jumelles', p: { sizes: [1.15, 1.15] }, desc: 'Deux flammes de même taille : plus posé.' },
+  { id: 'F1', name: 'Unie', p: { tones: 1 }, desc: 'Une seule couleur par flamme, sans cœur : le plus simple.' },
+  { id: 'F2', name: 'Trois tons', p: { tones: 3 }, desc: 'Rouge, orange, or emboîtés : le dégradé de l\'icône actuelle, en aplats.' },
+  { id: 'F3', name: 'Ondulée', p: { shape: 'wavy' }, desc: 'Un petit lacet sur le flanc de chaque flamme : plus vivante, plus détaillée.' },
+  { id: 'F4', name: 'Taillée', p: { shape: 'facet' }, desc: 'Des facettes droites, deux tons par flamme : façon low poly.' },
+  { id: 'F5', name: 'Goutte', p: { shape: 'drop', width: 1.15 }, desc: 'Une goutte géométrique dont on ne voit que le haut : la forme la plus simple.' },
+  { id: 'K1', name: 'Collées', p: { gap: 0 }, desc: 'Aucun espace : les flammes touchent la roue. En mono, tout fusionne en une silhouette.' },
+  { id: 'K2', name: 'Détourées', p: { gap: 0.12 }, desc: 'Un large liseré vide autour de la roue : les deux plans se lisent même en 16 px.' },
+  { id: 'K3', name: 'À fleur', p: { depth: 0.92, gap: 0.04 }, desc: 'Nées juste sous les dents : on devine leur base entre deux dents.' },
+  { id: 'O1', name: 'Plus droites', p: { turn: 0.25, curl: -0.35 }, desc: 'Inclinées au quart de leur heure : plus près d\'une bougie.' },
+  { id: 'O2', name: 'Plus couchées', p: { turn: 0.75, curl: -0.7 }, desc: 'Aux trois quarts : elles fusent presque dans l\'axe de leur heure.' },
+  { id: 'G1', name: 'Trait', p: { line: true, gap: 0.06 }, desc: 'La G de M48, née derrière la roue, au cœur plein.' },
+  { id: 'G2', name: 'Trait collé', p: { line: true, gap: 0 }, desc: 'Les traits des flammes rejoignent celui de la roue.' },
+  { id: 'G3', name: 'Trait et aplat', p: { line: true, flat: true, gap: 0.06 }, desc: 'La roue au trait, les flammes en aplat : le feu ressort.' },
+  { id: 'G4', name: 'Trait épais', p: { line: true, lineW: 17, tones: 1, gap: 0.07 }, desc: 'Un trait plus gras et pas de cœur : lisible jusqu\'en 24 px.' },
+  { id: 'G5', name: 'Trait double', p: { line: true, coreLine: true, lineW: 9, gap: 0.06 }, desc: 'Le cœur aussi au trait : le plus fin, pour les grandes tailles.' },
+];
+const FAMILIES = [
+  { name: 'Taille', desc: 'La forme C, seule la taille des flammes change.', ids: ['T1', 'T2', 'T3', 'T4', 'T5'] },
+  { name: 'Forme', desc: 'Du plus simple (une couleur, une goutte) au plus travaillé (trois tons, lacet, facettes).', ids: ['F1', 'F2', 'F3', 'F4', 'F5'] },
+  { name: 'Contact', desc: 'Les flammes collées à la roue, détachées par un liseré, ou nées tout près du bord.', ids: ['K1', 'K2', 'K3'] },
+  { name: 'Inclinaison', desc: 'Entre la bougie (droite) et le rayon (dans l\'axe de l\'heure).', ids: ['O1', 'O2'] },
+  { name: 'Trait', desc: 'La famille de G : épaisseur, contact, cœur, et un mélange trait et aplat.', ids: ['G1', 'G2', 'G3', 'G4', 'G5'] },
+];
+const SHAPE_NAMES = { tongue: 'langue', wavy: 'ondulée', facet: 'taillée', drop: 'goutte' };
+
+const UI = { pal: 'braise', ink: 'encre', tile: '0', gal: 'l', guide: '1', sel: 'T2' };
+const KEY = 'sindry.m49', KEY_EDITS = 'sindry.m49.edits', KEY_PICKS = 'sindry.m49.picks';
+const load = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const keep = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private window */ } };
+const S = { ...UI, ...load(KEY, {}) };
+// ?pal=ormag&tile=1&sel=F2… opens the page on a given choice.
+for (const [k, val] of new URLSearchParams(location.search)) if (k in UI) S[k] = val;
+const edits = load(KEY_EDITS, {});              // variant id → settings changed in the workshop
+const picks = new Set(load(KEY_PICKS, []));
+const byId = Object.fromEntries(VARIANTS.map((v) => [v.id, v]));
+if (!byId[S.sel]) S.sel = UI.sel;
+const params = (v) => ({ ...BASE, ...v.p, ...(edits[v.id] || {}) });
+
+/* ---------- Paths as point lists, so they can be moved before they become strings ---------- */
+// ['M',x,y] ['L',x,y] ['Q',x1,y1,x,y] ['C',x1,y1,x2,y2,x,y] ['A',r,large,sweep,x,y] ['Z']
+const n2 = (v) => +v.toFixed(2);
+function toD(cmds) {
+  return cmds.map(([k, ...v]) => k === 'A'
+    ? `A${n2(v[0])} ${n2(v[0])} 0 ${v[1]} ${v[2]} ${n2(v[3])} ${n2(v[4])}`
+    : k + v.map(n2).join(' ')).join('');
+}
+// Turn by `rot` (radians, clockwise on screen) about the origin, then shift.
+// Flames are made of M, L and C only, so every number pair is a point.
+function move(cmds, rot, tx, ty) {
+  const c = Math.cos(rot), s = Math.sin(rot);
+  return cmds.map(([k, ...v]) => [k, ...v.flatMap((n, i) => i % 2 ? [] : [n * c - v[i + 1] * s + tx, n * s + v[i + 1] * c + ty])]);
+}
+const scaleAbout = (cmds, s, qx, qy) => cmds.map(([k, ...v]) => [k, ...v.map((n, i) => i % 2 ? qy + (n - qy) * s : qx + (n - qx) * s)]);
+const polar = (r, a) => [r * Math.sin(a), -r * Math.cos(a)];   // a: clockwise from noon
+const circle = (r) => [['M', r, 0], ['A', r, 1, 1, -r, 0], ['A', r, 1, 1, r, 0], ['Z']];
+
+// Points along a path of M, L and C.
+function samples(cmds, per = 14) {
+  const pts = []; let cur = [0, 0], start = [0, 0];
+  for (const [k, ...v] of cmds) {
+    if (k === 'M') { cur = start = [v[0], v[1]]; pts.push(cur); continue; }
+    if (k === 'C') {
+      const [x1, y1, x2, y2, x, y] = v;
+      for (let i = 1; i <= per; i++) {
+        const t = i / per, u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, d = t * t * t;
+        pts.push([a * cur[0] + b * x1 + c * x2 + d * x, a * cur[1] + b * y1 + c * y2 + d * y]);
+      }
+      cur = [x, y]; continue;
+    }
+    const to = k === 'L' ? [v[0], v[1]] : start;
+    for (let i = 1; i <= per; i++) pts.push([cur[0] + (to[0] - cur[0]) * i / per, cur[1] + (to[1] - cur[1]) * i / per]);
+    cur = to;
+  }
+  return pts;
+}
+
+// The icon's gear: straight flanks, tips and roots on circles, every corner
+// softened by a small quadratic fillet of `fr` units.
+function gearContour(rot, fr = 4) {
+  const step = TAU / TEETH, rr = R * ROOT, out = [];
+  const toward = (p, q, d) => { const l = Math.hypot(q[0] - p[0], q[1] - p[1]); return [p[0] + (q[0] - p[0]) * d / l, p[1] + (q[1] - p[1]) * d / l]; };
+  for (let i = 0; i < TEETH; i++) {
+    const a = rot + i * step;
+    const v1 = polar(rr, a - ROOT_HALF), v2 = polar(R, a - TIP_HALF), v3 = polar(R, a + TIP_HALF), v4 = polar(rr, a + ROOT_HALF);
+    const n1 = polar(rr, a + step - ROOT_HALF), nt = polar(R, a + step - TIP_HALF);   // the next tooth's first corners
+    if (!i) out.push(['M', ...toward(v1, v2, fr)]);
+    out.push(['L', ...toward(v2, v1, fr)], ['Q', ...v2, ...polar(R, a - TIP_HALF + fr / R)],
+      ['A', R, 0, 1, ...polar(R, a + TIP_HALF - fr / R)], ['Q', ...v3, ...toward(v3, v4, fr)],
+      ['L', ...toward(v4, v3, fr)], ['Q', ...v4, ...polar(rr, a + ROOT_HALF + fr / rr)],
+      ['A', rr, 0, 1, ...polar(rr, a + step - ROOT_HALF - fr / rr)], ['Q', ...n1, ...toward(n1, nt, fr)]);
+  }
+  out.push(['Z']);
+  return out;
+}
+const GEAR_D = toD(gearContour(0));
+
+/* ---------- Flames: base at the origin, tip up at length L, width w ---------- */
+// The tongue of M48's C: the tip leans by `curl` (× width), that side hollow.
+function tongue(L, w, curl) {
+  const x = w / 2, t = curl * w;
+  return [['M', t, -L], ['C', t + 0.42 * w, -0.84 * L, 1.05 * x, -0.58 * L, x, -0.3 * L], ['C', x, -0.09 * L, 0.27 * w, 0, 0, 0],
+    ['C', -0.27 * w, 0, -x, -0.09 * L, -x, -0.3 * L], ['C', -x, -0.5 * L, -0.02 * w, -0.64 * L, t, -L], ['Z']];
+}
+// The same tongue with a small lick on its full side, still one flame.
+function wavy(L, w, curl) {
+  const x = w / 2, t = curl * w;
+  return [['M', t, -L], ['C', t + 0.25 * w, -0.9 * L, 0.16 * w, -0.76 * L, 0.13 * w, -0.64 * L],
+    ['C', 0.22 * w, -0.7 * L, 0.34 * w, -0.74 * L, 0.42 * w, -0.8 * L],
+    ['C', 0.56 * w, -0.62 * L, 0.55 * w, -0.46 * L, x, -0.3 * L], ['C', x, -0.09 * L, 0.27 * w, 0, 0, 0],
+    ['C', -0.27 * w, 0, -x, -0.09 * L, -x, -0.3 * L], ['C', -x, -0.5 * L, -0.02 * w, -0.64 * L, t, -L], ['Z']];
+}
+// Straight facets; the crease splits it into a dark and a light side.
+function facetPoints(L, w, curl) {
+  const t = curl * w * 0.8;
+  return { T: [t, -L], R1: [0.5 * w, -0.42 * L], R2: [0.36 * w, -0.1 * L], B: [0, 0], L2: [-0.4 * w, -0.1 * L],
+    L1: [-0.5 * w, -0.38 * L], L0: [-0.12 * w + 0.35 * t, -0.66 * L], M: [0.08 * w, -0.42 * L] };
+}
+const poly = (...pts) => [['M', ...pts[0]], ...pts.slice(1).map((p) => ['L', ...p]), ['Z']];
+function facet(L, w, curl) { const p = facetPoints(L, w, curl); return poly(p.T, p.R1, p.R2, p.B, p.L2, p.L1, p.L0); }
+function crease(L, w, curl) { const p = facetPoints(L, w, curl); return poly(p.T, p.M, p.B, p.L2, p.L1, p.L0); }
+// A perfect drop: a circle, two tangents meeting at the tip. The arc is drawn
+// in cubic quarters so that the drop can be moved like the others.
+function drop(L, w) {
+  const r = w / 2, al = Math.acos(Math.min(1, r / (L - r))), a0 = -Math.PI / 2 + al, a1 = 1.5 * Math.PI - al;
+  const n = Math.ceil((a1 - a0) / (Math.PI / 2)), da = (a1 - a0) / n, k = 4 / 3 * Math.tan(da / 4);
+  const out = [['M', 0, -L], ['L', r * Math.cos(a0), -r + r * Math.sin(a0)]];
+  for (let i = 0; i < n; i++) {
+    const a = a0 + i * da, b = a + da, p3 = [r * Math.cos(b), -r + r * Math.sin(b)];
+    out.push(['C', r * Math.cos(a) - k * r * Math.sin(a), -r + r * Math.sin(a) + k * r * Math.cos(a),
+      p3[0] + k * r * Math.sin(b), p3[1] - k * r * Math.cos(b), ...p3]);
+  }
+  out.push(['Z']);
+  return out;
+}
+const SHAPES = { tongue, wavy, facet, drop };
+
+// One flame behind the gear, `size` tall from base to tip. Its axis is turned
+// by `turn` × its hour; its visual centre sits on the hour's ray and its base
+// at `depth` from the centre, under the teeth. The whole flame is then turned
+// round the centre until its visible part (beyond `cut`) is centred on the hour.
+function placeFlame(P, i, cut) {
+  const th = HOURS[i] * DEG, h = P.sizes[i] * R, w = h * ASPECT * P.width, psi = th * P.turn;
+  const dir = polar(1, psi), u = polar(1, th), a = ANCHOR * h, rb = P.depth * R;
+  const ud = u[0] * dir[0] + u[1] * dir[1];
+  const d = a * ud + Math.sqrt(Math.max(0, a * a * ud * ud - a * a + rb * rb));
+  const B = [d * u[0] - a * dir[0], d * u[1] - a * dir[1]];
+  // Inner layers grow from where the axis leaves the teeth, so that they show.
+  const bd = B[0] * dir[0] + B[1] * dir[1], exit = -bd + Math.sqrt(Math.max(0, bd * bd - (B[0] ** 2 + B[1] ** 2) + R * R));
+  const q = Math.max(0, exit - 0.05 * h), local = SHAPES[P.shape](h, w, P.curl);
+  const put = (cmds) => move(cmds, psi, B[0], B[1]);
+  const f = {
+    outer: put(local), mid: put(scaleAbout(local, 0.72, 0, -q)), core: put(scaleAbout(local, P.tones === 3 ? 0.42 : 0.52, 0, -q)),
+    crease: P.shape === 'facet' ? put(crease(h, w, P.curl)) : null,
+  };
+  const visible = () => samples(f.outer).filter(([x, y]) => Math.hypot(x, y) > cut);
+  for (let k = 0; k < 3; k++) {
+    const vis = visible();
+    if (!vis.length) break;
+    let sx = 0, sy = 0;
+    for (const [x, y] of vis) { sx += x; sy += y; }
+    const delta = th - Math.atan2(sx, -sy);
+    if (Math.abs(delta) < 0.1 * DEG) break;
+    for (const key of ['outer', 'mid', 'core', 'crease']) if (f[key]) f[key] = move(f[key], delta, 0, 0);
+  }
+  f.vis = visible();
+  return f;
+}
+
+function build(v) {
+  const P = params(v), pad = P.line ? P.lineW / 2 : 0;
+  const cut = R + P.gap * R + pad;
+  const flames = [0, 1].map((i) => placeFlame(P, i, cut));
+  let box = [-R - pad, -R - pad, R + pad, R + pad];
+  for (const f of flames) for (const [x, y] of f.vis) {
+    box = [Math.min(box[0], x - pad), Math.min(box[1], y - pad), Math.max(box[2], x + pad), Math.max(box[3], y + pad)];
+  }
+  // Do the two visible flames touch?
+  let near = Infinity;
+  for (const a of flames[0].vis) for (const b of flames[1].vis) near = Math.min(near, Math.hypot(a[0] - b[0], a[1] - b[1]));
+  return { v, P, flames, box, touch: near < 2 * pad + 2 };
+}
+
+/* ---------- Drawing ---------- */
+let uid = 0;
+// o: { mode: 'flat' | 'mono', ink, tile (its fill, or null), guide, px }
+function svg(b, o) {
+  const [x0, y0, x1, y1] = b.box, side = Math.max(x1 - x0, y1 - y0) * (o.tile ? 1.42 : 1.08);
+  const vb = [(x0 + x1 - side) / 2, (y0 + y1 - side) / 2, side, side].map(n2);
+  let s = `<svg xmlns="${NS}" viewBox="${vb.join(' ')}"${o.px ? ` width="${o.px}" height="${o.px}"` : ''}>`;
+  if (o.tile) s += `<rect x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" rx="${n2(side * 0.22)}" fill="${o.tile}"/>`;
+  s += glyph(b, o, vb, `m49k${++uid}`);
+  if (o.guide) s += guide(side);
+  return s + '</svg>';
+}
+
+function glyph(b, o, vb, id) {
+  const { P } = b, pal = PALETTES[S.pal], mono = o.mode === 'mono', lw = P.lineW, gapU = P.gap * R;
+  // The flames pass behind the gear: a mask removes them under its silhouette,
+  // widened by the gap. Touching flames go a hair under the gear instead, so
+  // that no seam of background shows along its edge.
+  const cutW = P.line ? Math.max(1, lw - 2 + 2 * gapU) : 2 * gapU;
+  const edge = cutW ? `stroke="#000" stroke-width="${n2(cutW)}" stroke-linejoin="round"` : 'stroke="#fff" stroke-width="3"';
+  const mask = `<mask id="${id}" maskUnits="userSpaceOnUse" x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}">`
+    + `<rect x="${vb[0]}" y="${vb[1]}" width="${vb[2]}" height="${vb[3]}" fill="#fff"/><path d="${GEAR_D}" fill="#000" ${edge}/></mask>`;
+
+  let fire = '';
+  b.flames.forEach((f, i) => {
+    const [deep, mid, light] = pal[`f${i + 1}`];
+    if (P.line && !P.flat) {
+      const c = mono ? o.ink : mid, stroke = `fill="none" stroke="${c}" stroke-linejoin="round"`;
+      fire += `<path d="${toD(f.outer)}" ${stroke} stroke-width="${lw}"/>`;
+      if (P.tones > 1) fire += P.coreLine ? `<path d="${toD(f.core)}" ${stroke} stroke-width="${n2(lw * 0.75)}"/>` : `<path d="${toD(f.core)}" fill="${mono ? o.ink : light}"/>`;
+      return;
+    }
+    if (mono) {
+      // Nested layers alternate full and hollow.
+      const d = toD(f.outer) + (P.tones === 2 ? toD(f.core) : '') + (P.tones === 3 ? toD(f.mid) + toD(f.core) : '');
+      fire += `<path fill="${o.ink}" fill-rule="evenodd" d="${d}"/>`;
+      return;
+    }
+    if (P.shape === 'facet') {
+      fire += `<path fill="${mid}" d="${toD(f.outer)}"/><path fill="${deep}" d="${toD(f.crease)}"/>`;
+      if (P.tones === 3) fire += `<path fill="${light}" d="${toD(f.core)}"/>`;
+      return;
+    }
+    const layers = [[f.outer], [f.outer, f.core], [f.outer, f.mid, f.core]][P.tones - 1];
+    const tones = [[mid], [mid, light], [deep, mid, light]][P.tones - 1];
+    layers.forEach((l, k) => { fire += `<path fill="${tones[k]}" d="${toD(l)}"/>`; });
+  });
+
+  const gear = P.line
+    ? `<path d="${GEAR_D}${toD(circle(0.42 * R))}" fill="none" stroke="${mono ? o.ink : GEAR.ring}" stroke-width="${lw}" stroke-linejoin="round"/>`
+    : mono
+      ? `<path fill="${o.ink}" fill-rule="evenodd" d="${GEAR_D}${toD(circle(RING * R))}${toD(circle(HUB * R))}"/>`
+      : `<path fill="${GEAR.body}" d="${GEAR_D}"/><path fill="${GEAR.ring}" d="${toD(circle(RING * R))}"/><path fill="${GEAR.hub}" d="${toD(circle(HUB * R))}"/>`;
+  return `<defs>${mask}</defs><g mask="url(#${id})">${fire}</g>${gear}`;
+}
+
+// The two hours asked for, as dashed rays from the gear's centre.
+function guide(side) {
+  const sw = side / 220, col = '#2F7DF6';
+  let s = `<g fill="none" stroke="${col}" stroke-width="${n2(sw * 1.3)}" opacity=".9">`
+    + `<circle r="${R}" stroke-dasharray="${n2(sw * 2)} ${n2(sw * 4)}" opacity=".6"/>`;
+  for (const hd of HOURS) { const [x, y] = polar(R * 2.8, hd * DEG); s += `<line x1="0" y1="0" x2="${n2(x)}" y2="${n2(y)}" stroke-dasharray="${n2(sw * 6)} ${n2(sw * 4)}"/>`; }
+  return s + `<circle r="${n2(sw * 2.6)}" fill="${col}" stroke="none"/></g>`;
+}
+
+/* ---------- Page ---------- */
+const ink = () => INKS[S.ink], tiled = () => S.tile === '1';
+// The four ways of showing an icon: colours on light and dark, ink, white.
+const views = () => [
+  { cap: 'Couleurs · fond clair', bg: 'l', o: { mode: 'flat', tile: tiled() ? DARK : null } },
+  { cap: 'Couleurs · fond sombre', bg: 'd', o: { mode: 'flat', tile: tiled() ? '#FFFFFF' : null } },
+  { cap: 'Mono · encre', bg: 'l', o: tiled() ? { mode: 'mono', ink: '#FFFFFF', tile: ink() } : { mode: 'mono', ink: ink() } },
+  { cap: 'Mono · blanc', bg: 'd', o: tiled() ? { mode: 'mono', ink: DARK, tile: WHITE } : { mode: 'mono', ink: WHITE } },
+];
+const fr = (v) => (v < 0 ? '−' : '') + Math.abs(v).toFixed(2).replace('.', ',');
+const pct = (v) => `${Math.round(v * 100)} %`;
+const describe = (P) => [`1 h 15 : ${fr(P.sizes[0])} R`, `2 h 30 : ${fr(P.sizes[1])} R`, `largeur ${pct(P.width)}`,
+  `base à ${pct(P.depth)} du rayon`, `inclinaison ${pct(P.turn)}`, `pointe ${fr(P.curl)}`, SHAPE_NAMES[P.shape],
+  `${P.tones} ton${P.tones > 1 ? 's' : ''}`, P.gap ? `écart ${pct(P.gap)} R` : 'collées',
+  P.line ? `trait ${String(P.lineW).replace('.', ',')}${P.flat ? ', flammes en aplat' : ''}${P.coreLine ? ', cœur au trait' : ''}` : 'aplat'].join(' · ');
+
+const builds = Object.fromEntries(VARIANTS.map((v) => [v.id, build(v)]));
+
+function tileHTML(v) {
+  const b = builds[v.id], vw = views(), big = S.gal === 'd' ? vw[1] : vw[0], on = picks.has(v.id);
+  return `<article class="tile${v.id === S.sel ? ' sel' : ''}" data-id="${v.id}">
+    <header><span class="tag">${v.id}</span>${v.name}${edits[v.id] ? '<span class="mod">modifiée</span>' : ''}
+      <button class="star${on ? ' on' : ''}" data-star="${v.id}" title="Je retiens">${on ? '★' : '☆'}</button></header>
+    <div class="box ${big.bg}">${svg(b, big.o)}</div>
+    <div class="mini"><span class="l">${svg(b, { ...vw[2].o, px: 40 })}</span><span class="d">${svg(b, { ...vw[1].o, px: 24 })}</span>`
+    + `<span class="d">${svg(b, { ...vw[1].o, px: 16 })}</span><span class="l">${svg(b, { ...vw[2].o, px: 16 })}</span></div>
+    <p>${v.desc}</p></article>`;
+}
+function renderGallery() {
+  $('#gallery').innerHTML = FAMILIES.map((fam) => `<section class="card"><div class="sec-h"><h2>${fam.name}</h2><p>${fam.desc}</p></div>
+    <div class="tiles">${fam.ids.map((id) => tileHTML(byId[id])).join('')}</div></section>`).join('');
+}
+function renderTile(id) { const el = $(`.tile[data-id="${id}"]`); if (el) el.outerHTML = tileHTML(byId[id]); }
+
+/* Workshop knobs: ranges and segmented choices, some only for the line rendering. */
+const RANGES = [
+  { k: 'size0', lab: 'Flamme de 1 h 15', min: 0.5, max: 2.4, step: 0.01, fmt: (v) => `${fr(v)} R` },
+  { k: 'size1', lab: 'Flamme de 2 h 30', min: 0.5, max: 2.4, step: 0.01, fmt: (v) => `${fr(v)} R` },
+  { k: 'width', lab: 'Largeur', min: 0.5, max: 1.6, step: 0.01, fmt: pct },
+  { k: 'depth', lab: 'Base (du centre)', min: 0.3, max: 1, step: 0.01, fmt: pct },
+  { k: 'turn', lab: 'Inclinaison', min: 0, max: 1, step: 0.01, fmt: pct },
+  { k: 'curl', lab: 'Pointe recourbée', min: -0.9, max: 0.3, step: 0.01, fmt: fr },
+  { k: 'gap', lab: 'Écart à la roue', min: 0, max: 0.16, step: 0.005, fmt: (v) => +v ? `${pct(v)} R` : 'collées' },
+  { k: 'lineW', lab: 'Épaisseur du trait', min: 5, max: 22, step: 0.5, fmt: (v) => String(v).replace('.', ','), line: true },
+];
+const CHOICES = [
+  { k: 'shape', lab: 'Forme', opts: [['tongue', 'Langue'], ['wavy', 'Ondulée'], ['facet', 'Taillée'], ['drop', 'Goutte']] },
+  { k: 'tones', lab: 'Tons', opts: [[1, '1'], [2, '2'], [3, '3']] },
+  { k: 'line', lab: 'Rendu', opts: [[false, 'Aplat'], [true, 'Trait']] },
+  { k: 'flat', lab: 'Flammes', opts: [[false, 'Au trait'], [true, 'En aplat']], line: true },
+  { k: 'coreLine', lab: 'Cœur', opts: [[false, 'Plein'], [true, 'Au trait']], line: true },
+];
+const getK = (P, k) => k === 'size0' ? P.sizes[0] : k === 'size1' ? P.sizes[1] : P[k];
+$('#knobs').innerHTML = CHOICES.map((c) => `<div class="knob s" data-knob="${c.k}"><span>${c.lab}</span><div class="seg" data-choice="${c.k}">`
+    + c.opts.map(([val, lab]) => `<button data-val="${val}">${lab}</button>`).join('') + '</div></div>').join('')
+  + RANGES.map((r) => `<label class="knob" data-knob="${r.k}"><span>${r.lab}</span><input type="range" data-range="${r.k}" min="${r.min}" max="${r.max}" step="${r.step}"><output></output></label>`).join('');
+
+function syncKnobs(P) {
+  for (const r of RANGES) {
+    const el = $(`[data-knob="${r.k}"]`); el.hidden = !!r.line && !P.line;
+    el.querySelector('input').value = getK(P, r.k); el.querySelector('output').textContent = r.fmt(getK(P, r.k));
+  }
+  for (const c of CHOICES) {
+    const el = $(`[data-knob="${c.k}"]`); el.hidden = !!c.line && !P.line;
+    el.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.val === String(P[c.k])));
+  }
+}
+
+function renderAtelier() {
+  const v = byId[S.sel], b = builds[v.id], vw = views(), on = picks.has(v.id);
+  $('#at-head').innerHTML = `<span class="tag">${v.id}</span><h2>${v.name}</h2>${edits[v.id] ? '<span class="mod">modifiée</span>' : ''}
+    <button class="btn${on ? ' on' : ''}" data-star="${v.id}" style="margin-left: auto">${on ? '★ Retenue' : '☆ Je retiens'}</button><p>${v.desc}</p>`;
+  $('#at-pv').innerHTML = vw.map((w, i) => `<figure><div class="box ${w.bg}">${svg(b, { ...w.o, guide: S.guide === '1' && i < 2 })}</div><figcaption>${w.cap}</figcaption></figure>`).join('');
+  $('#at-strips').innerHTML = vw.map((w) => `<div class="strip ${w.bg}">${[48, 32, 24, 16].map((px) => svg(b, { ...w.o, px })).join('')}</div>`).join('');
+  $('#at-warn').textContent = b.touch ? 'Les deux flammes se touchent : réduis leur taille ou leur largeur.' : '';
+  $('#at-sum').textContent = `${v.id} · ${describe(b.P)}`;
+  $('#at-reset').disabled = !edits[v.id];
+  syncKnobs(b.P);
+}
+
+function renderPicks() {
+  $('#picks').textContent = picks.size
+    ? VARIANTS.filter((v) => picks.has(v.id)).map((v) => `${v.id} ${v.name}${edits[v.id] ? ' (modifiée)' : ''}`).join(', ')
+    : 'aucune pour l\'instant — l\'étoile d\'une variante la marque.';
+}
+
+function renderAll() {
+  document.querySelectorAll('.seg[data-set]').forEach((seg) => seg.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.val === S[seg.dataset.set])));
+  renderGallery(); renderAtelier(); renderPicks();
+}
+
+// A workshop change: only the selected variant is rebuilt.
+let frame = 0;
+function setParam(k, val) {
+  const v = byId[S.sel], P = params(v), e = { ...(edits[v.id] || {}) };
+  if (k === 'size0' || k === 'size1') { const sz = [...P.sizes]; sz[+k[4]] = val; e.sizes = sz; } else e[k] = val;
+  edits[v.id] = e; keep(KEY_EDITS, edits);
+  cancelAnimationFrame(frame);
+  frame = requestAnimationFrame(() => { builds[v.id] = build(v); renderAtelier(); renderTile(v.id); renderPicks(); });
+}
+
+document.querySelectorAll('.seg[data-set]').forEach((seg) => seg.addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  S[seg.dataset.set] = b.dataset.val; keep(KEY, S); renderAll();
+}));
+$('#knobs').addEventListener('input', (e) => { const r = e.target.closest('[data-range]'); if (r) setParam(r.dataset.range, +r.value); });
+$('#knobs').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-choice] button'); if (!b) return;
+  const k = b.parentElement.dataset.choice, raw = b.dataset.val;
+  setParam(k, raw === 'true' ? true : raw === 'false' ? false : k === 'tones' ? +raw : raw);
+});
+document.addEventListener('click', (e) => {
+  const star = e.target.closest('[data-star]');
+  if (star) {
+    const id = star.dataset.star;
+    picks.has(id) ? picks.delete(id) : picks.add(id);
+    keep(KEY_PICKS, [...picks]); renderTile(id); renderAtelier(); renderPicks();
+    return;
+  }
+  const tile = e.target.closest('.tile');
+  if (tile && tile.dataset.id !== S.sel) {
+    const was = S.sel; S.sel = tile.dataset.id; keep(KEY, S);
+    renderTile(was); renderTile(S.sel); renderAtelier();
+    if (getComputedStyle($('#atelier')).position !== 'sticky') $('#atelier').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+});
+$('#at-reset').addEventListener('click', () => {
+  delete edits[S.sel]; keep(KEY_EDITS, edits);
+  builds[S.sel] = build(byId[S.sel]); renderAtelier(); renderTile(S.sel); renderPicks();
+});
+$('#at-copy').addEventListener('click', () => {
+  const text = $('#at-sum').textContent, msg = $('#at-msg');
+  const select = () => { getSelection().selectAllChildren($('#at-sum')); msg.textContent = 'Sélectionnés : Ctrl+C pour copier.'; };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => { msg.textContent = 'Copiés.'; }, select); else select();
+});
+document.querySelectorAll('[data-save]').forEach((btn) => btn.addEventListener('click', () => {
+  const b = builds[S.sel], mono = btn.dataset.save === 'mono';
+  const text = svg(b, mono ? { mode: 'mono', ink: ink(), px: 1024 } : { mode: 'flat', px: 1024 });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type: 'image/svg+xml' }));
+  a.download = `sindry-icone-${b.v.id}-${mono ? 'mono' : 'couleurs'}.svg`;
+  a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}));
+
+renderAll();
+})();
+</script>
+</body>
+</html>
