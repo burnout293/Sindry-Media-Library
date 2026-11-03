@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roue libre : l'entrée Burnout</title>
+<!--
+  Mockup M52: a new way into Sindry's hidden game (Lite, M50), Burnout and
+  grunge. After ten quick clicks the title bar icon flips about its vertical
+  axis, turn after fast turn, and slows down to rest mirrored (flames on the
+  left); its wheel burns out on the spot, then tears off across the title bar
+  with its flames trailing and leaves the window on the right. The game is
+  wiped in from left to right in step with the wheel, along a north-east to
+  south-west edge, and the game's big wheel rolls in from the left edge to its
+  place. Three variants keep every one of those beats and differ only in style.
+  Each is a pure function of its clock: Escape plays it backwards. Code in
+  English, visible text in French.
+-->
+<style>
+@font-face { font-family: 'Inter'; font-weight: 100 900; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Sindry Mono'; font-weight: 400; src: url('_ressources/sindry-mono-400.woff2') format('woff2'); }
+:root {
+  --bg: #F6F4EF; --surface: #FFFFFF; --border: #DCD7CC; --text: #141A24; --text-2: #5C6778; --acc: #E2640F;
+  --icone-corps: #A9B1C1; --icone-anneau: #6F788B; --icone-moyeu: #D7DCE5; --icone-flammes: var(--acc);
+  --ui: 'Inter', 'Segoe UI', system-ui, sans-serif; --mono: 'Sindry Mono', Consolas, monospace;
+  color-scheme: light;
+}
+:root.mono { --ui: var(--mono); }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.5 var(--ui); }
+button { font: inherit; color: inherit; }
+
+/* The icon, as in Sindry 2.5.0: flames, then the gear, on the same frame. */
+.marque { position: relative; display: block; flex-shrink: 0; cursor: pointer; }
+.marque svg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; overflow: visible; }
+.marque .gear-body { fill: var(--icone-corps); }
+.marque .gear-ring { fill: var(--icone-anneau); }
+.marque .gear-hub { fill: var(--icone-moyeu); }
+.marque .flame { fill: var(--icone-flammes); }
+.marque .gear { transform-box: view-box; transform-origin: 0 0; }
+
+.top { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; justify-content: space-between;
+  padding: 10px 16px; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(6px); border-bottom: 1px solid var(--border); }
+.brand { display: flex; gap: 10px; align-items: center; user-select: none; }
+.brand .marque { width: 32px; height: 32px; }
+.brand h1 { margin: 0; font-size: 15px; }
+.brand p { margin: 0; color: var(--text-2); font-size: 12px; }
+.ctl { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+.grp { display: flex; align-items: center; gap: 7px; }
+.grp > span { font-size: 10.5px; color: var(--text-2); text-transform: uppercase; letter-spacing: .07em; }
+.seg { display: flex; flex-wrap: wrap; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+.seg button { border: 0; background: none; padding: 5px 10px; font-size: 12px; font-weight: 500; color: var(--text-2); cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button:hover { color: var(--text); }
+.seg button.on { background: var(--acc); color: var(--bg); }
+
+main { max-width: 1040px; margin: 0 auto; padding: 20px 16px 90px; display: grid; gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; min-width: 0; }
+.sec-h { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 12px; }
+.sec-h h2 { margin: 0; font-size: 15px; }
+.sec-h p { margin: 0; flex-basis: 100%; color: var(--text-2); font-size: 12px; }
+.tag { font: 700 11px var(--mono); color: var(--acc); border: 1px solid var(--border); border-radius: 6px; padding: 0 6px; }
+.versions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.versions button { display: flex; align-items: baseline; gap: 7px; padding: 7px 12px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface); cursor: pointer; font-size: 12.5px; font-weight: 600; color: var(--text-2); }
+.versions button kbd { font: 700 11px var(--mono); color: var(--acc); }
+.versions button.on { border-color: var(--acc); color: var(--text); box-shadow: 0 0 0 1px var(--acc) inset; }
+.desc { min-height: 38px; margin: 0 0 12px; color: var(--text-2); font-size: 12.5px; }
+.desc b { color: var(--text); }
+.bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-top: 12px; color: var(--text-2); font-size: 12px; }
+.bar .btns { display: flex; gap: 8px; }
+.btn { padding: 7px 14px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font-size: 12px; font-weight: 600; cursor: pointer; }
+.btn.acc { background: var(--acc); color: var(--bg); border-color: transparent; }
+.btn:disabled { opacity: .4; cursor: default; }
+kbd.k { font: 600 10.5px var(--mono); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; color: var(--text); }
+
+/* The mock Sindry window, drawn at 960 x 526 and scaled to fit. */
+.stage { position: relative; width: 100%; max-width: 960px; margin: 0 auto; aspect-ratio: 960 / 526; }
+.win { position: absolute; left: 0; top: 0; width: 960px; height: 526px; transform-origin: 0 0; overflow: hidden;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg); box-shadow: 0 8px 30px rgba(0, 0, 0, .12); user-select: none; }
+.tb { position: absolute; left: 0; right: 0; top: 0; height: 46px; display: flex; align-items: center; gap: 10px; padding: 0 12px;
+  background: var(--surface); border-bottom: 1px solid var(--border); }
+.tb .marque { width: 30px; height: 30px; }
+.tb b { font-size: 15.5px; font-weight: 800; letter-spacing: -.4px; }
+.tb span { font: 10px var(--mono); color: var(--text-2); }
+.tb .wc { margin-left: auto; display: flex; gap: 18px; color: var(--text-2); font-size: 12px; }
+.ui { position: absolute; left: 0; right: 0; top: 46px; bottom: 0; display: grid; grid-template-columns: 190px 1fr; }
+.side { border-right: 1px solid var(--border); padding: 14px 10px; display: flex; flex-direction: column; gap: 4px; background: var(--surface); }
+.nav { display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 10px; border-radius: 8px; color: var(--text-2); font-weight: 600; font-size: 12.5px; }
+.nav i { width: 16px; height: 16px; border-radius: 5px; border: 1.5px solid currentColor; }
+.nav.on { background: color-mix(in srgb, var(--acc) 14%, transparent); color: var(--text); }
+.nav.on i { border-color: var(--acc); }
+.main { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.mh { display: flex; align-items: baseline; gap: 12px; }
+.mh b { font-size: 18px; font-weight: 800; letter-spacing: -.3px; }
+.mh span { color: var(--text-2); font-size: 12px; }
+.search { height: 34px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-2); padding: 0 12px; display: flex; align-items: center; font-size: 12.5px; }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.cardx { height: 132px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+.cardx i { width: 26px; height: 26px; border-radius: 7px; background: color-mix(in srgb, var(--acc) 18%, transparent); margin-bottom: 4px; }
+.cardx b { font-size: 12.5px; }
+.cardx span { color: var(--text-2); font-size: 11.5px; line-height: 1.35; }
+.cardx em { margin-top: auto; align-self: flex-start; font-style: normal; font-size: 11.5px; font-weight: 600; color: var(--acc); }
+#fx { position: absolute; left: 0; top: 0; width: 960px; height: 526px; pointer-events: none; }
+
+/* The game's welcome screen (M50). */
+.gov { position: absolute; left: 0; right: 0; top: 46px; bottom: 0; display: flex; align-items: center; justify-content: center;
+  color: var(--text); font: 12px/1.4 var(--mono); opacity: 0; pointer-events: none; }
+.gov-card { background: var(--surface); border: 1.5px solid var(--text); border-radius: 6px; padding: 14px 28px; text-align: center; margin-top: -40px; }
+.gov-title { font-size: 20px; font-weight: 700; letter-spacing: .3em; margin-bottom: 4px; }
+.gov p { margin: 3px 0; }
+.gov .dim { opacity: .62; }
+.gov button { margin-top: 10px; display: inline-flex; align-items: center; gap: 8px; padding: 5px 12px; font: 600 12px var(--mono);
+  color: var(--surface); background: var(--text); border: 1.5px solid var(--text); border-radius: 4px; }
+.gov kbd { font: 600 10px var(--mono); border: 1px solid currentColor; border-radius: 3px; padding: 0 4px; opacity: .8; }
+
+table.t { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+table.t th { text-align: left; font-size: 10.5px; font-weight: 600; color: var(--text-2); text-transform: uppercase; letter-spacing: .06em; padding: 0 10px 6px 0; border-bottom: 1px solid var(--border); }
+table.t td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--border); vertical-align: top; }
+table.t tr:last-child td { border-bottom: 0; }
+table.t td:first-child { font-weight: 600; white-space: nowrap; }
+table.t td.num { white-space: nowrap; font-variant-numeric: tabular-nums; color: var(--text-2); }
+</style>
+</head>
+<body>
+
+<template id="icon"><svg class="brand-flames" viewBox="-132.06 -211.64 323.63 323.63" aria-hidden="true"><g class="flames"><path class="flame flame-1" d="M35.24 -80.09C36.55 -83.18 38.12 -86.35 39.95 -89.6C58.4 -122.36 110.63 -123.15 112.72 -199.65C132.36 -154.07 149.74 -88.19 121.86 -43.47C115.57 -32.3 108.46 -24.32 100.96 -19.06L100.24 -19.65L99.46 -20.18L98.66 -20.65L97.76 -21.08L97.24 -21.3L84.28 -26.37L83.88 -26.59L83.57 -26.84L83.31 -27.13L83.1 -27.49L82.94 -27.87L82.48 -29.22L81.88 -30.86L81.37 -32.17L80.83 -33.51L80.25 -34.88L79.64 -36.24L79.07 -37.47L78.26 -39.16L78.17 -39.42L78.11 -39.67L78.08 -39.9L78.07 -40.14L78.1 -40.37L78.15 -40.63L78.22 -40.89L78.33 -41.16L83.83 -53.71L84.12 -54.43L84.34 -55.11L84.55 -55.86L84.71 -56.64L84.83 -57.43L84.88 -58.15L84.89 -58.96L84.85 -59.69L84.76 -60.42L84.61 -61.22L84.44 -61.85L84.24 -62.48L84 -63.09L83.74 -63.68L83.44 -64.26L83.08 -64.87L82.69 -65.47L82.28 -66.03L81.06 -67.53L79.8 -69.01L78.54 -70.43L77.24 -71.87L75.93 -73.25L74.57 -74.63L73.18 -75.99L71.77 -77.32L69.71 -79.19L67.59 -81L65.98 -82.32L65.41 -82.74L64.87 -83.08L64.26 -83.44L63.62 -83.77L62.95 -84.06L62.27 -84.31L61.57 -84.52L60.93 -84.67L60.2 -84.79L59.55 -84.86L58.96 -84.89L58.3 -84.89L57.72 -84.85L57.07 -84.78L56.42 -84.67L55.79 -84.53L55.17 -84.36L54.57 -84.16L53.65 -83.8L41.19 -78.34L40.83 -78.2L40.48 -78.11L40.16 -78.07L39.86 -78.08L39.54 -78.13L39.22 -78.24L38.93 -78.36L36.97 -79.3L35.24 -80.09Z"/><path class="flame flame-2" d="M82.54 -29.03C106.96 -33.12 135.34 -33.66 159.5 -76.54C156.04 -32.86 142.44 25.75 102.24 49.16C96.15 53.08 90.34 55.84 84.84 57.59L84.73 56.71L84.55 55.86L84.3 54.97L83.99 54.1L78.25 40.97L78.12 40.52L78.07 40.11L78.1 39.71L78.21 39.3L78.35 38.95L79 37.63L79.71 36.08L80.3 34.76L80.86 33.43L81.42 32.05L81.95 30.66L82.44 29.34L83.02 27.65L83.15 27.4L83.28 27.18L83.43 26.98L83.6 26.81L83.78 26.67L83.98 26.53L84.22 26.4L84.48 26.28L97.24 21.3L97.95 21L98.59 20.68L99.28 20.29L99.88 19.9L100.52 19.43L101.08 18.96L101.66 18.4L102.16 17.85L102.62 17.27L103.03 16.67L103.38 16.1L103.68 15.52L103.96 14.92L104.22 14.25L104.44 13.57L104.62 12.87L104.77 12.18L104.88 11.48L105.06 9.65L105.2 7.89L105.32 6.13L105.41 4.32L105.47 2.55L105.5 0.78L105.5 -0.99L105.46 -2.8L105.35 -5.66L105.16 -8.52L105.02 -10.03L104.87 -11.55L104.77 -12.18L104.66 -12.74L104.46 -13.5L104.25 -14.18L103.99 -14.86L103.68 -15.52L103.34 -16.17L102.95 -16.79L102.53 -17.39L102.06 -17.96L101.66 -18.4L101.19 -18.86L100.75 -19.25L100.24 -19.65L99.76 -19.98L99.22 -20.33L98.66 -20.65L98.08 -20.94L97.24 -21.3L84.52 -26.27L84.04 -26.49L83.78 -26.67L83.55 -26.86L83.36 -27.06L83.2 -27.31L83.08 -27.54L82.96 -27.8L82.54 -29.03Z"/></g></svg><svg class="brand-gear" viewBox="-132.06 -211.64 323.63 323.63" aria-hidden="true"><g class="gear"><path class="gear-body" d="M-21.13 -82.56L-16.2 -95.18Q-14.75 -98.91 -10.78 -99.42A100 100 0 0 1 10.78 -99.42Q14.75 -98.91 16.2 -95.18L21.13 -82.56Q22.58 -78.83 26.4 -77.63A82 82 0 0 1 36.23 -73.56Q39.77 -71.71 43.44 -73.32L55.85 -78.76Q59.51 -80.36 62.68 -77.92A100 100 0 0 1 77.92 -62.68Q80.36 -59.51 78.76 -55.85L73.32 -43.44Q71.71 -39.77 73.56 -36.23A82 82 0 0 1 77.63 -26.4Q78.83 -22.58 82.56 -21.13L95.18 -16.2Q98.91 -14.75 99.42 -10.78A100 100 0 0 1 99.42 10.78Q98.91 14.75 95.18 16.2L82.56 21.13Q78.83 22.58 77.63 26.4A82 82 0 0 1 73.56 36.23Q71.71 39.77 73.32 43.44L78.76 55.85Q80.36 59.51 77.92 62.68A100 100 0 0 1 62.68 77.92Q59.51 80.36 55.85 78.76L43.44 73.32Q39.77 71.71 36.23 73.56A82 82 0 0 1 26.4 77.63Q22.58 78.83 21.13 82.56L16.2 95.18Q14.75 98.91 10.78 99.42A100 100 0 0 1 -10.78 99.42Q-14.75 98.91 -16.2 95.18L-21.13 82.56Q-22.58 78.83 -26.4 77.63A82 82 0 0 1 -36.23 73.56Q-39.77 71.71 -43.44 73.32L-55.85 78.76Q-59.51 80.36 -62.68 77.92A100 100 0 0 1 -77.92 62.68Q-80.36 59.51 -78.76 55.85L-73.32 43.44Q-71.71 39.77 -73.56 36.23A82 82 0 0 1 -77.63 26.4Q-78.83 22.58 -82.56 21.13L-95.18 16.2Q-98.91 14.75 -99.42 10.78A100 100 0 0 1 -99.42 -10.78Q-98.91 -14.75 -95.18 -16.2L-82.56 -21.13Q-78.83 -22.58 -77.63 -26.4A82 82 0 0 1 -73.56 -36.23Q-71.71 -39.77 -73.32 -43.44L-78.76 -55.85Q-80.36 -59.51 -77.92 -62.68A100 100 0 0 1 -62.68 -77.92Q-59.51 -80.36 -55.85 -78.76L-43.44 -73.32Q-39.77 -71.71 -36.23 -73.56A82 82 0 0 1 -26.4 -77.63Q-22.58 -78.83 -21.13 -82.56Z"/><path class="gear-ring" d="M57 0A57 57 0 1 1 -57 0A57 57 0 1 1 57 0Z"/><path class="gear-hub" d="M34 0A34 34 0 1 1 -34 0A34 34 0 1 1 34 0Z"/></g></svg></template>
+
+<header class="top">
+  <div class="brand">
+    <span class="marque" id="logo" title="Sindry"></span>
+    <div>
+      <h1>Roue libre : l'entrée Burnout</h1>
+      <p>Dix clics sur l'icône : elle se retourne, fait patiner sa roue et traverse la barre de titre.</p>
+    </div>
+  </div>
+  <div class="ctl">
+    <div class="grp"><span>Vitesse</span><div class="seg">
+      <button data-set="speed" data-val="1">Normale</button><button data-set="speed" data-val="0.25">Ralenti ×¼</button>
+    </div></div>
+    <div class="grp"><span>Ambiance</span><div class="seg">
+      <button data-set="amb" data-val="plan-clair">Plan clair</button><button data-set="amb" data-val="plan-sombre">Plan sombre</button><button data-set="amb" data-val="foret">Forêt</button><button data-set="amb" data-val="ardente">Braise</button><button data-set="amb" data-val="synthwave">Synthwave</button><button data-set="amb" data-val="terminal">Terminal</button>
+    </div></div>
+  </div>
+</header>
+
+<main>
+  <section class="card">
+    <div class="sec-h"><span class="tag">A</span><h2>Les variantes</h2>
+      <p>Choisis une variante, puis clique 10 fois vite sur l'icône de la fenêtre (ou « Rejouer »). Échap ramène à l'appli : la même animation, à l'envers.</p></div>
+    <div class="versions" id="versions"></div>
+    <p class="desc" id="desc"></p>
+    <div class="stage" id="stage">
+      <div class="win" id="win">
+        <div class="tb"><span class="marque brand-mark" id="mark"></span><b>Sindry</b><span>2.5.0</span><span class="wc">— ▢ ✕</span></div>
+        <div class="ui" id="ui">
+          <aside class="side">
+            <div class="nav on"><i></i>Catalogue</div>
+            <div class="nav"><i></i>Installés</div>
+            <div class="nav"><i></i>Analyse</div>
+            <div class="nav"><i></i>Journaux</div>
+            <div class="nav"><i></i>Réglages</div>
+          </aside>
+          <section class="main">
+            <div class="mh"><b>Catalogue</b><span>42 scripts · à jour</span></div>
+            <div class="search">Rechercher un script…</div>
+            <div class="cards">
+              <div class="cardx"><i></i><b>Restes de Webroot</b><span>Retire ce que la désinstallation laisse derrière elle.</span><em>Lancer</em></div>
+              <div class="cardx"><i></i><b>Installeur d'applis</b><span>Tes logiciels habituels, en une fois.</span><em>Lancer</em></div>
+              <div class="cardx"><i></i><b>Clé SindryOS</b><span>Prépare une clé USB démarrable.</span><em>Lancer</em></div>
+              <div class="cardx"><i></i><b>Diagnostic réseau</b><span>Trouve où la connexion coince.</span><em>Lancer</em></div>
+              <div class="cardx"><i></i><b>Mises à jour Windows</b><span>Vérifie et installe ce qui manque.</span><em>Lancer</em></div>
+              <div class="cardx"><i></i><b>Point de restauration</b><span>Une sauvegarde avant de toucher au système.</span><em>Lancer</em></div>
+            </div>
+          </section>
+        </div>
+        <canvas id="fx"></canvas>
+        <div class="gov" id="gov"><div class="gov-card"><div class="gov-title">ROUE LIBRE</div>
+          <p>Espace, clic ou ↑ pour sauter — maintenir pour sauter plus haut</p>
+          <p class="dim">Échap : retour à Sindry</p>
+          <button>Rouler <kbd>Espace</kbd></button></div></div>
+      </div>
+    </div>
+    <div class="bar">
+      <span>Ou clique vite sur l'icône <b>dans la fenêtre</b> · <kbd class="k">1</kbd>–<kbd class="k">3</kbd> change de variante</span>
+      <span class="btns"><button class="btn acc" id="replay">Rejouer</button><button class="btn" id="quit" disabled>Retour à l'appli <kbd class="k">Échap</kbd></button></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><span class="tag">B</span><h2>Tes consignes, une par une</h2><p>Les trois variantes les suivent toutes, au même rythme. Temps en vitesse normale.</p></div>
+    <table class="t">
+      <tr><th>Consigne</th><th>Dans les trois variantes</th><th>Quand</th></tr>
+      <tr><td>Le retournement</td><td>L'icône tourne sur son axe vertical, quatre tours et demi très vite, puis ralentit et se pose en miroir : à l'endroit, les flammes à gauche.</td><td class="num">0 → 1,2 s</td></tr>
+      <tr><td>Le burn</td><td>La roue patine sur place, l'icône tremble, la gomme fume.</td><td class="num">1,2 → 1,8 s</td></tr>
+      <tr><td>Le départ</td><td>Elle part à toute vitesse sur la barre de titre ; ses flammes la suivent et s'étirent avec la vitesse.</td><td class="num">1,8 → 2,45 s</td></tr>
+      <tr><td>La transition</td><td>Le jeu entre de gauche à droite, calé sur la roue : le bord passe toujours par elle, en diagonale du nord-est au sud-ouest.</td><td class="num">1,8 → 2,55 s</td></tr>
+      <tr><td>L'icône hors champ</td><td>Elle sort par le bord droit de la fenêtre et disparaît. La barre de titre reste sans icône pendant le jeu.</td><td class="num">2,45 s</td></tr>
+      <tr><td>La grosse roue</td><td>Elle entre par le bord gauche du jeu et se place en roulant, dent du haut à la verticale, comme sur la première image de M50.</td><td class="num">2,4 → 3,15 s</td></tr>
+    </table>
+  </section>
+
+  <section class="card">
+    <div class="sec-h"><span class="tag">C</span><h2>À trancher</h2><p>Ce que la maquette a choisi en attendant ton avis.</p></div>
+    <table class="t">
+      <tr><th>Point</th><th>Dans la maquette</th></tr>
+      <tr><td>L'axe du retournement</td><td>Tu as écrit l'axe Z. Pour que l'icône reste à l'endroit avec les flammes à gauche, il faut la retourner comme une pièce, sur son <b>axe vertical</b> (Y) : c'est ce que fait la maquette. Sur l'axe Z, elle tournerait à plat et finirait la tête en bas.</td></tr>
+      <tr><td>La variante</td><td>Une seule dans Sindry : Gomme, Grunge ou Asphalte en feu.</td></tr>
+      <tr><td>Les 10 clics</td><td>Comme M50 : la roue tourne d'un dixième de tour à chaque clic, et le 10ᵉ lance l'animation.</td></tr>
+      <tr><td>Le retour (Échap)</td><td>Pour l'instant, la même animation à l'envers.</td></tr>
+      <tr><td>La durée</td><td>3,45 s en tout, dont 1,2 s de retournement.</td></tr>
+    </table>
+  </section>
+</main>
+
+<script>
+'use strict';
+(() => {
+const $ = (s) => document.querySelector(s);
+const TAU = Math.PI * 2;
+const WW = 960, WH = 526, TB = 46;              // the window and its title bar
+const GY = 252, GAME_DY = 466 - GY;             // M50's ground, shown GAME_DY lower in the window
+const GX = 170, X0 = 160, CAM = X0 - GX;        // the big wheel's place, the game's first camera
+// The icon (design/icon, M49 T3): gear centred on (0, 0) of its view box, tip
+// radius 100, ring 57, hub 34, one tooth straight up at rest.
+const VIEW = { x: -132.06, y: -211.64, s: 323.63 };
+const MARK = { x: 12, y: 8, s: 30 };            // the title bar icon, in window units
+const U = MARK.s / VIEW.s;                      // one view box unit, in window units
+const IG = { x: MARK.x - VIEW.x * U, y: MARK.y - VIEW.y * U, r: 100 * U };
+const RC = 3 * IG.r, GEAR_Y = GY - RC + GAME_DY;
+const tpl = $('#icon').content;
+const GEAR_PATH = new Path2D(tpl.querySelector('.gear-body').getAttribute('d'));
+const FLAME_PATHS = [...tpl.querySelectorAll('.flame')].map((p) => new Path2D(p.getAttribute('d')));
+const CLICKS = 10, CLICK_GAP = 600;
+const MONO = "'Sindry Mono', Consolas, monospace";
+const KEY_UI = 'sindry.m52.ui';
+
+// The shared beats, in seconds.
+const T_FLIP = 1.2, T_BURN = 1.2, T_GO = 1.8, T_OUT = 2.45, T_IN = 2.4, T_PARK = 3.15, D = 3.45;
+const TURNS = 4.5;                              // half turns included: it rests mirrored
+const SLANT = 0.55;                             // the edge: dx per dy, north-east to south-west
+
+const AMBS = {
+  'plan-clair':  { bg: '#F6F4EF', surface: '#FFFFFF', border: '#DCD7CC', text: '#141A24', text2: '#5C6778', acc: '#E2640F' },
+  'plan-sombre': { bg: '#0B0F16', surface: '#0F1520', border: '#2A3445', text: '#E9EEF5', text2: '#8C9AAE', acc: '#FD7D26', dark: true },
+  'foret':       { bg: '#07110C', surface: '#0C1912', border: '#1E3529', text: '#E6F2EA', text2: '#9DB5A5', acc: '#7CE38B', dark: true },
+  'ardente':     { bg: '#0F0A14', surface: '#18111F', border: '#2C2236', text: '#F7F1FA', text2: '#B9A9C6', acc: '#FEC923', dark: true },
+  'synthwave':   { bg: '#120326', surface: '#1C0838', border: '#3A1A66', text: '#FBF0FF', text2: '#CDB6EE', acc: '#FF2BD6', dark: true },
+  'terminal':    { bg: '#020A04', surface: '#06140A', border: '#164A24', text: '#6CFF94', text2: '#4CCF72', acc: '#6CFF94', dark: true, mono: true },
+};
+let INK = '#141A24', BG = '#FFFFFF', ACC = '#E2640F', INK_CLEAR = 'rgba(20, 26, 36, 0)';   // the ink, fully clear, for soft smoke
+
+const clamp01 = (u) => Math.max(0, Math.min(1, u));
+const span = (t, a, b) => clamp01((t - a) / (b - a));
+const lerp = (a, b, u) => a + (b - a) * u;
+const easeOut = (u) => 1 - (1 - u) ** 2;
+const easeOutQuart = (u) => 1 - (1 - u) ** 4;
+const easeOutBack = (u) => 1 + 2.4 * (u - 1) ** 3 + 1.4 * (u - 1) ** 2;
+const hash = (n) => { n = Math.imul((n | 0) ^ 0x9e3779b9, 0x85ebca6b); n ^= n >>> 13; n = Math.imul(n, 0xc2b2ae35); n ^= n >>> 16; return n >>> 0; };
+const rnd = (i, k = 0) => (hash(i * 131 + k * 7919) % 10000) / 10000;   // a fixed random number in [0, 1)
+
+/* ---------- The small wheel's path: the same in every variant ---------- */
+const flipAngle = (t) => Math.PI * 2 * TURNS * easeOutQuart(span(t, 0, T_FLIP));
+// Its spin: revs up during the burn, held at what the eye can follow after.
+const SPIN = 20;
+function spinOf(t) {
+  const a = Math.min(t, T_BURN + 0.25) - T_BURN;
+  if (a <= 0) return 0;
+  return SPIN * (Math.min(a, 0.25) ** 2) / 0.5 + SPIN * Math.max(0, t - T_BURN - 0.25);
+}
+const GO_DIST = WW + 40 - IG.x, GO_POW = 2.4, GO_V = GO_DIST * GO_POW / (T_OUT - T_GO);
+// Its x: on the spot until T_GO, then flat out; past the window it keeps going, unseen,
+// so that the edge it drags can finish crossing.
+function wheelX(t) {
+  if (t <= T_GO) return IG.x;
+  if (t <= T_OUT) return IG.x + GO_DIST * span(t, T_GO, T_OUT) ** GO_POW;
+  return WW + 40 + GO_V * (t - T_OUT);
+}
+const speedAt = (t) => (t <= T_GO ? 0 : t <= T_OUT ? GO_V * span(t, T_GO, T_OUT) ** (GO_POW - 1) : GO_V);
+const burnAmp = (t) => span(t, T_BURN, T_BURN + 0.15) * (1 - span(t, T_GO - 0.05, T_GO + 0.1));
+// The edge of the game: through the wheel, leaning north-east to south-west.
+const edgeBase = (t, y) => wheelX(t) - (y - IG.y) * SLANT;
+
+/* ---------- The icon, drawn on the canvas once the clicks are done ---------- */
+function drawIcon(x, t) {
+  const cx = wheelX(t) + Math.sin(t * 95) * 0.7 * burnAmp(t), cy = IG.y + Math.sin(t * 73) * 0.45 * burnAmp(t);
+  if (cx - 22 > WW) return;                     // out of the window: gone
+  const flip = Math.cos(flipAngle(t)), sp = speedAt(t);
+  const css = getComputedStyle(document.documentElement);
+  x.save(); x.translate(cx, cy); x.scale(flip * U, U);
+  // The flames trail the wheel and stretch with its speed; they rev with the burn.
+  const stretch = Math.min(1.8, sp / 1400) + 0.18 * burnAmp(t) * (1 + 0.4 * Math.sin(t * 31));
+  x.save(); x.scale(1 + stretch, 1 - 0.14 * Math.min(1, stretch));
+  x.fillStyle = ACC; for (const p of FLAME_PATHS) x.fill(p);
+  x.restore();
+  // Clockwise on screen, whichever way the icon faces.
+  const turn = spinOf(t) * (flip < 0 ? -1 : 1), ghosts = t > T_BURN + 0.12 ? [[-0.18, 0.3], [-0.36, 0.14]] : [];
+  for (const [da, a] of [...ghosts, [0, 1]]) {
+    x.save(); x.globalAlpha *= a; x.rotate(turn + da * (flip < 0 ? -1 : 1));
+    x.fillStyle = css.getPropertyValue('--icone-corps'); x.fill(GEAR_PATH);
+    x.fillStyle = css.getPropertyValue('--icone-anneau'); x.beginPath(); x.arc(0, 0, 57, 0, TAU); x.fill();
+    x.fillStyle = css.getPropertyValue('--icone-moyeu'); x.beginPath(); x.arc(0, 0, 34, 0, TAU); x.fill();
+    x.restore();
+  }
+  x.restore();
+  if (sp > 0 && cx < WW + 20) {                 // speed lines behind it
+    x.save(); x.globalAlpha *= 0.5 * Math.min(1, sp / 900); x.lineWidth = 1;
+    x.beginPath();
+    for (let i = 0; i < 3; i++) { const len = 20 + sp / 60 + rnd(Math.floor(t * 20), i) * 20, yy = cy - 6 + i * 6; x.moveTo(cx - 14 - len - 30 * Math.min(1, sp / 1400), yy); x.lineTo(cx - 14 - 30 * Math.min(1, sp / 1400), yy); }
+    x.stroke(); x.restore();
+  }
+}
+
+/* ---------- The game's first frame (M50), in window units ---------- */
+function gearTrait(x, cx, cy, rt, ang) {
+  const s = rt / 100;
+  x.save(); x.translate(cx, cy); x.rotate(ang); x.scale(s, s);
+  x.fillStyle = BG; x.fill(GEAR_PATH); x.lineWidth = 1.8 / s; x.stroke(GEAR_PATH);
+  x.beginPath(); x.arc(0, 0, 57, 0, TAU); x.moveTo(34, 0); x.arc(0, 0, 34, 0, TAU);
+  x.globalAlpha *= 0.16; x.fillStyle = INK; x.fill('evenodd'); x.globalAlpha /= 0.16;
+  x.lineWidth = 1.3 / s;
+  x.beginPath(); x.arc(0, 0, 57, 0, TAU); x.stroke();
+  x.beginPath(); x.arc(0, 0, 34, 0, TAU); x.stroke();
+  x.restore();
+}
+function cogContour(x, cx, cy, r, th, n, ang) {
+  const step = TAU / n;
+  for (let i = 0; i < n; i++) {
+    const a = ang + i * step;
+    const pts = [[r, 0], [r, 0.2], [r + th, 0.34], [r + th, 0.66], [r, 0.8]];
+    for (let j = 0; j < pts.length; j++) {
+      const aa = a + pts[j][1] * step, px = cx + Math.cos(aa) * pts[j][0], py = cy + Math.sin(aa) * pts[j][0];
+      if (i === 0 && j === 0) x.moveTo(px, py); else x.lineTo(px, py);
+    }
+  }
+  x.closePath();
+}
+function gameBack(x) {
+  x.save(); x.fillStyle = BG; x.fillRect(0, TB, WW, WH - TB); x.restore();
+  x.save(); x.globalAlpha *= 0.22; x.lineWidth = 1.4; x.translate(0, GAME_DY);
+  const off = CAM * 0.35;
+  for (let i = -1; i <= 2; i++) {
+    const h = hash(i + 7777), rr = 46 + (h % 46);
+    const gx = i * 540 + ((h >>> 7) % 180) - off, gy = 30 + rr * 0.6 + ((h >>> 13) % 50);
+    x.beginPath(); cogContour(x, gx, gy, rr, 8, Math.max(10, Math.round(rr / 4.2)), (off / rr) * (i % 2 ? 0.8 : -0.8)); x.stroke();
+    x.beginPath(); x.arc(gx, gy, rr * 0.42, 0, TAU); x.stroke();
+  }
+  x.restore();
+  x.save(); x.translate(0, GAME_DY);
+  x.lineWidth = 1.6; x.beginPath(); x.moveTo(0, GY + 0.8); x.lineTo(WW, GY + 0.8); x.stroke();
+  x.lineWidth = 1; x.beginPath();
+  for (let wx = Math.ceil(CAM / 50) * 50; wx - CAM <= WW; wx += 50) { const sx = wx - CAM; x.moveTo(sx, GY + 2); x.lineTo(sx, GY + (wx % 250 === 0 ? 9 : 5)); }
+  x.stroke(); x.restore();
+  // The HUD of a fresh run.
+  x.save(); x.translate(0, TB); x.textBaseline = 'top'; x.textAlign = 'left';
+  for (let i = 0; i < 3; i++) { const tx = 18 + i * 15, ty = 16; x.beginPath(); x.moveTo(tx, ty + 9); x.lineTo(tx + 2.5, ty); x.lineTo(tx + 8.5, ty); x.lineTo(tx + 11, ty + 9); x.closePath(); x.fill(); }
+  x.font = `500 12px ${MONO}`; x.fillText('VITESSE ×1,0', 18, 33);
+  x.textAlign = 'right'; x.font = `700 17px ${MONO}`; x.fillText('0 m', WW - 18, 12);
+  x.font = `500 11px ${MONO}`; x.globalAlpha *= 0.7; x.fillText('RECORD 0 m', WW - 18, 34);
+  x.restore();
+}
+// The game, left of the edge (edgeAt gives the edge's x at a height).
+function clipLeftOf(x, edgeAt) {
+  x.beginPath(); x.moveTo(-20, TB);
+  for (let y = TB; y <= WH; y += 4) x.lineTo(edgeAt(y), y);
+  x.lineTo(edgeAt(WH), WH); x.lineTo(-20, WH); x.closePath(); x.clip();
+}
+
+/* ---------- Shared grunge: smoke, rubber, fire ---------- */
+// Smoke puffs, each born at the wheel's contact point at its own time.
+function smoke(x, t, from, to, n, style) {
+  for (let i = 0; i < n; i++) {
+    const b = lerp(from, to, i / n) + rnd(i, 1) * 0.03, age = t - b, life = 0.9 + rnd(i, 2) * 0.6;
+    if (age <= 0 || age >= life) continue;
+    const u = age / life, ox = wheelX(b) - 5, oy = IG.y + IG.r - 1;
+    const left = b > T_GO ? 90 : 0;              // once it is gone, its smoke stays behind
+    const px = ox + (-18 + rnd(i, 3) * 40 - left * rnd(i, 4)) * age, py = oy + (-16 - rnd(i, 5) * 26) * age;
+    const r = 3 + (16 + rnd(i, 6) * 12) * easeOut(u), a = 0.34 * (1 - u);
+    if (style === 'stipple') {
+      x.save(); x.globalAlpha *= a * 1.6;
+      for (let k = 0; k < 16; k++) {
+        const ang = rnd(i * 17 + k, 7) * TAU, d = Math.sqrt(rnd(i * 17 + k, 8)) * r, s = 0.9 + rnd(i * 17 + k, 9) * 1.4;
+        x.fillRect(px + Math.cos(ang) * d - s / 2, py + Math.sin(ang) * d - s / 2, s, s);
+      }
+      x.restore();
+    } else {
+      const g = x.createRadialGradient(px, py, 0, px, py, r);
+      g.addColorStop(0, INK); g.addColorStop(1, INK_CLEAR);
+      x.save(); x.globalAlpha *= a * 0.8; x.fillStyle = g; x.beginPath(); x.arc(px, py, r, 0, TAU); x.fill(); x.restore();
+    }
+  }
+}
+// The rubber left on the title bar, from the burn spot to the wheel; it fades once the game is in.
+function rubber(x, t, style) {
+  if (t <= T_BURN + 0.1) return;
+  const fade = 1 - span(t, T_PARK - 0.5, D - 0.05), y = IG.y + IG.r - 0.5;
+  if (fade <= 0) return;
+  const x0 = IG.x - 4, x1 = Math.min(WW, wheelX(t));
+  x.save(); x.globalAlpha *= fade;
+  // The burn spot.
+  x.save(); x.globalAlpha *= 0.5 * span(t, T_BURN + 0.1, T_GO); x.beginPath(); x.ellipse(x0 + 2, y, 9, 2.2, 0, 0, TAU); x.fill(); x.restore();
+  if (x1 > x0) {
+    if (style === 'dry') {
+      x.lineWidth = 1.2;
+      for (const [dy, dash, a] of [[-1.3, [18, 5, 6, 9], 0.6], [1.2, [9, 4, 22, 7], 0.5]]) {
+        x.save(); x.globalAlpha *= a; x.setLineDash(dash); x.beginPath(); x.moveTo(x0, y + dy); x.lineTo(x1, y + dy); x.stroke(); x.restore();
+      }
+    } else {
+      const g = x.createLinearGradient(x0, 0, x1, 0);
+      g.addColorStop(0, INK); g.addColorStop(1, INK_CLEAR);
+      x.save(); x.globalAlpha *= 0.55; x.fillStyle = g; x.fillRect(x0, y - 1.6, x1 - x0, 3.2); x.restore();
+    }
+  }
+  x.restore();
+}
+const TONGUES = [[-0.35, 0, 2.4, -0.42, 0.3], [-0.6, 0.38, 1.9, -0.78, 0.26], [0.02, -0.3, 1.9, -0.12, 0.26]];
+function tonguePath(x, h, b) {
+  const r0 = 0.27 * h;
+  x.moveTo(r0, 0);
+  x.bezierCurveTo(r0, -0.45 * h, 0.1 * h - b * h * 0.3, -0.72 * h, -b * h, -h);
+  x.bezierCurveTo(-0.1 * h - b * h * 0.5, -0.66 * h, -r0, -0.42 * h, -r0, 0);
+  x.arc(0, 0, r0, Math.PI, 0, true);
+  x.closePath();
+}
+// Several tongues stroked as one flame, with a brighter core (M45).
+function flameOf(x, addTongues) {
+  x.save();
+  x.beginPath(); addTongues(1); x.lineWidth = 3.6; x.stroke(); x.fillStyle = BG; x.fill();
+  x.globalAlpha *= 0.12; x.fillStyle = INK; x.fill(); x.globalAlpha /= 0.12;
+  x.beginPath(); addTongues(0.55); x.lineWidth = 2.6; x.stroke(); x.fillStyle = BG; x.fill();
+  x.restore();
+}
+function gearFire(x, cx, cy, t, k) {
+  if (k <= 0) return;
+  flameOf(x, (scale) => TONGUES.forEach(([dx, dy, hh, lean, bend], i) => {
+    const h = hh * RC * scale * (0.5 + 0.5 * k) * (1 + 0.07 * Math.sin(t * 15 + i * 2.3));
+    x.save(); x.translate(cx + dx * RC, cy + dy * RC); x.rotate(lean + 0.08 * Math.sin(t * 11 + i * 1.9));
+    tonguePath(x, h, bend + 0.08 * Math.sin(t * 9 + i * 2.7)); x.restore();
+  }));
+}
+
+/* ---------- The three variants ---------- */
+const VARIANTS = [
+  { name: 'Gomme brûlée',
+    desc: '<b>Le burnout classique.</b> Une épaisse fumée de gomme, une trace noire sur la barre de titre, un bord net suivi d’un rideau de fumée. La grosse roue arrive lancée et pile à sa place, dans un dernier nuage.',
+    edgeAt: (t, y) => edgeBase(t, y),
+    smoke: (x, t) => smoke(x, t, T_BURN + 0.05, T_GO + 0.2, 30, 'soft'),
+    rubber: (x, t) => rubber(x, t, 'solid'),
+    edge(x, t) {
+      x.save(); x.lineWidth = 2; x.beginPath(); x.moveTo(this.edgeAt(t, TB), TB); x.lineTo(this.edgeAt(t, WH), WH); x.stroke(); x.restore();
+      for (let k = 0; k < 18; k++) {                // a curtain of smoke riding the edge
+        const y = TB + (k + 0.5) * (WH - TB) / 18, px = this.edgeAt(t, y) - 10 - rnd(k, 1) * 46, r = 18 + rnd(k, 2) * 20 + Math.sin(t * 6 + k) * 3;
+        const g = x.createRadialGradient(px, y, 0, px, y, r); g.addColorStop(0, INK); g.addColorStop(1, INK_CLEAR);
+        x.save(); x.globalAlpha *= 0.16; x.fillStyle = g; x.beginPath(); x.arc(px, y, r, 0, TAU); x.fill(); x.restore();
+      }
+    },
+    park(t) { const u = span(t, T_IN, T_PARK); return lerp(-RC - 40, GX, easeOutQuart(u)); },
+    extra(x, t, cx) {                              // it brakes hard: rubber and a last puff
+      const u = span(t, T_IN + 0.35, T_PARK + 0.25);
+      if (u <= 0 || u >= 1) return;
+      const y = GEAR_Y + RC, fade = 1 - span(t, T_PARK, T_PARK + 0.25);
+      x.save(); x.globalAlpha *= 0.45 * fade; x.fillRect(cx - 60, y - 1.4, 60, 2.8); x.restore();
+      for (let i = 0; i < 6; i++) {
+        const b = T_IN + 0.4 + i * 0.06, age = t - b; if (age <= 0 || age > 0.6) continue;
+        const px = cx - 10 - age * (40 + rnd(i, 3) * 40), py = y - 6 - age * (30 + rnd(i, 4) * 30), r = 6 + 20 * age;
+        const g = x.createRadialGradient(px, py, 0, px, py, r); g.addColorStop(0, INK); g.addColorStop(1, INK_CLEAR);
+        x.save(); x.globalAlpha *= 0.22 * (1 - age / 0.6); x.fillStyle = g; x.beginPath(); x.arc(px, py, r, 0, TAU); x.fill(); x.restore();
+      }
+    } },
+  { name: 'Grunge',
+    desc: '<b>Le trait sale.</b> Une fumée en grain, une trace de gomme à sec, un bord déchiré au pinceau qui projette de l’encre devant lui et laisse des rayures. La grosse roue arrive trop vite, dépasse sa place et revient s’y caler.',
+    // A torn edge: jagged, stable along the edge as it moves.
+    edgeAt: (t, y) => edgeBase(t, y) + (rnd(Math.floor(y / 7), 11) - 0.5) * 9 + (rnd(Math.floor(y / 41), 12) - 0.5) * 16,
+    smoke: (x, t) => smoke(x, t, T_BURN + 0.05, T_GO + 0.2, 30, 'stipple'),
+    rubber: (x, t) => rubber(x, t, 'dry'),
+    edge(x, t) {
+      const path = (dx) => { x.beginPath(); for (let y = TB; y <= WH; y += 7) { const ex = this.edgeAt(t, y) + dx; if (y === TB) x.moveTo(ex, y); else x.lineTo(ex, y); } };
+      x.save();
+      path(0); x.lineWidth = 2.6; x.stroke();
+      x.setLineDash([16, 7, 4, 9]); path(-6); x.lineWidth = 1.2; x.stroke();
+      x.setLineDash([5, 12]); path(-13); x.lineWidth = 0.8; x.stroke();
+      x.setLineDash([]);
+      for (let k = 0; k < 7; k++) {                // scratches left behind
+        const y0 = TB + rnd(k, 3) * (WH - TB), len = 40 + rnd(k, 4) * 120, back = 24 + rnd(k, 5) * 70;
+        x.globalAlpha = 0.45; x.lineWidth = 0.8; x.beginPath();
+        x.moveTo(this.edgeAt(t, y0) - back, y0); x.lineTo(this.edgeAt(t, y0) - back - len * SLANT, y0 + len); x.stroke();
+      }
+      for (let k = 0; k < 46; k++) {               // ink thrown ahead of it
+        const y = TB + rnd(k, 6) * (WH - TB), d = 4 + rnd(k, 7) ** 2 * 60, r = 0.6 + rnd(k, 8) ** 3 * 3.4;
+        x.globalAlpha = 0.85; x.beginPath(); x.arc(this.edgeAt(t, y) + d, y, r, 0, TAU); x.fill();
+      }
+      x.restore();
+    },
+    park(t) { const u = span(t, T_IN, T_PARK); return GX + (-RC - 40 - GX) * (1 - easeOutBack(u)); },
+    extra(x, t, cx) {                              // grit kicked up when it bites back
+      const age = t - (T_IN + 0.5); if (age <= 0 || age > 0.5) return;
+      x.save(); x.globalAlpha *= 1 - age / 0.5;
+      for (let i = 0; i < 10; i++) { const s = 1 + rnd(i, 3) * 1.6; x.fillRect(cx - 8 + (rnd(i, 4) - 0.5) * 50 * age * 2, GEAR_Y + RC - 3 - rnd(i, 5) * 60 * age, s, s); }
+      x.restore();
+    } },
+  { name: 'Asphalte en feu',
+    desc: '<b>Le burn qui s’enflamme.</b> Des étincelles sous la roue, une trace de gomme qui rougeoie, un bord fait d’un mur de flammes. La grosse roue entre encore en feu, et le feu s’éteint quand elle se pose.',
+    edgeAt: (t, y) => edgeBase(t, y) + Math.sin(y / 19 + t * 8) * 4,
+    smoke(x, t) {
+      smoke(x, t, T_BURN + 0.05, T_GO + 0.15, 18, 'soft');
+      // Sparks thrown back from the contact point while it burns and tears off.
+      if (t < T_BURN || t > T_OUT) return;
+      const cx = wheelX(t), cy = IG.y + IG.r - 1, f = Math.floor(t * 40);
+      x.save(); x.lineWidth = 1;
+      for (let i = 0; i < 7; i++) {
+        const a = Math.PI + (rnd(f, i) - 0.3) * 0.9, len = 4 + rnd(f, i + 9) * 12, d = 2 + rnd(f, i + 19) * 10;
+        x.beginPath(); x.moveTo(cx - 4 + Math.cos(a) * d, cy + Math.sin(a) * d * 0.4); x.lineTo(cx - 4 + Math.cos(a) * (d + len), cy + Math.sin(a) * (d + len) * 0.4); x.stroke();
+      }
+      x.restore();
+    },
+    rubber(x, t) {
+      rubber(x, t, 'solid');
+      if (t <= T_GO) return;
+      const x1 = Math.min(WW, wheelX(t)), y = IG.y + IG.r - 0.5, fade = 1 - span(t, T_PARK - 0.5, D - 0.05);
+      x.save(); x.globalAlpha *= fade;              // embers glowing on the trace
+      for (let i = 0; i < 26; i++) { const ex = IG.x + rnd(i, 1) * (x1 - IG.x), on = Math.sin(t * 13 + i * 2.1) > 0.2; if (on) x.fillRect(ex, y - 3.5 - rnd(i, 2) * 3, 1.8, 1.8); }
+      x.restore();
+    },
+    edge(x, t) {
+      // A wall of flames along the edge, leaning back: tongues close enough to merge into one.
+      flameOf(x, (scale) => {
+        for (let y = TB + 4, i = 0; y <= WH + 60; y += 18, i++) {
+          const h = (64 + 22 * Math.sin(t * 13 + i * 2.1) + 13 * Math.sin(i * 1.3)) * scale;
+          x.save(); x.translate(this.edgeAt(t, y) - 4, y); x.rotate(-0.5 + 0.08 * Math.sin(t * 10 + i)); tonguePath(x, h, 0.32); x.restore();
+        }
+      });
+    },
+    park(t) { const u = span(t, T_IN, T_PARK); return lerp(-RC - 40, GX, 1 - (1 - u) ** 3); },
+    extra(x, t, cx) { gearFire(x, cx, GEAR_Y, t, 1 - span(t, T_PARK - 0.25, D - 0.05)); } },
+];
+
+/* ---------- One frame of the entry, at time t ---------- */
+function drawEntry(x, t, V) {
+  setUi(t >= T_OUT + 0.2 ? 0 : 1);
+  if (t > T_GO) {
+    x.save(); clipLeftOf(x, (y) => V.edgeAt(t, y)); gameBack(x); x.restore();
+    const cx = V.park(t);
+    if (t > T_IN) {
+      x.save(); clipLeftOf(x, (y) => V.edgeAt(t, y));
+      V.extra(x, t, cx);
+      gearTrait(x, cx, GEAR_Y, RC, (cx - GX) / RC);   // rolls into place, tooth up when parked
+      x.restore();
+    }
+    x.save(); x.beginPath(); x.rect(0, TB, WW, WH - TB); x.clip(); V.edge(x, t); x.restore();
+  }
+  V.rubber(x, t);
+  drawIcon(x, t);
+  V.smoke(x, t);
+  setOv(span(t, T_PARK - 0.05, D));
+}
+
+/* ---------- The mock app ---------- */
+const ui = $('#ui'), gov = $('#gov');
+for (const el of document.querySelectorAll('.marque')) el.append($('#icon').content.cloneNode(true));
+const mark = $('#mark');
+function setUi(a) { ui.style.opacity = a; }
+function setOv(a) { gov.style.opacity = a; }
+function setMark(shown) { mark.style.visibility = shown ? '' : 'hidden'; }
+
+let current = 0, phase = 'app', t = 0, scale = 1;    // phase: app | in | game | out
+let uiPrefs = { amb: 'plan-clair', speed: '1' };
+try { uiPrefs = Object.assign(uiPrefs, JSON.parse(localStorage.getItem(KEY_UI)) || {}); } catch (e) { /* defaults */ }
+const fx = $('#fx'), fxx = fx.getContext('2d');
+function frameAt(tt) {
+  const dpr = Math.min(2, window.devicePixelRatio || 1), s = scale * dpr;
+  const pw = Math.round(WW * s), ph = Math.round(WH * s);
+  if (fx.width !== pw || fx.height !== ph) { fx.width = pw; fx.height = ph; }
+  fxx.setTransform(1, 0, 0, 1, 0, 0); fxx.clearRect(0, 0, pw, ph);
+  if (phase === 'app') return;
+  fxx.setTransform(s, 0, 0, s, 0, 0);
+  fxx.fillStyle = fxx.strokeStyle = INK; fxx.lineCap = fxx.lineJoin = 'round'; fxx.globalAlpha = 1;
+  drawEntry(fxx, tt, VARIANTS[current]);
+}
+function resetApp() { phase = 'app'; t = 0; setUi(1); setOv(0); setMark(true); $('#quit').disabled = true; frameAt(0); }
+function enter() { if (phase !== 'app') return; phase = 'in'; t = 0; setMark(false); $('#quit').disabled = false; }
+function leave() { if (phase === 'game' || phase === 'in') phase = 'out'; }
+let last = performance.now();
+function loop(now) {
+  const dt = Math.min(0.05, (now - last) / 1000) * Number(uiPrefs.speed);
+  last = now;
+  if (phase === 'in') { t = Math.min(D, t + dt); if (t >= D) phase = 'game'; }
+  else if (phase === 'out') { t = Math.max(0, t - dt); if (t <= 0) { resetApp(); requestAnimationFrame(loop); return; } }
+  if (phase !== 'app') frameAt(phase === 'game' ? D : t);
+  requestAnimationFrame(loop);
+}
+
+// Ten quick clicks on the icon, each turning its wheel a tenth of a turn (M50).
+function secretIcon(m, onDone) {
+  let n = 0, lastClick = 0, undo = 0;
+  const g = m.querySelector('.gear');
+  const turn = (deg, ms) => { g.style.transition = ms ? `transform ${ms}ms` : 'none'; g.style.transform = deg ? `rotate(${deg}deg)` : ''; };
+  m.addEventListener('click', () => {
+    if (phase !== 'app') return;
+    const now = performance.now();
+    n = now - lastClick < CLICK_GAP ? n + 1 : 1; lastClick = now;
+    clearTimeout(undo);
+    turn(n * (360 / CLICKS), 80);
+    if (n >= CLICKS) { n = 0; setTimeout(() => { turn(0, 0); onDone(); }, 90); return; }
+    undo = setTimeout(() => { n = 0; turn(0, 350); }, CLICK_GAP);
+  });
+}
+secretIcon(mark, enter);
+secretIcon($('#logo'), () => { $('#stage').scrollIntoView({ behavior: 'smooth', block: 'center' }); setTimeout(enter, 450); });
+$('#replay').addEventListener('click', () => {
+  resetApp();
+  let k = 0;
+  const tick = () => { mark.click(); if (++k < CLICKS) setTimeout(tick, 85); };
+  tick();
+});
+$('#quit').addEventListener('click', leave);
+
+function pick(i) {
+  current = i;
+  for (const [j, b] of [...$('#versions').children].entries()) b.classList.toggle('on', j === i);
+  $('#desc').innerHTML = VARIANTS[i].desc;
+  resetApp();
+}
+VARIANTS.forEach((v, i) => {
+  const b = document.createElement('button');
+  b.innerHTML = `<kbd>${i + 1}</kbd>${v.name}`;
+  b.addEventListener('click', () => { pick(i); b.blur(); });
+  $('#versions').appendChild(b);
+});
+addEventListener('keydown', (e) => {
+  if (e.ctrlKey || e.altKey || e.metaKey) return;
+  if (e.code === 'Escape') leave();
+  else if (/^Digit[1-3]$/.test(e.code)) pick(Number(e.code.slice(5)) - 1);
+});
+
+function applyUi() {
+  const a = AMBS[uiPrefs.amb] || AMBS['plan-clair'], root = document.documentElement, rs = root.style;
+  for (const [k, val] of Object.entries({ '--bg': a.bg, '--surface': a.surface, '--border': a.border, '--text': a.text, '--text-2': a.text2, '--acc': a.acc })) rs.setProperty(k, val);
+  INK = a.text; BG = a.surface; ACC = a.acc;
+  INK_CLEAR = `rgba(${[1, 3, 5].map((i) => parseInt(a.text.slice(i, i + 2), 16)).join(', ')}, 0)`;
+  rs.colorScheme = a.dark ? 'dark' : 'light';
+  root.classList.toggle('mono', !!a.mono);
+  for (const b of document.querySelectorAll('[data-set]')) b.classList.toggle('on', uiPrefs[b.dataset.set] === b.dataset.val);
+  if (phase !== 'app') frameAt(phase === 'game' ? D : t);
+}
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-set]');
+  if (!b) return;
+  uiPrefs[b.dataset.set] = b.dataset.val;
+  try { localStorage.setItem(KEY_UI, JSON.stringify(uiPrefs)); } catch (err) { /* not kept */ }
+  applyUi(); b.blur();
+});
+new ResizeObserver(() => {
+  scale = $('#stage').clientWidth / WW;
+  $('#win').style.transform = `scale(${scale})`;
+  if (phase !== 'app') frameAt(phase === 'game' ? D : t);
+}).observe($('#stage'));
+
+applyUi();
+pick(0);
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
