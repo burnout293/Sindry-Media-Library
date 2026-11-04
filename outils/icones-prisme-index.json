@@ -1,0 +1,1505 @@
+{
+ "sections": {
+  "lieux": {
+   "dossier": "places",
+   "titre": "Dossiers et lieux"
+  },
+  "materiel": {
+   "dossier": "devices",
+   "titre": "Disques et matériel"
+  },
+  "applis": {
+   "dossier": "apps",
+   "titre": "Applications"
+  },
+  "reglages": {
+   "dossier": "apps",
+   "titre": "Paramètres"
+  },
+  "notifs": {
+   "dossier": "status",
+   "titre": "Notifications et états"
+  },
+  "barre": {
+   "dossier": "status",
+   "titre": "Barre des tâches"
+  },
+  "session": {
+   "dossier": "actions",
+   "titre": "Session et démarrage"
+  },
+  "fichiers": {
+   "dossier": "mimetypes",
+   "titre": "Types de fichiers"
+  },
+  "emblemes": {
+   "dossier": "emblems",
+   "titre": "Emblèmes"
+  },
+  "categories": {
+   "dossier": "categories",
+   "titre": "Catégories du menu"
+  },
+  "sindry": {
+   "dossier": "apps",
+   "titre": "Propres à SindryOS"
+  }
+ },
+ "icones": [
+  {
+   "section": "lieux",
+   "nom": "computer",
+   "label": "Ce PC",
+   "alias": [
+    "user-computer"
+   ]
+  },
+  {
+   "section": "lieux",
+   "nom": "folder",
+   "label": "Dossier",
+   "alias": [
+    "inode-directory",
+    "folder-visiting",
+    "stock_folder",
+    "gtk-directory"
+   ]
+  },
+  {
+   "section": "lieux",
+   "nom": "folder-open",
+   "label": "Dossier ouvert",
+   "alias": [
+    "folder-drag-accept",
+    "stock_folder-copy",
+    "stock_folder-move"
+   ]
+  },
+  {
+   "section": "lieux",
+   "nom": "user-home",
+   "label": "Dossier personnel",
+   "alias": [
+    "folder-home",
+    "go-home"
+   ]
+  },
+  {
+   "section": "lieux",
+   "nom": "user-desktop",
+   "label": "Bureau",
+   "alias": [
+    "desktop"
+   ]
+  },
+  {
+   "section": "lieux",
+   "nom": "folder-documents",
+   "label": "Documents",
+   "alias": []
+  },
+  {
+   "section": "lieux",
+   "nom": "folder-download",
+   "label": "Téléchargements",
+   "alias": []
+  },
+  {
+   "section": "lieux",
+   "nom": "folder-music",
+   "label": "Musique",
+   "alias": []
+  },
+  {
+   "section": "lieux",
+   "nom": "folder-pictures",
+   "label": "Images",
+   "alias": []
+  },
+  {
+   "section": "lieux",
+   "nom": "folder-videos",
+   "label": "Vidéos",
+   "alias": []
+  },
+  {
+   "section": "lieux",
+   "nom": "folder-publicshare",
+   "label": "Public",
+   "alias": []
+  },
+  {
+   "section": "lieux",
+   "nom": "folder-templates",
+   "label": "Modèles",
+   "alias": []
+  },
+  {
+   "section": "lieux",
+   "nom": "folder-remote",
+   "label": "Dossier distant",
+   "alias": [
+    "network-folder"
+   ]
+  },
+  {
+   "section": "lieux",
+   "nom": "sindryos-dossier-scripts",
+   "label": "Scripts",
+   "alias": []
+  },
+  {
+   "section": "lieux",
+   "nom": "user-trash",
+   "label": "Corbeille vide",
+   "alias": [
+    "trashcan_empty"
+   ]
+  },
+  {
+   "section": "lieux",
+   "nom": "user-trash-full",
+   "label": "Corbeille pleine",
+   "alias": [
+    "trashcan_full"
+   ]
+  },
+  {
+   "section": "lieux",
+   "nom": "user-bookmarks",
+   "label": "Favoris",
+   "alias": [
+    "bookmark-new"
+   ]
+  },
+  {
+   "section": "lieux",
+   "nom": "document-open-recent",
+   "label": "Récents",
+   "alias": []
+  },
+  {
+   "section": "lieux",
+   "nom": "network-workgroup",
+   "label": "Réseau",
+   "alias": [
+    "gnome-fs-network"
+   ]
+  },
+  {
+   "section": "lieux",
+   "nom": "network-server",
+   "label": "Serveur",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "drive-harddisk",
+   "label": "Disque dur",
+   "alias": [
+    "gnome-dev-harddisk",
+    "drive-harddisk-ieee1394",
+    "drive-harddisk-system"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "drive-harddisk-solidstate",
+   "label": "Disque SSD",
+   "alias": [
+    "drive-harddisk-nvme"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "drive-removable-media",
+   "label": "Disque externe",
+   "alias": [
+    "media-removable",
+    "drive-harddisk-usb"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "drive-removable-media-usb",
+   "label": "Clé USB",
+   "alias": [
+    "media-removable-usb"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "drive-optical",
+   "label": "Lecteur optique",
+   "alias": [
+    "media-optical",
+    "media-optical-cd",
+    "media-optical-dvd",
+    "media-optical-bd"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "media-flash",
+   "label": "Carte mémoire",
+   "alias": [
+    "media-flash-sd-mmc"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "media-floppy",
+   "label": "Disquette",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "computer-laptop",
+   "label": "Portable",
+   "alias": [
+    "laptop"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "video-display",
+   "label": "Écran",
+   "alias": [
+    "monitor"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "input-keyboard",
+   "label": "Clavier",
+   "alias": [
+    "keyboard"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "input-mouse",
+   "label": "Souris",
+   "alias": [
+    "mouse"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "input-tablet",
+   "label": "Tablette",
+   "alias": [
+    "tablet"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "input-gaming",
+   "label": "Manette",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "printer",
+   "label": "Imprimante",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "scanner",
+   "label": "Scanner",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "camera-photo",
+   "label": "Appareil photo",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "camera-web",
+   "label": "Webcam",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "camera-video",
+   "label": "Caméra",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "phone",
+   "label": "Téléphone",
+   "alias": [
+    "phone-apple-iphone"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "multimedia-player",
+   "label": "Lecteur multimédia",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "modem",
+   "label": "Modem",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "audio-headphones",
+   "label": "Casque",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "audio-speakers",
+   "label": "Haut-parleur",
+   "alias": [
+    "audio-card"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "audio-input-microphone",
+   "label": "Micro",
+   "alias": [
+    "microphone"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "bluetooth",
+   "label": "Bluetooth",
+   "alias": [
+    "preferences-system-bluetooth"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "network-wired",
+   "label": "Réseau filaire",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "network-wireless",
+   "label": "Wi-Fi",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "ac-adapter",
+   "label": "Secteur",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "uninterruptible-power-supply",
+   "label": "Onduleur",
+   "alias": []
+  },
+  {
+   "section": "materiel",
+   "nom": "sindryos-processeur",
+   "label": "Processeur",
+   "alias": [
+    "cpu"
+   ]
+  },
+  {
+   "section": "materiel",
+   "nom": "sindryos-memoire",
+   "label": "Mémoire",
+   "alias": [
+    "memory"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "org.xfce.thunar",
+   "label": "Fichiers",
+   "alias": [
+    "system-file-manager",
+    "org.xfce.filemanager",
+    "file-manager"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "gparted",
+   "label": "Disques",
+   "alias": []
+  },
+  {
+   "section": "applis",
+   "nom": "org.xfce.terminal",
+   "label": "Terminal",
+   "alias": [
+    "utilities-terminal",
+    "org.xfce.terminal-settings",
+    "org.xfce.terminalemulator",
+    "terminal"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "org.xfce.mousepad",
+   "label": "Éditeur de texte",
+   "alias": [
+    "accessories-text-editor",
+    "text-editor"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "org.xfce.ristretto",
+   "label": "Images",
+   "alias": [
+    "image-viewer",
+    "eog"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "org.xfce.appfinder",
+   "label": "Recherche",
+   "alias": [
+    "system-search",
+    "edit-find"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "web-browser",
+   "label": "Navigateur",
+   "alias": [
+    "org.xfce.webbrowser",
+    "internet-web-browser",
+    "applications-internet"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "org.xfce.about",
+   "label": "À propos",
+   "alias": [
+    "help-about"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "help-browser",
+   "label": "Aide",
+   "alias": [
+    "help-contents",
+    "system-help",
+    "help-faq"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "system-software-install",
+   "label": "Installer",
+   "alias": [
+    "applications-other-install"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "utilities-system-monitor",
+   "label": "Moniteur système",
+   "alias": [
+    "org.xfce.taskmanager",
+    "gnome-system-monitor"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "utilities-file-archiver",
+   "label": "Archives",
+   "alias": [
+    "org.xfce.xarchiver",
+    "xarchiver"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "accessories-calculator",
+   "label": "Calculatrice",
+   "alias": []
+  },
+  {
+   "section": "applis",
+   "nom": "accessories-screenshot",
+   "label": "Capture d'écran",
+   "alias": [
+    "org.xfce.screenshooter"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "multimedia-volume-control",
+   "label": "Son",
+   "alias": [
+    "org.xfce.pulseaudio",
+    "pavucontrol"
+   ]
+  },
+  {
+   "section": "applis",
+   "nom": "system-run",
+   "label": "Exécuter",
+   "alias": []
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.settings.manager",
+   "label": "Paramètres",
+   "alias": [
+    "preferences-system",
+    "preferences-desktop",
+    "preferences-other",
+    "applications-system",
+    "xfce4-settings"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "preferences-system-network",
+   "label": "Connexions réseau",
+   "alias": [
+    "nm-connection-editor",
+    "network-manager"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.settings.appearance",
+   "label": "Apparence",
+   "alias": [
+    "preferences-desktop-theme"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.settings.display",
+   "label": "Écrans",
+   "alias": [
+    "preferences-desktop-display"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.settings.keyboard",
+   "label": "Clavier",
+   "alias": [
+    "preferences-desktop-keyboard"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.settings.mouse",
+   "label": "Souris et pavé tactile",
+   "alias": [
+    "preferences-desktop-peripherals"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.settings.accessibility",
+   "label": "Accessibilité",
+   "alias": [
+    "preferences-desktop-accessibility"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.settings.color",
+   "label": "Couleurs",
+   "alias": [
+    "preferences-color"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.settings.default-applications",
+   "label": "Applications par défaut",
+   "alias": [
+    "preferences-desktop-default-applications"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.settings.editor",
+   "label": "Éditeur de réglages",
+   "alias": []
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.xfdesktop",
+   "label": "Bureau et fond",
+   "alias": [
+    "preferences-desktop-wallpaper"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.xfwm4",
+   "label": "Fenêtres",
+   "alias": [
+    "preferences-system-windows"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.xfwm4-tweaks",
+   "label": "Fenêtres, plus de réglages",
+   "alias": []
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.workspaces",
+   "label": "Espaces de travail",
+   "alias": [
+    "preferences-desktop-workspaces"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.panel",
+   "label": "Barre des tâches",
+   "alias": [
+    "xfce4-panel"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.powermanager",
+   "label": "Alimentation",
+   "alias": [
+    "preferences-system-power",
+    "xfce4-power-manager-settings"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.session",
+   "label": "Session et démarrage",
+   "alias": [
+    "preferences-system-session"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "org.xfce.volman",
+   "label": "Disques amovibles",
+   "alias": [
+    "drive-removable-media-settings"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "preferences-system-time",
+   "label": "Date et heure",
+   "alias": [
+    "org.xfce.datetime"
+   ]
+  },
+  {
+   "section": "reglages",
+   "nom": "preferences-desktop-locale",
+   "label": "Langue",
+   "alias": []
+  },
+  {
+   "section": "notifs",
+   "nom": "dialog-information",
+   "label": "Information",
+   "alias": [
+    "gtk-dialog-info",
+    "notification-information",
+    "sindryos-notif-information"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "emblem-ok",
+   "label": "Réussite",
+   "alias": [
+    "sindryos-notif-reussite",
+    "dialog-ok",
+    "task-complete"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "dialog-warning",
+   "label": "Attention",
+   "alias": [
+    "gtk-dialog-warning",
+    "sindryos-notif-attention"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "dialog-error",
+   "label": "Erreur",
+   "alias": [
+    "gtk-dialog-error",
+    "sindryos-notif-erreur"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "dialog-question",
+   "label": "Question",
+   "alias": [
+    "gtk-dialog-question"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "dialog-password",
+   "label": "Mot de passe",
+   "alias": [
+    "gtk-dialog-authentication",
+    "gcr-key",
+    "gcr-key-pair"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "notification-device",
+   "label": "Clé branchée",
+   "alias": [
+    "sindryos-notif-usb"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "notification-network-wireless",
+   "label": "Réseau connecté",
+   "alias": [
+    "sindryos-notif-reseau",
+    "notification-network-wireless-full"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "notification-network-disconnected",
+   "label": "Réseau coupé",
+   "alias": [
+    "sindryos-notif-reseau-coupe"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "software-update-available",
+   "label": "Mise à jour",
+   "alias": [
+    "system-software-update",
+    "sindryos-notif-maj"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "software-update-urgent",
+   "label": "Mise à jour urgente",
+   "alias": []
+  },
+  {
+   "section": "notifs",
+   "nom": "sindryos-notif-script",
+   "label": "Script",
+   "alias": []
+  },
+  {
+   "section": "notifs",
+   "nom": "sindryos-notif-script-encours",
+   "label": "Script en cours",
+   "alias": [
+    "appointment-soon"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "sindryos-notif-verrou",
+   "label": "Disque verrouillé",
+   "alias": []
+  },
+  {
+   "section": "notifs",
+   "nom": "security-high",
+   "label": "Sécurité : bonne",
+   "alias": [
+    "channel-secure"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "security-medium",
+   "label": "Sécurité : moyenne",
+   "alias": [
+    "application-certificate-warning"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "security-low",
+   "label": "Sécurité : faible",
+   "alias": [
+    "channel-insecure"
+   ]
+  },
+  {
+   "section": "notifs",
+   "nom": "mail-unread",
+   "label": "Message",
+   "alias": [
+    "notification-message-im"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "nm-signal-100",
+   "label": "Wi-Fi 100 %",
+   "alias": [
+    "network-wireless-signal-excellent",
+    "network-wireless-connected-100"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "nm-signal-75",
+   "label": "Wi-Fi 75 %",
+   "alias": [
+    "network-wireless-signal-good",
+    "network-wireless-connected-75"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "nm-signal-50",
+   "label": "Wi-Fi 50 %",
+   "alias": [
+    "network-wireless-signal-ok",
+    "network-wireless-connected-50"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "nm-signal-25",
+   "label": "Wi-Fi 25 %",
+   "alias": [
+    "network-wireless-signal-weak",
+    "network-wireless-connected-25"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "nm-signal-00",
+   "label": "Wi-Fi 0 %",
+   "alias": [
+    "network-wireless-signal-none",
+    "network-wireless-connected-00"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "nm-device-wired",
+   "label": "Câble",
+   "alias": [
+    "network-idle",
+    "network-transmit-receive"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "nm-device-wireless",
+   "label": "Wi-Fi",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "nm-no-connection",
+   "label": "Pas de réseau",
+   "alias": [
+    "network-offline",
+    "network-error",
+    "network-wireless-offline"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "nm-secure-lock",
+   "label": "Réseau sécurisé",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "nm-vpn-active-lock",
+   "label": "VPN actif",
+   "alias": [
+    "network-vpn"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "audio-volume-high",
+   "label": "Son fort",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "audio-volume-medium",
+   "label": "Son moyen",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "audio-volume-low",
+   "label": "Son faible",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "audio-volume-muted",
+   "label": "Son coupé",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "battery-full",
+   "label": "Batterie pleine",
+   "alias": [
+    "battery",
+    "gpm-primary-100"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "battery-full-charged",
+   "label": "Batterie chargée",
+   "alias": [
+    "battery-full-charging"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "battery-good",
+   "label": "Batterie 70 %",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "battery-good-charging",
+   "label": "Batterie 70 %, en charge",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "battery-low",
+   "label": "Batterie 35 %",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "battery-low-charging",
+   "label": "Batterie 35 %, en charge",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "battery-caution",
+   "label": "Batterie 15 %",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "battery-caution-charging",
+   "label": "Batterie 15 %, en charge",
+   "alias": [
+    "battery-empty-charging"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "battery-empty",
+   "label": "Batterie vide",
+   "alias": []
+  },
+  {
+   "section": "session",
+   "nom": "system-shutdown",
+   "label": "Éteindre",
+   "alias": [
+    "xfsm-shutdown",
+    "gnome-shutdown"
+   ]
+  },
+  {
+   "section": "session",
+   "nom": "system-reboot",
+   "label": "Redémarrer",
+   "alias": [
+    "xfsm-reboot"
+   ]
+  },
+  {
+   "section": "session",
+   "nom": "system-log-out",
+   "label": "Fermer la session",
+   "alias": [
+    "xfsm-logout",
+    "application-exit"
+   ]
+  },
+  {
+   "section": "session",
+   "nom": "system-lock-screen",
+   "label": "Verrouiller",
+   "alias": [
+    "xfsm-lock"
+   ]
+  },
+  {
+   "section": "session",
+   "nom": "system-suspend",
+   "label": "Mettre en veille",
+   "alias": [
+    "xfsm-suspend"
+   ]
+  },
+  {
+   "section": "session",
+   "nom": "system-hibernate",
+   "label": "Hiberner",
+   "alias": [
+    "xfsm-hibernate"
+   ]
+  },
+  {
+   "section": "session",
+   "nom": "system-switch-user",
+   "label": "Changer d'utilisateur",
+   "alias": [
+    "xfsm-switch-user"
+   ]
+  },
+  {
+   "section": "session",
+   "nom": "avatar-default",
+   "label": "Session",
+   "alias": [
+    "user-info",
+    "stock_person",
+    "system-users"
+   ]
+  },
+  {
+   "section": "session",
+   "nom": "sindryos-windows",
+   "label": "Redémarrer sous Windows",
+   "alias": []
+  },
+  {
+   "section": "session",
+   "nom": "sindryos-boot-choice",
+   "label": "Démarrage",
+   "alias": []
+  },
+  {
+   "section": "fichiers",
+   "nom": "text-x-generic",
+   "label": "Texte",
+   "alias": [
+    "text-plain",
+    "application-x-generic-text"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "text-x-script",
+   "label": "Script",
+   "alias": [
+    "application-x-shellscript",
+    "text-x-python",
+    "application-x-perl",
+    "text-x-powershell"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "text-x-log",
+   "label": "Journal",
+   "alias": [
+    "text-log"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "text-html",
+   "label": "Page web",
+   "alias": [
+    "application-xhtml+xml"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "application-json",
+   "label": "Données",
+   "alias": [
+    "text-xml",
+    "application-xml",
+    "text-x-yaml"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "text-x-ms-regedit",
+   "label": "Registre Windows",
+   "alias": [
+    "application-x-regedit"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "application-pdf",
+   "label": "PDF",
+   "alias": [
+    "x-office-pdf"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "image-x-generic",
+   "label": "Image",
+   "alias": [
+    "image-png",
+    "image-jpeg"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "audio-x-generic",
+   "label": "Son",
+   "alias": []
+  },
+  {
+   "section": "fichiers",
+   "nom": "video-x-generic",
+   "label": "Vidéo",
+   "alias": []
+  },
+  {
+   "section": "fichiers",
+   "nom": "package-x-generic",
+   "label": "Archive",
+   "alias": [
+    "application-zip",
+    "application-x-tar",
+    "application-x-compressed-tar",
+    "application-x-7z-compressed",
+    "application-x-rar",
+    "application-gzip",
+    "application-x-xz-compressed-tar",
+    "application-x-archive"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "application-x-cd-image",
+   "label": "Image disque",
+   "alias": [
+    "application-x-iso9660-image",
+    "application-x-raw-disk-image",
+    "application-vnd.efi.iso"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "application-x-executable",
+   "label": "Programme",
+   "alias": [
+    "application-x-sharedlib",
+    "application-x-pie-executable",
+    "exec"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "application-x-ms-dos-executable",
+   "label": "Programme Windows",
+   "alias": [
+    "application-x-msdownload",
+    "application-vnd.microsoft.portable-executable",
+    "application-x-msi",
+    "application-x-ms-shortcut"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "application-x-desktop",
+   "label": "Lanceur",
+   "alias": []
+  },
+  {
+   "section": "fichiers",
+   "nom": "font-x-generic",
+   "label": "Police",
+   "alias": []
+  },
+  {
+   "section": "fichiers",
+   "nom": "x-office-document",
+   "label": "Document",
+   "alias": [
+    "application-vnd.oasis.opendocument.text",
+    "application-msword",
+    "application-vnd.openxmlformats-officedocument.wordprocessingml.document"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "x-office-spreadsheet",
+   "label": "Tableur",
+   "alias": [
+    "application-vnd.oasis.opendocument.spreadsheet",
+    "application-vnd.ms-excel",
+    "application-vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "text-csv"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "x-office-presentation",
+   "label": "Présentation",
+   "alias": [
+    "application-vnd.oasis.opendocument.presentation",
+    "application-vnd.ms-powerpoint",
+    "application-vnd.openxmlformats-officedocument.presentationml.presentation"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "application-certificate",
+   "label": "Certificat",
+   "alias": [
+    "gcr-certificate"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "unknown",
+   "label": "Inconnu",
+   "alias": [
+    "application-octet-stream",
+    "application-x-generic"
+   ]
+  },
+  {
+   "section": "fichiers",
+   "nom": "image-missing",
+   "label": "Image manquante",
+   "alias": []
+  },
+  {
+   "section": "fichiers",
+   "nom": "image-loading",
+   "label": "Image en chargement",
+   "alias": []
+  },
+  {
+   "section": "emblemes",
+   "nom": "emblem-symbolic-link",
+   "label": "Raccourci",
+   "alias": [
+    "emblem-link"
+   ]
+  },
+  {
+   "section": "emblemes",
+   "nom": "emblem-readonly",
+   "label": "Lecture seule",
+   "alias": [
+    "emblem-locked"
+   ]
+  },
+  {
+   "section": "emblemes",
+   "nom": "emblem-unreadable",
+   "label": "Illisible",
+   "alias": []
+  },
+  {
+   "section": "emblemes",
+   "nom": "emblem-default",
+   "label": "Validé",
+   "alias": [
+    "emblem-checked"
+   ]
+  },
+  {
+   "section": "emblemes",
+   "nom": "emblem-important",
+   "label": "Important",
+   "alias": [
+    "emblem-urgent"
+   ]
+  },
+  {
+   "section": "emblemes",
+   "nom": "emblem-synchronizing",
+   "label": "Synchronisation",
+   "alias": []
+  },
+  {
+   "section": "categories",
+   "nom": "applications-accessories",
+   "label": "Accessoires",
+   "alias": []
+  },
+  {
+   "section": "categories",
+   "nom": "applications-development",
+   "label": "Développement",
+   "alias": []
+  },
+  {
+   "section": "categories",
+   "nom": "applications-education",
+   "label": "Éducation",
+   "alias": []
+  },
+  {
+   "section": "categories",
+   "nom": "applications-games",
+   "label": "Jeux",
+   "alias": []
+  },
+  {
+   "section": "categories",
+   "nom": "applications-graphics",
+   "label": "Graphisme",
+   "alias": []
+  },
+  {
+   "section": "categories",
+   "nom": "applications-multimedia",
+   "label": "Multimédia",
+   "alias": []
+  },
+  {
+   "section": "categories",
+   "nom": "applications-office",
+   "label": "Bureautique",
+   "alias": []
+  },
+  {
+   "section": "categories",
+   "nom": "applications-other",
+   "label": "Autres",
+   "alias": []
+  },
+  {
+   "section": "categories",
+   "nom": "applications-science",
+   "label": "Sciences",
+   "alias": []
+  },
+  {
+   "section": "categories",
+   "nom": "applications-utilities",
+   "label": "Utilitaires",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-disque-windows",
+   "label": "Disque Windows",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-data",
+   "label": "SINDRY-DATA",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-cle-demarrage",
+   "label": "Clé de démarrage",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-scripts",
+   "label": "Scripts",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-analyse",
+   "label": "Analyse",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-reparation",
+   "label": "Réparation",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-sante",
+   "label": "État du PC",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-journaux",
+   "label": "Journaux",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-sauvegarde",
+   "label": "Sauvegarde",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-restauration",
+   "label": "Restauration",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-retour",
+   "label": "Retour arrière",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-registre",
+   "label": "Registre",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-bitlocker",
+   "label": "Disque chiffré",
+   "alias": []
+  },
+  {
+   "section": "sindry",
+   "nom": "sindryos-mise-a-jour",
+   "label": "Mise à jour de Sindry",
+   "alias": []
+  }
+ ]
+}

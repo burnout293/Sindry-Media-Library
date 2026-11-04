@@ -12,7 +12,7 @@ La médiathèque commence à **M30** (repris des archives). M01 à M29 restent d
    <https://github.com/burnout293/Sindry-Media-Library>.
 2. **Prendre un numéro** : `max(plancher, plus grand "n" du registre) + 1`.
    [`registre.json`](registre.json) fait foi, avec une seule numérotation pour tous les projets.
-   Un mockup qui a déjà un numéro le garde. Prochain numéro libre : voir le registre (M55 au 04/11/2026).
+   Un mockup qui a déjà un numéro le garde. Prochain numéro libre : voir le registre (M57 au 04/11/2026).
 3. **Nommer le fichier** `M<nn>_<AAAA-MM-JJ>_<nom-court>.html`, par exemple
    `M47_2026-11-02_colonnes.html`. Le nom court s'écrit en minuscules, chiffres et tirets.
    - De préférence en **HTML**. Une image (`.png`, `.webp`, `.jpg`) convient pour un rendu figé.
