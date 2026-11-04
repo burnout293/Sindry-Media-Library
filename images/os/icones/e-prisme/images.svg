@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><defs><clipPath id="o"><rect x="7" y="21" width="78" height="66" rx="5"/></clipPath><clipPath id="c"><rect x="14" y="28" width="64" height="52" rx="3.5"/></clipPath></defs>
+    <g fill="#3A4690"><rect x="16" y="9" width="70" height="56" rx="7" transform="rotate(-8 51 37)"/></g>
+    <g fill="#8A52D6"><rect x="7" y="21" width="78" height="66" rx="5"/></g><g clip-path="url(#o)"><path d="M0 0H66L20 96H0z" fill="#fff" fill-opacity=".17"/><path d="M96 96V34L56 96z" fill="#0A0E36" fill-opacity=".26"/></g>
+    <rect x="14" y="28" width="64" height="52" rx="3.5" fill="#121A33"/>
+    <path d="M59.07 36.37Q60 36 60.93 36.37L64.07 37.63Q65 38 65.37 38.93L66.63 42.07Q67 43 66.63 43.93L65.37 47.07Q65 48 64.07 48.37L60.93 49.63Q60 50 59.07 49.63L55.93 48.37Q55 48 54.63 47.07L53.37 43.93Q53 43 53.37 42.07L54.63 38.93Q55 38 55.93 37.63Z" fill="#FFB35C"/><g clip-path="url(#c)"><path d="M12 80l26-34 6 34z" fill="#7B8CFF"/><path d="M38 46l24 34H44z" fill="#5B6CF0"/><path d="M44 80l16-22 4 22z" fill="#C58BFF"/><path d="M60 58l20 22H64z" fill="#9A5BE0"/></g></svg>

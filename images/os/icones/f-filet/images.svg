@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96"><defs><linearGradient id="a" gradientUnits="userSpaceOnUse" x1="6" y1="0" x2="90" y2="0"><stop offset="0" stop-color="#1FB5A3"/><stop offset="0.5" stop-color="#5B6CF0"/><stop offset="1" stop-color="#9A5BE0"/></linearGradient><clipPath id="o"><rect x="7" y="21" width="78" height="66" rx="8"/></clipPath><clipPath id="c"><rect x="14" y="28" width="64" height="52" rx="3.5"/></clipPath></defs>
+    <g fill="#2A3760" stroke="#3A4A80" stroke-width="1.5"><rect x="16" y="9" width="70" height="56" rx="7" transform="rotate(-8 51 37)"/></g>
+    <g fill="#172142"><rect x="7" y="21" width="78" height="66" rx="8"/></g><rect x="0" y="21" width="96" height="6" fill="url(#a)" clip-path="url(#o)"/><g fill="none" stroke="#3A4A80" stroke-width="2"><rect x="7" y="21" width="78" height="66" rx="8"/></g>
+    <rect x="14" y="28" width="64" height="52" rx="3.5" fill="#0E1426"/>
+    <circle cx="60" cy="43" r="6.5" fill="#FFB35C"/><g clip-path="url(#c)"><path d="M14 80l22-28a3 3 0 0 1 4.6 0L62 80z" fill="#7B8CFF"/><path d="M42 80l14-16a3 3 0 0 1 4.2 0L78 80z" fill="#4D5CC4"/></g></svg>

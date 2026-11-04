@@ -11,6 +11,8 @@ Le site les montre sur
 | Formats | `.png`, `.webp`, `.jpg`, `.gif`, `.svg`. Quelques Mo au plus par fichier |
 | Adresse | `https://burnout293.github.io/Sindry-Media-Library/images/<projet>/<nom>.<ext>` |
 
+- **Les icônes système de SindryOS** se rangent par famille : `images/os/icones/<famille>/<nom>.svg`.
+  Elles sortent de `outils/icones-os.mjs` (comparées dans le mockup M54) : une retouche passe par cet outil.
 - **Aucune donnée personnelle** : le dépôt est public. Sur une capture, on masque le nom
   d'utilisateur, le nom du PC, les chemins personnels.
 - **L'icône de Sindry** et ses variantes vont dans [`icones-sindry/`](../icones-sindry/README.md).
