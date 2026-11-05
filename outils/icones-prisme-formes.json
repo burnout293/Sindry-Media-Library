@@ -1,0 +1,55 @@
+{
+ "printer": {
+  "fill": [
+   0,
+   1
+  ],
+  "mark": [
+   2
+  ]
+ },
+ "archive": {
+  "fill": [
+   1
+  ]
+ },
+ "image-plus": {
+  "fill": [
+   2
+  ]
+ },
+ "notebook-pen": {
+  "fill": [
+   0
+  ],
+  "mark": [
+   5
+  ]
+ },
+ "package-plus": {
+  "fill": [
+   3
+  ]
+ },
+ "flask-conical": {
+  "fill": [
+   0
+  ]
+ },
+ "file-terminal": {
+  "fill": [
+   0
+  ]
+ },
+ "search": {
+  "open": [
+   1
+  ]
+ },
+ "hourglass": {
+  "fill": [
+   2,
+   3
+  ]
+ }
+}

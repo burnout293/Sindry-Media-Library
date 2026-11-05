@@ -611,7 +611,7 @@
   {
    "section": "reglages",
    "nom": "org.xfce.settings.accessibility",
-   "label": "Accessibilité",
+   "label": "Ergonomie",
    "alias": [
     "preferences-desktop-accessibility"
    ]
@@ -869,7 +869,8 @@
    "label": "Wi-Fi 100 %",
    "alias": [
     "network-wireless-signal-excellent",
-    "network-wireless-connected-100"
+    "network-wireless-connected-100",
+    "nm-device-wireless"
    ]
   },
   {
@@ -910,6 +911,16 @@
   },
   {
    "section": "barre",
+   "nom": "nm-no-connection",
+   "label": "Pas de Wi-Fi",
+   "alias": [
+    "network-offline",
+    "network-error",
+    "network-wireless-offline"
+   ]
+  },
+  {
+   "section": "barre",
    "nom": "nm-device-wired",
    "label": "Câble",
    "alias": [
@@ -919,18 +930,28 @@
   },
   {
    "section": "barre",
-   "nom": "nm-device-wireless",
-   "label": "Wi-Fi",
-   "alias": []
+   "nom": "network-wired-disconnected",
+   "label": "Pas de réseau câble",
+   "alias": [
+    "nm-device-wired-disconnected",
+    "network-wired-offline"
+   ]
   },
   {
    "section": "barre",
-   "nom": "nm-no-connection",
-   "label": "Pas de réseau",
+   "nom": "network-internet",
+   "label": "Internet",
    "alias": [
-    "network-offline",
-    "network-error",
-    "network-wireless-offline"
+    "sindryos-barre-internet"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "network-vpn",
+   "label": "VPN",
+   "alias": [
+    "nm-vpn-active-lock",
+    "sindryos-barre-vpn"
    ]
   },
   {
@@ -941,11 +962,40 @@
   },
   {
    "section": "barre",
-   "nom": "nm-vpn-active-lock",
-   "label": "VPN actif",
+   "nom": "airplane-mode",
+   "label": "Mode avion",
    "alias": [
-    "network-vpn"
+    "network-flightmode",
+    "sindryos-barre-avion"
    ]
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-reseau-mobile",
+   "label": "Réseau mobile",
+   "alias": [
+    "network-cellular-connected"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "bluetooth-active",
+   "label": "Bluetooth",
+   "alias": [
+    "sindryos-barre-bluetooth"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "bluetooth-paired",
+   "label": "Bluetooth connecté",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "bluetooth-disabled",
+   "label": "Bluetooth coupé",
+   "alias": []
   },
   {
    "section": "barre",
@@ -970,6 +1020,23 @@
    "nom": "audio-volume-muted",
    "label": "Son coupé",
    "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "audio-input-microphone-high",
+   "label": "Micro",
+   "alias": [
+    "microphone-sensitivity-high",
+    "sindryos-barre-micro"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "audio-input-microphone-muted",
+   "label": "Micro coupé",
+   "alias": [
+    "microphone-sensitivity-muted"
+   ]
   },
   {
    "section": "barre",
@@ -1031,6 +1098,198 @@
    "nom": "battery-empty",
    "label": "Batterie vide",
    "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "display-brightness",
+   "label": "Luminosité",
+   "alias": [
+    "display-brightness-high",
+    "xfpm-brightness-lcd",
+    "sindryos-barre-luminosite"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "display-brightness-medium",
+   "label": "Luminosité moyenne",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "display-brightness-low",
+   "label": "Luminosité faible",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-notifications",
+   "label": "Notifications",
+   "alias": [
+    "notifications",
+    "org.xfce.notification"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "notification-new",
+   "label": "Nouvelle notification",
+   "alias": [
+    "notifications-new"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "notification-disabled",
+   "label": "Ne pas déranger",
+   "alias": [
+    "notifications-disabled",
+    "sindryos-barre-ne-pas-deranger"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-pc",
+   "label": "Ce PC",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-usb",
+   "label": "USB",
+   "alias": [
+    "drive-removable-media-usb-panel"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-ejecter",
+   "label": "Éjecter",
+   "alias": [
+    "media-eject"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-parametres",
+   "label": "Paramètres",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "location-active",
+   "label": "GPS",
+   "alias": [
+    "gps",
+    "find-location",
+    "sindryos-barre-gps"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "location-disabled",
+   "label": "GPS coupé",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-clavier",
+   "label": "Clavier",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-maj",
+   "label": "Mise à jour",
+   "alias": [
+    "software-update-panel"
+   ]
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-securite",
+   "label": "Sécurité",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-securite-alerte",
+   "label": "Sécurité : alerte",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-recherche",
+   "label": "Recherche",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-compte",
+   "label": "Compte",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-langue",
+   "label": "Langue",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-ergonomie",
+   "label": "Ergonomie",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-theme",
+   "label": "Clair ou sombre",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-presse-papiers",
+   "label": "Presse-papiers",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-capture",
+   "label": "Capture d'écran",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-imprimante",
+   "label": "Imprimante",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-cast",
+   "label": "Diffuser sur un écran",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-script",
+   "label": "Script en cours",
+   "alias": []
+  },
+  {
+   "section": "barre",
+   "nom": "sindryos-barre-windows",
+   "label": "Windows détecté",
+   "alias": []
+  },
+  {
+   "section": "session",
+   "nom": "start-here",
+   "label": "Lanceur",
+   "alias": [
+    "sindryos-demarrer"
+   ]
   },
   {
    "section": "session",
@@ -1244,7 +1503,7 @@
   {
    "section": "fichiers",
    "nom": "application-x-desktop",
-   "label": "Lanceur",
+   "label": "Lanceur d'application",
    "alias": []
   },
   {
