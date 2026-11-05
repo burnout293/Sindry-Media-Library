@@ -17,7 +17,7 @@ Le site les montre sur
   `images/os/icones/prisme-avec-fond/` (chaque icône est un symbole sur une tuile ; gardé de côté), rangés par `<dossier du thème>/<nom système>.svg`.
   `outils/icones-prisme.mjs` les génère ; sa commande `theme` écrit un thème prêt à installer, avec tous les noms. Les symboles viennent
   de Lucide (`LICENCE-LUCIDE.txt`, à garder avec les fichiers). `images/os/icones/prisme/` est la version précédente, celle de M55.
-- **Le lanceur** : `images/os/lanceur/` ; les neuf idées (mockup M56) et Allumage, retenu, en quatre versions `allumage-*.svg` (mockup M57).
+- **Le lanceur** : `images/os/lanceur/` ; les neuf idées (mockup M56) et Allumage, retenu, en quatre versions `allumage-*.svg` (mockup M57). Sur la barre : `allumage-clair.svg`.
 - **Aucune donnée personnelle** : le dépôt est public. Sur une capture, on masque le nom
   d'utilisateur, le nom du PC, les chemins personnels.
 - **L'icône de Sindry** et ses variantes vont dans [`icones-sindry/`](../icones-sindry/README.md).

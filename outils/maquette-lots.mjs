@@ -12,7 +12,7 @@ const uri = (file, type) => `data:${type};base64,${readFileSync(file).toString('
 const read = (dir) => Object.fromEntries(index.icones.map((i) => [i.nom, uri(join(dir, index.sections[i.section].dossier, `${i.nom}.svg`), 'image/svg+xml')]));
 const FILES = { sans: read(SANS), avec: read(AVEC) };
 const VERSIONS = [
-  { id: 'clair', nom: 'Clair', texte: 'Blanc, pour la barre sombre (thème Nuit).', fond: 'sombre' },
+  { id: 'clair', nom: 'Clair (retenu)', texte: 'Blanc, pour la barre sombre (thème Nuit).', fond: 'sombre' },
   { id: 'sombre', nom: 'Sombre', texte: 'Encre, pour une barre claire (thème Prisme 4).', fond: 'clair' },
   { id: 'couleur', nom: 'Coloré', texte: 'Aplats et facettes, comme les autres icônes : anneau indigo, flamme orangée.', fond: 'sombre' },
   { id: 'officiel', nom: 'Couleurs officielles', texte: "L'anneau au gris de l'engrenage, la flamme à l'orange de Sindry.", fond: 'sombre' },
@@ -158,7 +158,7 @@ const html = `<!doctype html>
 <div data-maquette-badge style="position:fixed;left:10px;bottom:10px;z-index:2147483647;pointer-events:none;font:12px/1.3 Inter,system-ui,sans-serif;color:#fff;background:rgba(10,12,40,.82);border:1px solid rgba(255,255,255,.18);border-radius:4px;padding:4px 8px">M57 · 05/11/2026 ${HEURE} · SindryOS : Allumage et deux lots d'icônes</div>
 <main>
   <h1>SindryOS : Allumage et deux lots d'icônes</h1>
-  <p>Le lanceur retenu en quatre versions, et le jeu Prisme en deux lots complets : ${index.icones.length} dessins pour ${nameCount} noms système dans chacun. Cliquer sur une version la pose sur toutes les barres de la page.</p>
+  <p>Le lanceur retenu en quatre versions, et le jeu Prisme en deux lots complets : ${index.icones.length} dessins pour ${nameCount} noms système dans chacun. Retenus le 05/11 : Allumage Clair sur la barre, le lot Sans fond par défaut, le lot Avec fond gardé de côté. Cliquer sur une version la pose sur toutes les barres de la page.</p>
 
   <h2>Allumage, quatre versions</h2>
   <div class="versions" id="versions"></div>

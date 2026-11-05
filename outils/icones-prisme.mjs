@@ -543,7 +543,8 @@ B('sindryos-barre-cast', 'Diffuser sur un écran', 'cast', C.blue);
 B('sindryos-barre-script', 'Script en cours', 'square-terminal', C.violet);
 B('sindryos-barre-windows', 'Windows détecté', { solid: PANES }, C.windows);
 
-I('session', 'start-here', 'Lanceur', 'power', C.indigo, ['sindryos-demarrer'], IGNITION.couleur, ignitionTile);
+// The launcher on the bar: the Clair version, chosen on 05/11. Avec fond, its white mark on a tile.
+I('session', 'start-here', 'Lanceur', 'power', C.indigo, ['sindryos-demarrer'], IGNITION.clair, ignitionTile);
 I('session', 'system-shutdown', 'Éteindre', 'power', C.red, ['xfsm-shutdown', 'gnome-shutdown']);
 I('session', 'system-reboot', 'Redémarrer', 'rotate-cw', C.blue, ['xfsm-reboot']);
 I('session', 'system-log-out', 'Fermer la session', 'log-out', C.violet, ['xfsm-logout', 'application-exit']);
