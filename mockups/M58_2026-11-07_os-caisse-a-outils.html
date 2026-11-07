@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M58 · SindryOS : caisse à outils</title>
+<style>
+  @font-face { font-family: 'Inter'; font-weight: 100 900; font-display: swap; src: url('_ressources/inter-latin-wght-normal.woff2') format('woff2'); }
+  :root { color-scheme: dark; --surface: #121A33; --surface2: #172142; --hover: #1C2750; --border: #2A3760; --text: #E4E9FF; --muted: #8E9AC0; --accent: #7B8CFF; --accent-soft: rgba(123,140,255,.16); --ok: #7FD3A4; --warn: #F2B96B; --danger: #FF9A9A; --aurora: linear-gradient(90deg,#1FB5A3,#5B6CF0 55%,#9A5BE0); }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: #0B1024; color: var(--text); font: 15px/1.45 Inter, system-ui, "Segoe UI", sans-serif; }
+  main { max-width: 1240px; margin: 0 auto; padding: 18px 16px 64px; }
+  h1 { margin: 0; font-size: 21px; font-weight: 650; }
+  h2 { margin: 32px 0 6px; font-size: 17px; font-weight: 650; }
+  p { margin: 4px 0 0; color: var(--muted); }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 12px; }
+  .tabs button { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 8px 14px; text-align: left; }
+  .tabs button b { font-weight: 650; }
+  .tabs button small { display: block; color: var(--muted); font-size: 12px; }
+  .tabs button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+
+  /* The desktop behind the window */
+  .desk { background: url('../images/os/sindry-wallpaper-v2.png') center/cover; padding: 22px; border-radius: 6px; }
+  .win { background: var(--surface); border: 1px solid var(--border); border-radius: 5px 5px 0 0; overflow: hidden; display: flex; flex-direction: column; min-height: 620px; }
+  .win::before { content: ""; height: 3px; background: var(--aurora); flex: none; }
+  .tb { height: 36px; display: flex; align-items: center; gap: 8px; padding: 0 0 0 12px; border-bottom: 1px solid var(--border); font-size: 13px; flex: none; }
+  .tb img { width: 18px; height: 18px; }
+  .tb .ctl { margin-left: auto; display: flex; color: var(--muted); }
+  .tb .ctl span { width: 44px; text-align: center; line-height: 36px; }
+  .top { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); flex: none; }
+  .search { flex: 1 1 240px; min-width: 0; height: 36px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; color: var(--text); padding: 0 12px; font: inherit; }
+  .search::placeholder { color: var(--muted); }
+  .seg { display: flex; border: 1px solid var(--border); border-radius: 4px; overflow: hidden; }
+  .seg button { background: transparent; border: 0; padding: 7px 11px; font-size: 13px; color: var(--muted); }
+  .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--text); }
+  .body { flex: 1; display: flex; min-height: 0; }
+  .cats { width: 212px; flex: none; border-right: 1px solid var(--border); padding: 10px 8px; display: flex; flex-direction: column; gap: 2px; }
+  .cats button { display: flex; align-items: center; gap: 10px; background: transparent; border: 0; border-radius: 4px; padding: 7px 9px; text-align: left; font-size: 13.5px; }
+  .cats button:hover { background: var(--hover); }
+  .cats button[aria-pressed="true"] { background: var(--accent-soft); }
+  .cats img { width: 20px; height: 20px; flex: none; }
+  .cats .n { margin-left: auto; color: var(--muted); font-size: 12px; }
+  .content { flex: 1; min-width: 0; padding: 14px 16px; overflow: auto; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(258px, 1fr)); gap: 10px; }
+  .card { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 12px; display: flex; flex-direction: column; gap: 8px; cursor: pointer; }
+  .card:hover, .card.sel { border-color: var(--accent); }
+  .card .head { display: flex; gap: 10px; align-items: center; }
+  .card img { width: 34px; height: 34px; flex: none; }
+  .card b { font-weight: 600; display: block; }
+  .card p { font-size: 13px; line-height: 1.35; flex: 1; }
+  .foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .pill { font-size: 11.5px; padding: 2px 7px; border-radius: 3px; white-space: nowrap; }
+  .p-inclus { background: rgba(127,211,164,.14); color: var(--ok); }
+  .p-installe { background: var(--accent-soft); color: #A9B6FF; }
+  .p-cle { background: rgba(31,181,163,.16); color: #5FD9C8; }
+  .p-dl { background: rgba(142,154,192,.14); color: var(--muted); }
+  .p-prevu { background: rgba(242,185,107,.13); color: var(--warn); }
+  .p-trace { background: rgba(255,154,154,.12); color: var(--danger); }
+  .act { margin-left: auto; background: var(--hover); border: 1px solid var(--border); border-radius: 4px; padding: 5px 12px; font-size: 13px; white-space: nowrap; }
+  .act:hover:not(:disabled) { background: #25326A; }
+  .act.go { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .act:disabled { opacity: .5; cursor: default; }
+  .bar { height: 4px; border-radius: 2px; background: var(--border); overflow: hidden; flex: 1; min-width: 60px; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--aurora); transition: width .1s linear; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  th { text-align: left; color: var(--muted); font-weight: 500; font-size: 12.5px; padding: 6px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { padding: 7px 10px; border-bottom: 1px solid rgba(42,55,96,.55); vertical-align: middle; }
+  tr.row { cursor: pointer; }
+  tr.row:hover td { background: var(--hover); }
+  tr.row.sel td { background: var(--accent-soft); }
+  td img { width: 20px; height: 20px; vertical-align: -5px; margin-right: 8px; }
+  td small { color: var(--muted); }
+  .num { text-align: right; white-space: nowrap; color: var(--muted); }
+  .needs { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .need { background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; padding: 14px; text-align: left; display: flex; gap: 12px; align-items: center; }
+  .need:hover { border-color: var(--accent); }
+  .need img { width: 36px; height: 36px; flex: none; }
+  .need b { display: block; font-weight: 600; }
+  .need small { color: var(--muted); font-size: 12.5px; }
+  .back { background: transparent; border: 0; color: #A9B6FF; padding: 0 0 10px; font-size: 13.5px; }
+  .step { display: flex; gap: 12px; align-items: center; padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; margin-bottom: 8px; flex-wrap: wrap; cursor: pointer; }
+  .step:hover, .step.sel { border-color: var(--accent); }
+  .step img { width: 30px; height: 30px; }
+  .step .t { flex: 1 1 200px; min-width: 0; }
+  .step .t b { font-weight: 600; }
+  .step .t small { display: block; color: var(--muted); font-size: 12.5px; }
+  .detail { width: 278px; flex: none; border-left: 1px solid var(--border); padding: 14px; font-size: 13.5px; display: flex; flex-direction: column; gap: 10px; }
+  .detail img { width: 44px; height: 44px; }
+  .detail h3 { margin: 0; font-size: 15px; font-weight: 650; }
+  .detail dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 12.5px; }
+  .detail dt { color: var(--muted); }
+  .detail dd { margin: 0; overflow-wrap: anywhere; }
+  .trace { border: 1px solid rgba(255,154,154,.35); background: rgba(255,154,154,.07); border-radius: 4px; padding: 8px 10px; font-size: 12.5px; }
+  .trace b { color: var(--danger); font-weight: 600; }
+  .trace ol { margin: 4px 0 0; padding-left: 17px; }
+  .detail label { display: flex; gap: 8px; align-items: center; font-size: 13px; }
+  .detail .acts { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; }
+  .detail .acts .act { margin: 0; }
+  .status { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; padding: 8px 16px; border-top: 1px solid var(--border); font-size: 12.5px; color: var(--muted); flex: none; }
+  .status b { color: var(--text); font-weight: 550; }
+  .status .gauge { display: flex; align-items: center; gap: 8px; }
+  .status .gauge .bar { width: 90px; flex: none; }
+  .status .net { margin-left: auto; background: transparent; border: 1px solid var(--border); border-radius: 4px; padding: 3px 9px; font-size: 12.5px; color: var(--text); }
+  .toast { position: fixed; right: 18px; bottom: 18px; background: #121A33; border: 1px solid var(--border); border-radius: 5px; padding: 10px 14px; font-size: 13.5px; max-width: 340px; z-index: 10; }
+  .cmp { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 10px; }
+  .cmp div { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 12px 14px; font-size: 13.5px; }
+  .cmp b { display: block; margin-bottom: 4px; font-weight: 650; }
+  .cmp ul { margin: 0; padding-left: 17px; color: var(--muted); }
+  pre { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 12px 14px; font: 12.5px/1.5 ui-monospace, Consolas, monospace; overflow: auto; margin: 8px 0 0; color: #CFD6F5; }
+  @media (max-width: 860px) {
+    .desk { padding: 8px; }
+    .body { flex-direction: column; }
+    .cats { width: auto; flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+    .cats button { white-space: nowrap; }
+    .detail { width: auto; border-left: 0; border-top: 1px solid var(--border); }
+    .tb .ctl { display: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>La caisse à outils de SindryOS</h1>
+  <p>Trois façons de la présenter, avec les vrais outils : ceux qu'Alpine 3.24 propose (vérifié le 07/11) et ceux qu'il faudra construire. Essayez : installer, couper le réseau, retirer.</p>
+  <div class="tabs" id="tabs"></div>
+  <div class="desk"><div class="win" id="win"></div></div>
+
+  <h2>Ce qui les distingue</h2>
+  <div class="cmp">
+    <div><b>A · Rayons</b><ul><li>Vos catégories à gauche, des cartes à droite : on voit ce qu'on a et ce qu'on peut prendre</li><li>Simple à compléter : un outil de plus, une carte de plus</li><li>Moins dense quand le catalogue grossit</li></ul></div>
+    <div><b>B · Établi</b><ul><li>Un tableau, tout d'un coup d'œil : état, taille, écrit ou non sur Windows</li><li>Tri par colonne, le plus rapide quand on sait ce qu'on cherche</li><li>Plus austère, moins parlant pour qui découvre un outil</li></ul></div>
+    <div><b>C · Par besoin</b><ul><li>On part du problème, pas du nom de l'outil</li><li>Propose un ordre : d'abord lire, ensuite écrire</li><li>Chaque nouvel outil doit être rattaché à un besoin</li></ul></div>
+  </div>
+
+  <h2>Compléter le catalogue</h2>
+  <p>Un seul petit fichier par outil. Pour un outil d'Alpine, ces quelques lignes suffisent : la construction valide, calcule la taille et publie l'index signé.</p>
+  <pre>{
+  "id": "testdisk",
+  "name": "TestDisk et PhotoRec",
+  "category": "recovery",
+  "summary": "Retrouver une partition perdue, récupérer des fichiers effacés",
+  "source": { "apk": ["testdisk"] },
+  "terminal": true,
+  "writesToWindows": true
+}</pre>
+  <p style="margin-top:10px">Tailles : le paquet seul, hors dépendances. Les outils « Prévu » n'existent pas encore : ils reposeront sur un même moteur d'édition du registre hors ligne.</p>
+</main>
+<div class="toast" id="toast" hidden></div>
+<script>
+const ICON = (dir, name) => `../images/os/icones/prisme-sans-fond/${dir}/${name}.svg`;
+const CATS = [
+  { id: 'partitions', name: 'Partitions', icon: ICON('devices', 'drive-harddisk') },
+  { id: 'recovery', name: 'Récupération', icon: ICON('apps', 'sindryos-sauvegarde') },
+  { id: 'logs', name: 'Journaux', icon: ICON('apps', 'sindryos-journaux') },
+  { id: 'system', name: 'Services, registre…', icon: ICON('apps', 'sindryos-registre') },
+  { id: 'files', name: 'Fichiers', icon: ICON('apps', 'org.xfce.thunar') },
+  { id: 'accounts', name: 'Comptes', icon: ICON('status', 'sindryos-barre-compte') },
+  { id: 'licences', name: 'Licences', icon: ICON('status', 'dialog-password') },
+  { id: 'hardware', name: 'Matériel', icon: ICON('apps', 'sindryos-sante') },
+  { id: 'sindry', name: 'Sindry', icon: ICON('apps', 'sindryos-analyse') },
+];
+// state: included, key (kept on the key), net (to download), planned (to build)
+const T = (id, name, cat, summary, size, state, icon, extra = {}) => ({ id, name, cat, summary, size, state, icon, installed: false, ...extra });
+const TOOLS = [
+  T('sindry', 'Sindry Linux', 'sindry', "L'application centrale : analyse le Windows éteint et lance les scripts du catalogue.", null, 'included', ICON('apps', 'sindryos-analyse'), { pkg: 'sindry', fixed: true, writes: true }),
+  T('gparted', 'GParted', 'partitions', 'Créer, déplacer, redimensionner des partitions.', 1.4, 'included', ICON('apps', 'gparted'), { pkg: 'gparted', writes: true }),
+  T('ntfs', 'Outils NTFS', 'partitions', 'Réparer un NTFS abîmé, le redimensionner, retrouver des fichiers effacés.', 0.5, 'included', ICON('devices', 'drive-harddisk'), { pkg: 'ntfs-3g-progs', term: true, writes: true }),
+  T('parted', 'parted', 'partitions', 'Manipuler les partitions en ligne de commande.', 0.5, 'net', ICON('devices', 'drive-harddisk-solidstate'), { pkg: 'parted', term: true, writes: true }),
+  T('gptfdisk', 'GPT fdisk', 'partitions', 'Réparer une table de partitions GPT, restaurer sa copie de secours.', 0.6, 'net', ICON('devices', 'drive-harddisk'), { pkg: 'gptfdisk', term: true, writes: true }),
+  T('partclone', 'Partclone', 'partitions', 'Cloner une partition, en ne copiant que ce qui est utilisé.', 2.1, 'net', ICON('apps', 'sindryos-disque-windows'), { pkg: 'partclone', term: true, writes: true }),
+  T('wimlib', 'wimlib', 'partitions', 'Lire, capturer et appliquer des images Windows (WIM).', 0.4, 'net', ICON('apps', 'utilities-file-archiver'), { pkg: 'wimlib', term: true, writes: true }),
+  T('testdisk', 'TestDisk et PhotoRec', 'recovery', 'Retrouver une partition perdue, récupérer des fichiers effacés.', 1.1, 'key', ICON('apps', 'sindryos-reparation'), { pkg: 'testdisk', term: true, writes: true }),
+  T('ddrescue', 'GNU ddrescue', 'recovery', "Copier un disque qui lâche, en sauvant le maximum d'abord.", 0.2, 'net', ICON('apps', 'sindryos-sauvegarde'), { pkg: 'ddrescue', term: true }),
+  T('sleuthkit', 'The Sleuth Kit', 'recovery', 'Explorer un système de fichiers en profondeur, sans y écrire.', 0.7, 'net', ICON('apps', 'sindryos-analyse'), { pkg: 'sleuthkit', term: true }),
+  T('evtx', 'evtx_dump', 'logs', 'Lire les journaux .evtx de Windows, en ligne de commande.', 0.1, 'net', ICON('apps', 'sindryos-journaux'), { pkg: 'py3-evtx', term: true }),
+  T('logview', 'Visionneuse de journaux', 'logs', 'Parcourir, filtrer et chercher dans les journaux du Windows éteint.', null, 'planned', ICON('apps', 'sindryos-journaux')),
+  T('regedit', 'Registre hors ligne', 'system', 'Parcourir et modifier les ruches du Windows éteint, avec copie avant chaque écriture.', null, 'planned', ICON('apps', 'sindryos-registre'), { writes: true }),
+  T('services', 'Services', 'system', 'Voir, désactiver ou retirer un service ou un pilote qui empêche Windows de démarrer.', null, 'planned', ICON('apps', 'system-run'), { writes: true }),
+  T('tasks', 'Tâches planifiées', 'system', 'Lister et retirer les tâches planifiées du Windows éteint.', null, 'planned', ICON('apps', 'preferences-system-time'), { writes: true }),
+  T('policies', 'Stratégies', 'system', 'Lire et lever les stratégies de groupe locales.', null, 'planned', ICON('status', 'security-medium'), { writes: true }),
+  T('boot', 'Réparation du démarrage', 'system', 'Reconstruire le démarrage de Windows : BCD et partition EFI.', null, 'planned', ICON('apps', 'sindryos-cle-demarrage'), { writes: true }),
+  T('hivex', 'hivex', 'system', 'Lire et modifier une ruche de registre, en ligne de commande.', 0.2, 'included', ICON('apps', 'sindryos-registre'), { pkg: 'hivex', term: true, writes: true }),
+  T('wine', 'Wine', 'system', 'Lancer certains programmes Windows, sans garantie.', 418, 'net', ICON('apps', 'system-software-install'), { pkg: 'wine' }),
+  T('thunar', 'Fichiers', 'files', 'Le gestionnaire de fichiers.', 1.2, 'included', ICON('apps', 'org.xfce.thunar'), { pkg: 'thunar', writes: true }),
+  T('mc', 'Midnight Commander', 'files', 'Gestionnaire de fichiers à deux panneaux, au clavier.', 2.4, 'net', ICON('places', 'folder'), { pkg: 'mc', term: true, writes: true }),
+  T('ncdu', 'ncdu', 'files', "Voir ce qui remplit un disque.", 0.1, 'net', ICON('apps', 'utilities-system-monitor'), { pkg: 'ncdu', term: true }),
+  T('ghex', 'GHex', 'files', 'Éditeur hexadécimal.', 0.3, 'net', ICON('apps', 'org.xfce.mousepad'), { pkg: 'ghex', writes: true }),
+  T('7zip', '7-Zip', 'files', 'Ouvrir et créer des archives.', 1.7, 'net', ICON('apps', 'utilities-file-archiver'), { pkg: '7zip', term: true }),
+  T('chntpw', 'chntpw', 'accounts', 'Effacer un mot de passe, activer un compte, en ligne de commande.', 0.2, 'net', ICON('status', 'dialog-password'), { pkg: 'chntpw', term: true, writes: true }),
+  T('accounts', 'Comptes Windows', 'accounts', 'Lister les comptes, réinitialiser un mot de passe, activer ou désactiver un compte.', null, 'planned', ICON('status', 'sindryos-barre-compte'), { writes: true }),
+  T('licences', 'Licences de ce PC', 'licences', 'Lire la clé du PC et ses jetons, les sauvegarder, les restaurer. Aucun contournement d\'activation.', null, 'planned', ICON('status', 'dialog-password'), { writes: true }),
+  T('smart', 'smartmontools', 'hardware', "Lire l'état de santé d'un disque.", 1.6, 'net', ICON('apps', 'sindryos-sante'), { pkg: 'smartmontools', term: true }),
+  T('nvme', 'nvme-cli', 'hardware', 'Interroger et gérer un disque NVMe.', 1.2, 'net', ICON('devices', 'drive-harddisk-solidstate'), { pkg: 'nvme-cli', term: true }),
+  T('memtester', 'memtester', 'hardware', 'Tester la mémoire vive depuis le système.', 0.03, 'net', ICON('devices', 'sindryos-memoire'), { pkg: 'memtester', term: true }),
+];
+const NEEDS = [
+  { id: 'lost', name: 'Des fichiers perdus', hint: 'Effacés, ou sur un disque qui lâche', icon: ICON('apps', 'sindryos-sauvegarde'), tools: ['smart', 'ddrescue', 'testdisk', 'sleuthkit'] },
+  { id: 'noboot', name: 'Windows ne démarre plus', hint: 'Écran bleu, boucle, disque introuvable', icon: ICON('apps', 'sindryos-cle-demarrage'), tools: ['sindry', 'logview', 'services', 'boot', 'regedit'] },
+  { id: 'disk', name: 'Un disque, une partition', hint: 'Agrandir, réparer, cloner', icon: ICON('devices', 'drive-harddisk'), tools: ['smart', 'gparted', 'gptfdisk', 'ntfs', 'partclone'] },
+  { id: 'account', name: 'Un compte bloqué', hint: 'Mot de passe oublié, compte désactivé', icon: ICON('status', 'sindryos-barre-compte'), tools: ['accounts', 'chntpw'] },
+  { id: 'understand', name: 'Comprendre une panne', hint: "Journaux, services, ce qui démarre", icon: ICON('apps', 'sindryos-journaux'), tools: ['logview', 'evtx', 'services', 'tasks', 'policies'] },
+  { id: 'licence', name: 'Sauver une licence', hint: 'Avant de réinstaller', icon: ICON('status', 'dialog-password'), tools: ['licences'] },
+  { id: 'files', name: 'Fouiller les fichiers', hint: 'Tout voir, tout ouvrir', icon: ICON('apps', 'org.xfce.thunar'), tools: ['thunar', 'mc', 'ncdu', 'ghex', '7zip'] },
+];
+const VARIANTS = [
+  { id: 'a', name: 'A · Rayons', hint: 'Catégories et cartes' },
+  { id: 'b', name: 'B · Établi', hint: 'Un tableau dense' },
+  { id: 'c', name: 'C · Par besoin', hint: 'On part du problème' },
+];
+const RAM_TOTAL = 8192, RAM_USED = 1740;
+const st = { variant: 'a', cat: 'all', filter: 'all', q: '', sel: 'testdisk', need: null, net: true, keep: true, sort: 'name', busy: {} };
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const size = (t) => t.size == null ? '—' : t.size < 1 ? `${Math.round(t.size * 1000)} Ko` : `${String(t.size).replace('.', ',')} Mo`;
+const fold = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const tool = (id) => TOOLS.find((t) => t.id === id);
+
+function pill(t) {
+  if (st.busy[t.id] != null) return '';
+  if (t.state === 'included') return '<span class="pill p-inclus">Inclus</span>';
+  if (t.state === 'planned') return '<span class="pill p-prevu">Prévu</span>';
+  if (t.installed) return '<span class="pill p-installe">Installé</span>';
+  if (t.state === 'key') return '<span class="pill p-cle">Sur la clé</span>';
+  return '<span class="pill p-dl">À télécharger</span>';
+}
+function action(t) {
+  if (st.busy[t.id] != null) return `<span class="bar"><i style="width:${st.busy[t.id]}%"></i></span>`;
+  if (t.state === 'planned') return '<button class="act" disabled>Prévu</button>';
+  if (t.state === 'included' || t.installed) return `<button class="act" data-open="${t.id}">Ouvrir</button>`;
+  if (t.state === 'key') return `<button class="act go" data-install="${t.id}">Installer</button>`;
+  if (!st.net) return '<button class="act" disabled>Réseau requis</button>';
+  return `<button class="act go" data-install="${t.id}">Télécharger</button>`;
+}
+function visible() {
+  const q = fold(st.q);
+  return TOOLS.filter((t) => {
+    if (st.cat !== 'all' && t.cat !== st.cat) return false;
+    if (st.filter === 'ready' && !(t.state === 'included' || t.installed)) return false;
+    if (st.filter === 'offline' && !(t.state === 'included' || t.installed || t.state === 'key')) return false;
+    return !q || fold(`${t.name} ${t.summary} ${t.pkg || ''}`).includes(q);
+  });
+}
+function topBar() {
+  const seg = [['all', 'Tout'], ['ready', 'Prêts'], ['offline', 'Sans réseau']]
+    .map(([id, name]) => `<button data-filter="${id}" aria-pressed="${st.filter === id}">${name}</button>`).join('');
+  return `<div class="top"><input class="search" id="q" placeholder="Rechercher un outil, un besoin, un paquet" value="${esc(st.q)}"><div class="seg">${seg}</div></div>`;
+}
+function catList() {
+  const all = `<button data-cat="all" aria-pressed="${st.cat === 'all'}"><img alt="" src="${ICON('apps', 'system-software-install')}">Tout<span class="n">${TOOLS.length}</span></button>`;
+  return `<div class="cats">${all}${CATS.map((c) => `<button data-cat="${c.id}" aria-pressed="${st.cat === c.id}"><img alt="" src="${c.icon}">${c.name}<span class="n">${TOOLS.filter((t) => t.cat === c.id).length}</span></button>`).join('')}</div>`;
+}
+function detail() {
+  const t = tool(st.sel);
+  if (!t) return '';
+  const source = t.state === 'planned' ? 'À construire (SindryOS)' : t.fixed ? "Dans l'image" : 'Dépôt Alpine, signé par Alpine';
+  const trace = t.writes ? '<div class="trace"><b>Écrit sur Windows</b> : chaque écriture demande<ol><li>votre confirmation ;</li><li>une copie dans Retours ;</li><li>un journal sur la clé et sur le Windows.</li></ol></div>' : '';
+  const keep = t.state === 'net' && !t.installed ? `<label><input type="checkbox" id="keep" ${st.keep ? 'checked' : ''}> Garder sur la clé, pour se passer du réseau</label>` : '';
+  const remove = t.installed ? `<button class="act" data-remove="${t.id}">Retirer</button>` : '';
+  return `<aside class="detail"><img alt="" src="${t.icon}"><div><h3>${esc(t.name)}</h3>${pill(t)}</div><p style="margin:0">${esc(t.summary)}</p>
+    <dl><dt>Paquet</dt><dd>${esc(t.pkg || '—')}</dd><dt>Taille</dt><dd>${size(t)}</dd><dt>Source</dt><dd>${source}</dd><dt>Ouvre</dt><dd>${t.term ? 'Un terminal' : 'Une fenêtre'}</dd></dl>${trace}${keep}
+    <div class="acts">${action(t)}${remove}</div></aside>`;
+}
+function statusBar() {
+  const used = RAM_USED + TOOLS.filter((t) => t.installed).reduce((sum, t) => sum + (t.size || 0), 0);
+  const onKey = TOOLS.filter((t) => t.state === 'key').length;
+  return `<div class="status"><span class="gauge">Mémoire <span class="bar"><i style="width:${(used / RAM_TOTAL) * 100}%"></i></span> <b>${(RAM_TOTAL - used >= 1024 ? ((RAM_TOTAL - used) / 1024).toFixed(1).replace('.', ',') + ' Go' : Math.round(RAM_TOTAL - used) + ' Mo')} libres</b></span>
+    <span>Installés en mémoire, jusqu'au redémarrage</span><span><b>${onKey}</b> sur la clé</span>
+    <button class="net" data-net="1">${st.net ? 'Réseau : connecté' : 'Réseau : aucun'}</button></div>`;
+}
+function cards(list) {
+  return list.length ? `<div class="grid">${list.map((t) => `<div class="card ${st.sel === t.id ? 'sel' : ''}" data-sel="${t.id}"><div class="head"><img alt="" src="${t.icon}"><div><b>${esc(t.name)}</b>${t.writes ? '<span class="pill p-trace">Écrit sur Windows</span>' : ''}</div></div><p>${esc(t.summary)}</p><div class="foot">${pill(t)}${action(t)}</div></div>`).join('')}</div>` : '<p>Aucun outil ne correspond.</p>';
+}
+function table(list) {
+  const key = { name: (t) => fold(t.name), cat: (t) => t.cat, size: (t) => (t.size == null ? 1e9 : t.size), state: (t) => ['included', 'key', 'net', 'planned'].indexOf(t.state) }[st.sort];
+  const rows = [...list].sort((a, b) => (key(a) > key(b) ? 1 : key(a) < key(b) ? -1 : 0));
+  const head = [['name', 'Outil'], ['cat', 'Catégorie'], ['state', 'État'], ['size', 'Taille']].map(([id, name]) => `<th><button data-sort="${id}" style="background:none;border:0;padding:0;color:${st.sort === id ? 'var(--text)' : 'inherit'}">${name}${st.sort === id ? ' ▾' : ''}</button></th>`).join('');
+  return `<div style="overflow:auto"><table><thead><tr>${head}<th>Windows</th><th></th></tr></thead><tbody>${rows.map((t) => `<tr class="row ${st.sel === t.id ? 'sel' : ''}" data-sel="${t.id}"><td><img alt="" src="${t.icon}">${esc(t.name)}<br><small>${esc(t.summary)}</small></td><td><small>${CATS.find((c) => c.id === t.cat).name}</small></td><td>${pill(t)}</td><td class="num">${size(t)}</td><td>${t.writes ? '<span class="pill p-trace">Écrit</span>' : '<small>Lecture</small>'}</td><td style="text-align:right;min-width:112px">${action(t)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+function needs() {
+  if (!st.need) return `<p style="margin:0 0 12px">Que se passe-t-il sur ce PC ?</p><div class="needs">${NEEDS.map((n) => `<button class="need" data-need="${n.id}"><img alt="" src="${n.icon}"><span><b>${n.name}</b><small>${n.hint}</small></span></button>`).join('')}</div>`;
+  const need = NEEDS.find((n) => n.id === st.need);
+  const steps = need.tools.map(tool).map((t, i) => `<div class="step ${st.sel === t.id ? 'sel' : ''}" data-sel="${t.id}"><img alt="" src="${t.icon}"><div class="t"><b>${i + 1}. ${esc(t.name)}</b><small>${esc(t.summary)}</small></div>${t.writes ? '<span class="pill p-trace">Écrit sur Windows</span>' : ''}${pill(t)}${action(t)}</div>`).join('');
+  return `<button class="back" data-need="">‹ Tous les besoins</button><h3 style="margin:0 0 10px;font-size:16px;font-weight:650">${need.name}</h3>${steps}`;
+}
+function render() {
+  $('#tabs').innerHTML = VARIANTS.map((v) => `<button data-variant="${v.id}" aria-pressed="${st.variant === v.id}"><b>${v.name}</b><small>${v.hint}</small></button>`).join('');
+  const list = visible();
+  let inner;
+  if (st.variant === 'a') inner = `${topBar()}<div class="body">${catList()}<div class="content">${cards(list)}</div>${detail()}</div>`;
+  if (st.variant === 'b') inner = `${topBar()}<div class="body"><div class="content" style="padding:6px 8px">${table(list)}</div>${detail()}</div>`;
+  if (st.variant === 'c') inner = `<div class="body"><div class="content">${needs()}</div>${detail()}</div>`;
+  const focus = document.activeElement && document.activeElement.id === 'q';
+  $('#win').innerHTML = `<div class="tb"><img alt="" src="${ICON('apps', 'system-software-install')}">Caisse à outils<div class="ctl"><span>–</span><span>□</span><span>✕</span></div></div>${inner}${statusBar()}`;
+  if (focus) { const q = $('#q'); q.focus(); q.setSelectionRange(q.value.length, q.value.length); }
+}
+let toastTimer;
+function toast(text) {
+  const box = $('#toast');
+  box.textContent = text;
+  box.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { box.hidden = true; }, 3200);
+}
+function install(t) {
+  const fromKey = t.state === 'key';
+  st.busy[t.id] = 0;
+  const step = fromKey ? 22 : 6;
+  const timer = setInterval(() => {
+    st.busy[t.id] += step;
+    if (st.busy[t.id] >= 100) {
+      clearInterval(timer);
+      delete st.busy[t.id];
+      t.installed = true;
+      if (st.keep || fromKey) t.state = 'key';
+      toast(fromKey ? `${t.name} : installé depuis la clé, signature vérifiée.` : `${t.name} : téléchargé, signature vérifiée${st.keep ? ', gardé sur la clé' : ''}.`);
+    }
+    render();
+  }, 70);
+  render();
+}
+document.addEventListener('click', (event) => {
+  const el = event.target.closest('button, [data-sel]');
+  if (!el) return;
+  const d = el.dataset;
+  if (d.variant) st.variant = d.variant;
+  else if (d.cat) st.cat = d.cat;
+  else if (d.filter) st.filter = d.filter;
+  else if (d.sort) st.sort = d.sort;
+  else if ('need' in d) st.need = d.need || null;
+  else if (d.net) st.net = !st.net;
+  else if (d.install) { st.sel = d.install; install(tool(d.install)); return; }
+  else if (d.open) { toast(`${tool(d.open).name} s'ouvre${tool(d.open).term ? ' dans un terminal' : ''}.`); return; }
+  else if (d.remove) { const t = tool(d.remove); t.installed = false; toast(`${t.name} : retiré de la mémoire${t.state === 'key' ? ', il reste sur la clé' : ''}.`); }
+  else if (d.sel) st.sel = d.sel;
+  render();
+});
+document.addEventListener('input', (event) => {
+  if (event.target.id === 'q') { st.q = event.target.value; render(); }
+});
+document.addEventListener('change', (event) => {
+  if (event.target.id === 'keep') st.keep = event.target.checked;
+});
+render();
+</script>
+</body>
+</html>
