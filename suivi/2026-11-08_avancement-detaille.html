@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sindry · Avancement détaillé au 08/11/2026</title>
+<meta name="description" content="Où en est le projet Sindry : versions, dates, tâches en cours, en attente et mises de côté, décisions à prendre.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/png" href="../mockups/_ressources/marque.png">
+<script>
+  try { var t = localStorage.getItem('mediatheque.theme'); if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+<style>
+@font-face { font-family: 'Inter'; font-weight: 100 900; font-display: swap; src: url('../mockups/_ressources/inter-latin-wght-normal.woff2') format('woff2-variations'); }
+@font-face { font-family: 'Sindry Mono'; font-weight: 400; font-display: swap; src: url('../mockups/_ressources/sindry-mono-400.woff2') format('woff2'); }
+
+:root {
+  --bg: #F6F4EF; --surface: #FFFFFF; --surface-2: #EFECE5; --border: #DCD7CC;
+  --text: #141A24; --text-2: #5C6778; --muted: #7A8494;
+  --acc: #E2640F; --acc-on: #A84A08; --acc-soft: #FCEBDD; --ink: #1A0B06;
+  --mark: #E2640F; --grid: #E7E3DA;
+  --ok: #0E7550; --ok-s: #E6F5EC; --warn: #8F5D0C; --warn-s: #FBF3E2;
+  --err: #C0263F; --err-s: #FBEAEC; --info: #2F5E9E; --info-s: #E8EFF9; --idle: #5C6778; --idle-s: #EFECE5;
+  --sh: 0 1px 2px rgba(31,20,38,.05), 0 6px 18px rgba(31,20,38,.06);
+  --ui: 'Inter', 'Segoe UI Variable Text', 'Segoe UI', system-ui, sans-serif;
+  --mono: 'Sindry Mono', 'Cascadia Mono', Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0B0F16; --surface: #0F1520; --surface-2: #141C2A; --border: #2A3445;
+    --text: #E9EEF5; --text-2: #8C9AAE; --muted: #74839A;
+    --acc: #FD7D26; --acc-on: #FF9A55; --acc-soft: #2A1A10; --ink: #1A0B06;
+    --mark: #E86A1C; --grid: #1E2737;
+    --ok: #3FD69B; --ok-s: #0C2620; --warn: #FFC24D; --warn-s: #2A2210;
+    --err: #FF6B7A; --err-s: #2E141C; --info: #7FB2FF; --info-s: #13213A; --idle: #8C9AAE; --idle-s: #141C2A;
+    --sh: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0B0F16; --surface: #0F1520; --surface-2: #141C2A; --border: #2A3445;
+  --text: #E9EEF5; --text-2: #8C9AAE; --muted: #74839A;
+  --acc: #FD7D26; --acc-on: #FF9A55; --acc-soft: #2A1A10; --ink: #1A0B06;
+  --mark: #E86A1C; --grid: #1E2737;
+  --ok: #3FD69B; --ok-s: #0C2620; --warn: #FFC24D; --warn-s: #2A2210;
+  --err: #FF6B7A; --err-s: #2E141C; --info: #7FB2FF; --info-s: #13213A; --idle: #8C9AAE; --idle-s: #141C2A;
+  --sh: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 70px; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 400 15.5px/1.55 var(--ui); overflow-wrap: anywhere; }
+a { color: var(--acc-on); text-underline-offset: 3px; }
+code { font-family: var(--mono); font-size: .86em; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: 4px; }
+.ico { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; vertical-align: -2px; }
+
+.top { position: sticky; top: 0; z-index: 10; background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.top-in { max-width: 1180px; margin: 0 auto; padding: 10px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font-weight: 750; font-size: 18px; }
+.brand img { width: 28px; height: 28px; }
+.brand span span { color: var(--text-2); font-weight: 550; }
+.nav { display: flex; gap: 2px; flex: 1; flex-wrap: wrap; }
+.nav a { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 550; padding: 5px 9px; border-radius: 8px; white-space: nowrap; }
+.nav a:hover { color: var(--text); background: var(--surface-2); }
+.btn-theme { border: 1px solid var(--border); background: var(--surface); color: var(--text-2); border-radius: 8px; padding: 5px 10px; font: 550 13px var(--ui); cursor: pointer; }
+
+main { max-width: 1180px; margin: 0 auto; padding: 28px 16px 64px; }
+.hero h1 { font-size: clamp(28px, 4.4vw, 42px); line-height: 1.1; margin: 0 0 8px; letter-spacing: -.02em; }
+.hero p { margin: 0; color: var(--text-2); max-width: 780px; font-size: 16.5px; }
+h2 { font-size: 22px; letter-spacing: -.01em; margin: 44px 0 6px; line-height: 1.25; }
+h2 + .sous { margin: 0 0 16px; color: var(--text-2); font-size: 15px; max-width: 780px; }
+
+/* Tuiles de chiffres */
+.tuiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-top: 24px; }
+.tuile { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--sh); display: flex; flex-direction: column; gap: 2px; }
+.tuile .l { font-size: 12.5px; color: var(--text-2); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.tuile .v { font-size: 30px; font-weight: 750; letter-spacing: -.02em; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.tuile .v small { font-size: 15px; font-weight: 600; color: var(--text-2); margin-left: 4px; }
+.tuile .d { font-size: 13px; color: var(--text-2); }
+.tuile.fort { border-color: var(--acc); background: var(--acc-soft); }
+.tuile.fort .v { color: var(--acc-on); }
+
+/* Pastilles d'état : toujours une icône et un mot */
+.etat { display: inline-flex; align-items: center; gap: 5px; font: 650 12.5px/1 var(--ui); padding: 5px 9px; border-radius: 999px; white-space: nowrap; }
+.etat.ok { color: var(--ok); background: var(--ok-s); }
+.etat.warn { color: var(--warn); background: var(--warn-s); }
+.etat.err { color: var(--err); background: var(--err-s); }
+.etat.info { color: var(--info); background: var(--info-s); }
+.etat.idle { color: var(--idle); background: var(--idle-s); }
+
+/* Chemin critique */
+.chemin { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; counter-reset: etape; }
+.chemin li { position: relative; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 12px 12px 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.chemin li::before { counter-increment: etape; content: counter(etape); position: absolute; top: -10px; left: 12px; width: 22px; height: 22px; border-radius: 50%; background: var(--text); color: var(--bg); font: 750 12px/22px var(--ui); text-align: center; }
+.chemin li:not(:last-child)::after { content: ''; position: absolute; top: 50%; right: -9px; width: 8px; height: 2px; background: var(--border); }
+.chemin li.toi { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc) inset; }
+.chemin b { font-size: 14.5px; line-height: 1.3; padding-top: 6px; }
+.chemin p { margin: 0; font-size: 13px; color: var(--text-2); line-height: 1.45; }
+.chemin .etat { align-self: flex-start; margin-top: auto; }
+
+/* Décisions */
+.decisions { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 12px; }
+.decision { background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--acc); border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; }
+.decision .num { grid-row: span 4; font: 800 15px var(--ui); color: var(--acc-on); background: var(--acc-soft); border-radius: 10px; width: 38px; height: 38px; display: grid; place-items: center; }
+.decision b { font-size: 15.5px; line-height: 1.35; }
+.decision .q { margin: 0; color: var(--text); font-size: 14px; }
+.decision .meta { font-size: 13px; color: var(--text-2); display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.decision .meta span b { font-size: 13px; color: var(--text); font-weight: 600; }
+.decision.conseil { border-left-color: var(--info); }
+.decision.conseil .num { color: var(--info); background: var(--info-s); }
+
+/* Les six parties */
+.parties { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 14px; }
+.partie { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--sh); display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
+.partie header { padding: 14px 16px 12px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+.partie .t { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.partie h3 { margin: 0; font-size: 18px; letter-spacing: -.01em; }
+.partie .ou { font-size: 13px; color: var(--text-2); }
+.partie .etats { display: flex; gap: 6px; flex-wrap: wrap; }
+.faits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--border); }
+.fait { padding: 10px 12px; border-right: 1px solid var(--border); min-width: 0; }
+.fait:last-child { border-right: 0; }
+.fait .l { font-size: 11.5px; color: var(--text-2); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.fait .v { font-size: 17px; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.3; }
+.fait .d { font-size: 12.5px; color: var(--text-2); }
+.fait .v.vide { color: var(--muted); font-weight: 600; }
+.listes { padding: 4px 16px 14px; display: flex; flex-direction: column; }
+.listes h4 { margin: 12px 0 4px; font-size: 12.5px; text-transform: uppercase; letter-spacing: .04em; display: flex; align-items: center; gap: 6px; }
+.listes h4.cours { color: var(--info); } .listes h4.attente { color: var(--warn); } .listes h4.cote { color: var(--idle); }
+.listes ul { margin: 0; padding-left: 18px; font-size: 14px; }
+.listes li { margin: 3px 0; }
+.listes li::marker { color: var(--muted); }
+.pied-partie { margin-top: auto; padding: 10px 16px; background: var(--warn-s); color: var(--warn); font-size: 13px; display: flex; gap: 8px; align-items: flex-start; }
+.pied-partie.ok { background: var(--ok-s); color: var(--ok); }
+.pied-partie b { font-weight: 650; }
+
+/* Graphiques */
+.graphes { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 14px; }
+.graphe { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px; min-width: 0; }
+.graphe h3 { margin: 0 0 2px; font-size: 16px; }
+.graphe .sous { margin: 0 0 12px; font-size: 13px; color: var(--text-2); }
+.legende { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--text-2); margin-bottom: 10px; }
+.legende span { display: inline-flex; align-items: center; gap: 6px; }
+.m-pub { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--mark); background: var(--surface); display: inline-block; }
+.m-act { width: 12px; height: 12px; border-radius: 50%; background: var(--mark); display: inline-block; box-shadow: 0 0 0 2px var(--surface); }
+.m-ecart { width: 18px; height: 2px; background: var(--mark); opacity: .55; display: inline-block; }
+
+.frise { display: grid; grid-template-columns: 112px minmax(0, 1fr); row-gap: 2px; }
+.frise .nom { font-size: 13px; font-weight: 600; align-self: center; padding-right: 8px; }
+.piste { position: relative; height: 34px; }
+.piste::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--grid); }
+.repere { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--grid); }
+.repere.auj { background: var(--text-2); opacity: .5; width: 1px; border-left: 1px dashed var(--text-2); background: none; }
+.ecart { position: absolute; top: calc(50% - 1px); height: 2px; background: var(--mark); opacity: .55; }
+.point { position: absolute; top: 50%; width: 22px; height: 22px; margin: -11px 0 0 -11px; border: 0; padding: 0; background: transparent; cursor: pointer; display: grid; place-items: center; }
+.point i { width: 12px; height: 12px; border-radius: 50%; display: block; }
+.point.pub i { border: 2px solid var(--mark); background: var(--surface); }
+.point.act i { background: var(--mark); box-shadow: 0 0 0 2px var(--surface); }
+.point:hover i, .point:focus-visible i { transform: scale(1.25); }
+.jamais { position: absolute; top: 50%; transform: translateY(-50%); font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+.axe { grid-column: 2; position: relative; height: 22px; font-size: 11.5px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.axe span { position: absolute; transform: translateX(-50%); white-space: nowrap; top: 4px; }
+.axe span.auj { color: var(--text); font-weight: 650; }
+
+.barres { display: flex; flex-direction: column; gap: 2px; }
+.barre { display: grid; grid-template-columns: 112px minmax(0, 1fr) 30px; align-items: center; gap: 8px; height: 30px; border: 0; background: transparent; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; border-radius: 6px; }
+.barre:hover { background: var(--surface-2); }
+.barre .nom { font-size: 13px; font-weight: 600; }
+.barre .rail { position: relative; height: 16px; }
+.barre .rail i { position: absolute; left: 0; top: 0; bottom: 0; background: var(--mark); border-radius: 0 4px 4px 0; }
+.barre .val { font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+details.tableau { margin-top: 12px; font-size: 13px; }
+details.tableau summary { cursor: pointer; color: var(--text-2); font-weight: 600; }
+details.tableau table { border-collapse: collapse; margin-top: 8px; width: 100%; }
+details.tableau th, details.tableau td { text-align: left; padding: 5px 8px; border-bottom: 1px solid var(--border); }
+details.tableau th { color: var(--text-2); font-weight: 600; }
+
+.infobulle { position: fixed; z-index: 30; pointer-events: none; background: var(--text); color: var(--bg); font-size: 13px; line-height: 1.4; padding: 7px 10px; border-radius: 8px; max-width: 260px; box-shadow: var(--sh); opacity: 0; transition: opacity .1s; }
+.infobulle.vu { opacity: 1; }
+
+/* À savoir */
+.savoir { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.note { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; }
+.note h3 { margin: 0 0 6px; font-size: 15.5px; display: flex; align-items: center; gap: 8px; }
+.note ul { margin: 0; padding-left: 18px; font-size: 14px; }
+.note li { margin: 3px 0; }
+.note p { margin: 0; font-size: 14px; color: var(--text-2); }
+
+footer { max-width: 1180px; margin: 0 auto; padding: 20px 16px 40px; border-top: 1px solid var(--border); color: var(--text-2); font-size: 13px; }
+footer p { margin: 0 0 6px; }
+
+@media (max-width: 980px) {
+  .chemin { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 18px; }
+  .chemin li:nth-child(3)::after { display: none; }
+  .graphes { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  main { padding-top: 18px; }
+  html { scroll-padding-top: 110px; }
+  .axe span.proche { display: none; }
+  .nav { order: 3; flex-basis: 100%; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 0 12px; }
+  .chemin { grid-template-columns: 1fr; }
+  .chemin li::after { display: none; }
+  .parties, .decisions, .savoir { grid-template-columns: 1fr; }
+  .decision { grid-template-columns: 1fr; }
+  .decision .num { grid-row: auto; }
+  .faits { grid-template-columns: 1fr 1fr; }
+  .fait:nth-child(2) { border-right: 0; }
+  .fait:nth-child(3) { grid-column: span 2; border-top: 1px solid var(--border); }
+  .frise { grid-template-columns: 86px minmax(0, 1fr); }
+  .barre { grid-template-columns: 86px minmax(0, 1fr) 26px; }
+  .frise .nom, .barre .nom { font-size: 12px; }
+  .tuile .v { font-size: 26px; }
+}
+@media (prefers-reduced-motion: reduce) { .infobulle { transition: none; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-ok" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/></symbol>
+  <symbol id="i-alerte" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4M12 17h.01"/></symbol>
+  <symbol id="i-toi" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></symbol>
+  <symbol id="i-cours" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></symbol>
+  <symbol id="i-plan" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></symbol>
+  <symbol id="i-cote" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10h14V9M10 13h4"/></symbol>
+  <symbol id="i-nuage" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .5-8A6 6 0 0 0 6 9.5 4.3 4.3 0 0 0 7 18z"/><path d="m4 4 16 16"/></symbol>
+  <symbol id="i-test" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4 19a1.5 1.5 0 0 0 1.3 2h13.4A1.5 1.5 0 0 0 20 19L14 9V3"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="top-in">
+    <a class="brand" href="../"><img src="../mockups/_ressources/marque.png" alt="" width="28" height="28"><span>Sindry <span>Avancement</span></span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#chemin">Chemin critique</a><a href="#decisions">Tes décisions</a><a href="#parties">Les six parties</a><a href="#rythme">Rythme</a><a href="#savoir">À savoir</a>
+    </nav>
+    <button class="btn-theme" id="theme" type="button">Thème : auto</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Où en est Sindry</h1>
+    <p>État au <b>dimanche 8 novembre 2026</b>, relevé dans les dépôts GitHub et dans les derniers messages des conversations
+      Sindry App, Sindry OS, Sindry Scripts, Sindry Game et Sindry Icons. En une phrase : <b>tout est prêt pour la 2.5.0, et
+      tout attend ton accord sur le catalogue</b>.</p>
+    <div class="tuiles">
+      <div class="tuile"><span class="l">Publiée</span><span class="v">2.4.0</span><span class="d">App Windows, le 26/10</span></div>
+      <div class="tuile"><span class="l">Prête, pas déployée</span><span class="v">2.5.0</span><span class="d">Bloquée par le catalogue</span></div>
+      <div class="tuile"><span class="l">Catalogue</span><span class="v">1.6.1 <small>→ 1.7.0</small></span><span class="d">1.7.0 convertie, en local</span></div>
+      <div class="tuile"><span class="l">SindryOS</span><span class="v">0.12.0</span><span class="d">En local, jamais sur un vrai PC</span></div>
+      <div class="tuile"><span class="l">Mockups</span><span class="v">29</span><span class="d">M30 à M58, prochain M59</span></div>
+      <div class="tuile fort"><span class="l">Tes décisions</span><span class="v">6</span><span class="d">+ 1 conseil de ma part</span></div>
+    </div>
+  </section>
+
+  <section id="chemin">
+    <h2>Le chemin critique vers la 2.5.0</h2>
+    <p class="sous">Tout part de ta décision 1 : sans le catalogue 1.7.0, la 2.5.0 ne part pas, et sans la 2.5.0, la fin de WinTool (2.6.0) non plus.</p>
+    <ol class="chemin">
+      <li class="toi"><b>Ton accord pour publier le catalogue 1.7.0</b><p>Demandé par Sindry Scripts, relayé par Sindry App le 07/11.</p>
+        <span class="etat warn"><svg class="ico"><use href="#i-toi"/></svg>Attend ta réponse</span></li>
+      <li><b>Sindry Scripts publie la 1.7.0</b><p>Conversion faite : plus aucune mention de WinTool, intégration continue convertie.</p>
+        <span class="etat ok"><svg class="ico"><use href="#i-ok"/></svg>Prêt</span></li>
+      <li class="toi"><b>Tu acceptes le bandeau du catalogue dans Sindry</b><p>La nouvelle version se propose par un bandeau sur chaque PC.</p>
+        <span class="etat idle"><svg class="ico"><use href="#i-plan"/></svg>Ensuite</span></li>
+      <li><b>Essai du retour arrière dans la VM</b><p>Testé sur un banc seulement, jamais sur une vraie mise à jour.</p>
+        <span class="etat err"><svg class="ico"><use href="#i-test"/></svg>Jamais testé en vrai</span></li>
+      <li class="toi"><b>« déploie » : la 2.5.0 part</b><p>Sindry App ne déploie qu'après confirmation de la publication du catalogue.</p>
+        <span class="etat ok"><svg class="ico"><use href="#i-ok"/></svg>Prête en local</span></li>
+      <li><b>2.6.0 : la fin de WinTool</b><p>Prête sur la branche <code>fin-de-l-ancien-nom</code>, à fusionner après le catalogue.</p>
+        <span class="etat ok"><svg class="ico"><use href="#i-ok"/></svg>Branche prête</span></li>
+    </ol>
+  </section>
+
+  <section id="decisions">
+    <h2>Les points qui attendent ton retour</h2>
+    <p class="sous">Six questions posées par les conversations, la plupart le 07/11, et un conseil de ma part. Les numéros sont ceux de la partie D de mon rapport.</p>
+    <ol class="decisions">
+      <li class="decision"><span class="num">1</span><b>Publier le catalogue 1.7.0 ?</b>
+        <p class="q">Le catalogue converti au contrat Sindry est prêt. Sa publication débloque la 2.5.0.</p>
+        <div class="meta"><span><b>Demandé par</b> Sindry Scripts, via Sindry App</span><span><b>Débloque</b> les étapes 2 à 6</span></div></li>
+      <li class="decision"><span class="num">2</span><b>Déployer la 2.5.0 (« déploie ») ?</b>
+        <p class="q">Après la publication du catalogue et le bandeau accepté. Sindry App propose d'abord quelques retouches (captures du site, feuille de route) et une version portable d'essai.</p>
+        <div class="meta"><span><b>Demandé par</b> Sindry App</span><span><b>Conseil</b> essayer d'abord le retour arrière dans la VM</span></div></li>
+      <li class="decision"><span class="num">3</span><b>Prêter les VM W10 et W11 à SindryOS ?</b>
+        <p class="q">Sur un instantané, pour qu'un vrai Windows lise le journal de SindryOS et pour essayer le moteur du registre <code>sindry-hive</code>.</p>
+        <div class="meta"><span><b>Demandé par</b> Sindry OS et Sindry App</span><span><b>Débloque</b> le premier essai sur un vrai Windows</span></div></li>
+      <li class="decision"><span class="num">4</span><b>Deux niveaux de trace, d'accord ?</b>
+        <p class="q">Trace complète (confirmation, copie, journal) pour Sindry, les scripts et les outils de SindryOS. Pour un outil manié à la main : seulement son lancement noté, avec un avertissement avant de l'ouvrir.</p>
+        <div class="meta"><span><b>Demandé par</b> Sindry OS et Sindry App</span><span><b>Conseil</b> oui, c'est la seule promesse tenable</span></div></li>
+      <li class="decision"><span class="num">5</span><b>Mots de passe et Administrateur : outils de l'OS seulement ?</b>
+        <p class="q">Réinitialiser un mot de passe ou activer l'Administrateur intégré resterait réservé aux outils de SindryOS, sans passer par Sindry Linux.</p>
+        <div class="meta"><span><b>Demandé par</b> Sindry App</span><span><b>Conseil</b> oui (Sindry App)</span></div></li>
+      <li class="decision"><span class="num">6</span><b>Nommer le dépôt du catalogue d'outils</b>
+        <p class="q">Nom proposé : <code>Sindry-Toolbox</code>. Sans dépôt, le catalogue n'est pas hébergé et les outils ne s'ajoutent pas à distance.</p>
+        <div class="meta"><span><b>Demandé par</b> Sindry OS</span><span><b>Débloque</b> l'hébergement du catalogue d'outils</span></div></li>
+      <li class="decision conseil"><span class="num">7</span><b>Sauvegarder le travail local sur GitHub ?</b>
+        <p class="q">La 2.5.0, la 2.6.0, SindryOS 0.11 et 0.12 et le catalogue 1.7.0 n'existent que sur ton PC. Les pousser sur des branches de travail, sans rien publier, les mettrait à l'abri. Attention : le dépôt Sindry est public, et la surprise de la 2.5.0 y deviendrait lisible.</p>
+        <div class="meta"><span><b>Conseil de</b> cette conversation</span><span><b>Risque évité</b> une perte en cas de panne du PC</span></div></li>
+    </ol>
+  </section>
+
+  <section id="parties">
+    <h2>Les six parties</h2>
+    <p class="sous">Pour chacune : la dernière version publiée, ce qui attend sur ton PC, la dernière activité, puis ce qui est en cours, en attente ou mis de côté. Le travail de Sindry Game est rangé dans l'App Windows, celui de Sindry Icons dans les Médias.</p>
+    <div class="parties">
+
+      <article class="partie">
+        <header>
+          <div class="t"><h3>App Windows</h3><span class="ou">Dépôt <code>Sindry</code></span></div>
+          <div class="etats"><span class="etat ok"><svg class="ico"><use href="#i-ok"/></svg>2.5.0 prête</span><span class="etat warn"><svg class="ico"><use href="#i-pause"/></svg>Bloquée par le catalogue</span></div>
+        </header>
+        <div class="faits">
+          <div class="fait"><div class="l">Publiée</div><div class="v">2.4.0</div><div class="d">26/10/2026</div></div>
+          <div class="fait"><div class="l">En local</div><div class="v">2.5.0</div><div class="d">puis 2.6.0 (branche)</div></div>
+          <div class="fait"><div class="l">Dernière activité</div><div class="v">07/11</div><div class="d">Sindry App</div></div>
+        </div>
+        <div class="listes">
+          <h4 class="cours"><svg class="ico"><use href="#i-cours"/></svg>Prêt, en local</h4>
+          <ul>
+            <li>2.5.0 : journaux, curseur et fichier, icône officielle, une seule fenêtre, retour arrière si une mise à jour échoue</li>
+            <li>La surprise de la 2.5.0 : intégrée, <b>gardée secrète</b> (rien dans les nouveautés ni sur le site)</li>
+            <li>2.6.0 : la fin de WinTool sur la branche <code>fin-de-l-ancien-nom</code>, CI au vert</li>
+          </ul>
+          <h4 class="attente"><svg class="ico"><use href="#i-pause"/></svg>En attente</h4>
+          <ul>
+            <li>Déploiement de la 2.5.0 : après le catalogue 1.7.0 (décisions 1 et 2)</li>
+            <li>Retouches avant déploiement : captures du site, feuille de route publique (arrêtée à la 2.4.0)</li>
+            <li>À tester : le retour arrière sur une vraie mise à jour, la surprise dans la vraie appli</li>
+          </ul>
+          <h4 class="cote"><svg class="ico"><use href="#i-cote"/></svg>Mis de côté</h4>
+          <ul>
+            <li>v3 : chat avec une IA qui écrit des scripts, pilotage à distance (à étudier)</li>
+            <li>Ambiance Star Wars, signature de l'exécutable, faux positifs des antivirus</li>
+          </ul>
+        </div>
+        <div class="pied-partie"><svg class="ico"><use href="#i-nuage"/></svg><span><b>Pas sur GitHub :</b> 2.5.0 (<code>7301cc1</code>, <code>dbf33d7</code>, <code>be628c6</code>), branche 2.6.0 (<code>c120e34</code>)</span></div>
+      </article>
+
+      <article class="partie">
+        <header>
+          <div class="t"><h3>App Linux</h3><span class="ou">Sindry Linux, lancé dans SindryOS</span></div>
+          <div class="etats"><span class="etat info"><svg class="ico"><use href="#i-plan"/></svg>En conception</span><span class="etat idle"><svg class="ico"><use href="#i-info"/></svg>Aucun code</span></div>
+        </header>
+        <div class="faits">
+          <div class="fait"><div class="l">Publiée</div><div class="v vide">aucune</div><div class="d">pas de version</div></div>
+          <div class="fait"><div class="l">Contrat avec l'OS</div><div class="v">0.30</div><div class="d">validé le 07/11</div></div>
+          <div class="fait"><div class="l">Dernière activité</div><div class="v">07/11</div><div class="d">Sindry App</div></div>
+        </div>
+        <div class="listes">
+          <h4 class="cours"><svg class="ico"><use href="#i-cours"/></svg>En cours</h4>
+          <ul>
+            <li>Interfaces convenues avec SindryOS : moteur du registre <code>sindry-hive</code>, journal <code>sindry-journal</code>, installation d'outils <code>sindry-caisse</code></li>
+            <li>Événements <code>action_started</code> et <code>action_finished</code>, refus <code>HIVE_DIRTY</code> et <code>WINDOWS_HIBERNATED</code></li>
+          </ul>
+          <h4 class="attente"><svg class="ico"><use href="#i-pause"/></svg>En attente</h4>
+          <ul>
+            <li>Tes décisions 4 (traces) et 5 (mots de passe et Administrateur)</li>
+            <li>Le début du code : « rien à coder pour l'instant », selon Sindry App</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="partie">
+        <header>
+          <div class="t"><h3>Scripts Win</h3><span class="ou">Dépôt <code>Sindry-Catalogue</code></span></div>
+          <div class="etats"><span class="etat ok"><svg class="ico"><use href="#i-ok"/></svg>1.7.0 prête</span><span class="etat warn"><svg class="ico"><use href="#i-toi"/></svg>Attend ton accord</span></div>
+        </header>
+        <div class="faits">
+          <div class="fait"><div class="l">Publiée</div><div class="v">1.6.1</div><div class="d">11/10/2026 · 28 scripts</div></div>
+          <div class="fait"><div class="l">En local</div><div class="v">1.7.0</div><div class="d">convertie le 07/11</div></div>
+          <div class="fait"><div class="l">Dernière activité</div><div class="v">07/11</div><div class="d">Sindry Scripts</div></div>
+        </div>
+        <div class="listes">
+          <h4 class="cours"><svg class="ico"><use href="#i-cours"/></svg>Prêt, en local</h4>
+          <ul>
+            <li>1.7.0 : les 28 scripts au contrat Sindry, plus aucune mention de WinTool sur les deux branches, CI convertie</li>
+            <li>Le 607 prévient que sa pause des mises à jour survit à la désinstallation de Sindry</li>
+            <li>Gardé exprès : la signature <code>WTB1</code> des paquets des 620 et 621</li>
+          </ul>
+          <h4 class="attente"><svg class="ico"><use href="#i-pause"/></svg>En attente</h4>
+          <ul><li>Publication de la 1.7.0 (décision 1)</li></ul>
+          <h4 class="cote"><svg class="ico"><use href="#i-cote"/></svg>Mis de côté</h4>
+          <ul><li>Le 640, qui crée et met à jour la clé SindryOS : arrêté jusqu'à ce que l'OS soit terminé et hébergé (ta consigne du 05/11). Ses règles sont prêtes (contrat 0.23).</li></ul>
+        </div>
+        <div class="pied-partie"><svg class="ico"><use href="#i-nuage"/></svg><span><b>Pas sur GitHub :</b> la 1.7.0</span></div>
+      </article>
+
+      <article class="partie">
+        <header>
+          <div class="t"><h3>Scripts Linux</h3><span class="ou">Le catalogue d'outils de SindryOS</span></div>
+          <div class="etats"><span class="etat ok"><svg class="ico"><use href="#i-ok"/></svg>Construit</span><span class="etat warn"><svg class="ico"><use href="#i-alerte"/></svg>Pas hébergé</span></div>
+        </header>
+        <div class="faits">
+          <div class="fait"><div class="l">Publiée</div><div class="v vide">aucune</div><div class="d">dépôt à créer</div></div>
+          <div class="fait"><div class="l">En local</div><div class="v">21 outils</div><div class="d">avec SindryOS 0.11.0</div></div>
+          <div class="fait"><div class="l">Dernière activité</div><div class="v">07/11</div><div class="d">Sindry OS</div></div>
+        </div>
+        <div class="listes">
+          <h4 class="cours"><svg class="ico"><use href="#i-cours"/></svg>Prêt, en local</h4>
+          <ul>
+            <li>Une fiche par outil (<code>catalogue/outils/&lt;id&gt;.json</code>), index signé, contrôle automatique à la construction</li>
+            <li>Les 21 outils à paquets (Wine compris) installés en VM ; des outils s'ajoutent sans refaire l'image</li>
+            <li>Un script peut demander un outil à Sindry Linux par <code>sindry-caisse</code></li>
+          </ul>
+          <h4 class="attente"><svg class="ico"><use href="#i-pause"/></svg>En attente</h4>
+          <ul>
+            <li>Le nom du dépôt (décision 6), puis l'hébergement</li>
+            <li>Les scripts propres à Sindry Linux : rien d'écrit pour l'instant</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="partie">
+        <header>
+          <div class="t"><h3>OS</h3><span class="ou">SindryOS, base Alpine 3.24</span></div>
+          <div class="etats"><span class="etat info"><svg class="ico"><use href="#i-cours"/></svg>En cours</span><span class="etat err"><svg class="ico"><use href="#i-test"/></svg>Jamais sur un vrai PC</span></div>
+        </header>
+        <div class="faits">
+          <div class="fait"><div class="l">Publiée</div><div class="v vide">aucune</div><div class="d">pas encore hébergé</div></div>
+          <div class="fait"><div class="l">En local</div><div class="v">0.12.0</div><div class="d">dernière ISO vérifiée : 0.9.0</div></div>
+          <div class="fait"><div class="l">Dernière activité</div><div class="v">07/11</div><div class="d">Sindry OS</div></div>
+        </div>
+        <div class="listes">
+          <h4 class="cours"><svg class="ico"><use href="#i-cours"/></svg>En cours</h4>
+          <ul>
+            <li>0.11.0 : la caisse à outils (M58, disposition A « Rayons »), épinglée au menu démarrer</li>
+            <li>0.12.0 : le journal écrit sur le Windows soigné, et <code>sindry-caisse</code> ; contrat 0.30</li>
+            <li>Icônes Prisme (M55, M57) et lanceur Allumage, version claire sur la barre</li>
+            <li>Interdits levés : mot de passe, Administrateur intégré, actions hors ligne, licence. Toujours exclu : contourner BitLocker ou une activation</li>
+          </ul>
+          <h4 class="attente"><svg class="ico"><use href="#i-pause"/></svg>En attente</h4>
+          <ul>
+            <li>Tes décisions 3 (VM), 4 (traces) et 6 (dépôt)</li>
+            <li>Un premier essai sur un vrai PC, et l'hébergement de l'image</li>
+            <li>Une lenteur à expliquer : le report du journal après un montage prend de 2 à 20 s</li>
+          </ul>
+        </div>
+        <div class="pied-partie"><svg class="ico"><use href="#i-nuage"/></svg><span><b>Pas sur GitHub :</b> 0.11.0 et 0.12.0 (<code>3cc2651</code>, <code>3151e69</code>) et le contrat</span></div>
+      </article>
+
+      <article class="partie">
+        <header>
+          <div class="t"><h3>Médias</h3><span class="ou">Dépôt <code>Sindry-Media-Library</code></span></div>
+          <div class="etats"><span class="etat ok"><svg class="ico"><use href="#i-ok"/></svg>En ligne</span><span class="etat ok"><svg class="ico"><use href="#i-ok"/></svg>À jour</span></div>
+        </header>
+        <div class="faits">
+          <div class="fait"><div class="l">Publié</div><div class="v">M58</div><div class="d">site du 07/11, 09:13</div></div>
+          <div class="fait"><div class="l">Fichiers</div><div class="v">802</div><div class="d">sur le site, registre valide</div></div>
+          <div class="fait"><div class="l">Dernière activité</div><div class="v">07/11</div><div class="d">Sindry OS (M58)</div></div>
+        </div>
+        <div class="listes">
+          <h4 class="cours"><svg class="ico"><use href="#i-cours"/></svg>Contenu</h4>
+          <ul>
+            <li>29 mockups, de M30 à M58 ; prochain numéro M59</li>
+            <li>Icône officielle T3 (retenue le 02/11) : 12 SVG, dont 3 animés pour les écrans de chargement</li>
+            <li>743 images, dont 720 icônes de SindryOS et 22 lanceurs ; 17 icônes d'applications du catalogue</li>
+          </ul>
+          <h4 class="attente"><svg class="ico"><use href="#i-pause"/></svg>En attente</h4>
+          <ul><li>Rien de bloquant : depuis le 03/11, chaque conversation pousse ses médias aussitôt</li></ul>
+          <h4 class="cote"><svg class="ico"><use href="#i-cote"/></svg>Mis de côté</h4>
+          <ul>
+            <li>Le dépôt <code>Sindry-Ambiances</code> est vide : les ambiances vivent dans le dépôt Sindry</li>
+            <li>M01 à M29 restent dans le dépôt Sindry ; Sindry Icons est archivée depuis le 05/11</li>
+          </ul>
+        </div>
+        <div class="pied-partie ok"><svg class="ico"><use href="#i-ok"/></svg><span><b>Tout est sur GitHub</b> et publié sur le site.</span></div>
+      </article>
+
+    </div>
+  </section>
+
+  <section id="rythme">
+    <h2>Le rythme</h2>
+    <p class="sous">L'écart entre la dernière publication et la dernière activité montre le travail qui n'existe que sur ton PC.</p>
+    <div class="graphes">
+      <figure class="graphe" style="margin:0">
+        <h3>Publié et travaillé, par partie</h3>
+        <p class="sous">Du 6 octobre au 8 novembre 2026</p>
+        <div class="legende" aria-hidden="true"><span><i class="m-pub"></i>Dernière publication</span><span><i class="m-act"></i>Dernière activité</span><span><i class="m-ecart"></i>Pas encore publié</span></div>
+        <div class="frise" id="frise"></div>
+        <details class="tableau"><summary>Voir en tableau</summary>
+          <table id="t-frise"><thead><tr><th>Partie</th><th>Dernière publication</th><th>Dernière activité</th></tr></thead><tbody></tbody></table>
+        </details>
+      </figure>
+      <figure class="graphe" style="margin:0">
+        <h3>Mockups par projet</h3>
+        <p class="sous">Les 29 mockups de la médiathèque (M30 à M58)</p>
+        <div class="barres" id="barres"></div>
+        <details class="tableau"><summary>Voir en tableau</summary>
+          <table id="t-barres"><thead><tr><th>Projet</th><th>Mockups</th><th>Numéros</th><th>Dernier</th></tr></thead><tbody></tbody></table>
+        </details>
+      </figure>
+    </div>
+  </section>
+
+  <section id="savoir">
+    <h2>À savoir</h2>
+    <div class="savoir">
+      <div class="note"><h3><span class="etat warn"><svg class="ico"><use href="#i-nuage"/></svg>Risque</span>Du travail seulement sur le PC</h3>
+        <p>La 2.5.0, la 2.6.0, SindryOS 0.11 et 0.12 et le catalogue 1.7.0 ne sont sur aucun dépôt GitHub. Voir le conseil 7.</p></div>
+      <div class="note"><h3><span class="etat err"><svg class="ico"><use href="#i-test"/></svg>Pas testé</span>Jamais essayé en vrai</h3>
+        <ul>
+          <li>Le retour arrière d'une mise à jour de Sindry (banc seulement)</li>
+          <li>La surprise de la 2.5.0 dans la vraie appli Tauri</li>
+          <li>SindryOS sur un vrai PC, et son journal lu par un vrai Windows</li>
+        </ul></div>
+      <div class="note"><h3><span class="etat idle"><svg class="ico"><use href="#i-info"/></svg>Retard</span>Le site public de Sindry</h3>
+        <p>Sa feuille de route s'arrête à la 2.4.0 et dit SindryOS « étude faite, à décider ». Sindry App prévoit de la mettre à jour avant la 2.5.0.</p></div>
+      <div class="note"><h3><span class="etat ok"><svg class="ico"><use href="#i-ok"/></svg>Acquis</span>Ce qui est réglé</h3>
+        <ul>
+          <li>L'ordre : le catalogue 1.7.0, puis la 2.5.0, puis la fin de WinTool en 2.6.0</li>
+          <li>La surprise reste secrète, l'icône T3 est officielle, la famille Prisme habille SindryOS</li>
+          <li>Les médias de toutes les conversations Sindry vont dans la médiathèque</li>
+        </ul></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p><b>Sources :</b> dépôts GitHub publics (Sindry 2.4.0 du 26/10, Sindry-Catalogue 1.6.1 du 11/10, Sindry-Media-Library du 07/11, Sindry-Ambiances vide) et derniers messages des conversations Sindry App (07/11), Sindry OS (07/11), Sindry Scripts (05/11), Sindry Game (04/11) et Sindry Icons (05/11).</p>
+  <p>Ce qui n'est que sur le PC est rapporté tel que les conversations le décrivent : je n'ai pas pu le vérifier directement. <a href="../">Retour à la médiathèque</a></p>
+</footer>
+
+<div class="infobulle" id="infobulle" role="status" aria-live="polite"></div>
+
+<script>
+(() => {
+  // --- Thème : auto, clair, sombre (même réglage que la médiathèque) ---
+  const btn = document.getElementById('theme');
+  const noms = { auto: 'auto', light: 'clair', dark: 'sombre' };
+  const lire = () => { try { return localStorage.getItem('mediatheque.theme') || 'auto'; } catch { return 'auto'; } };
+  const ecrire = (v) => { try { if (v === 'auto') localStorage.removeItem('mediatheque.theme'); else localStorage.setItem('mediatheque.theme', v); } catch { /* stockage indisponible */ } };
+  let theme = lire();
+  const appliquer = () => {
+    if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme; else delete document.documentElement.dataset.theme;
+    btn.textContent = `Thème : ${noms[theme] || 'auto'}`;
+  };
+  appliquer();
+  btn.addEventListener('click', () => { theme = theme === 'auto' ? 'light' : theme === 'light' ? 'dark' : 'auto'; ecrire(theme); appliquer(); });
+
+  // --- Infobulle commune ---
+  const bulle = document.getElementById('infobulle');
+  const montrer = (el) => {
+    bulle.textContent = el.dataset.bulle;
+    const r = el.getBoundingClientRect();
+    bulle.classList.add('vu');
+    const b = bulle.getBoundingClientRect();
+    let x = r.left + r.width / 2 - b.width / 2;
+    x = Math.max(8, Math.min(x, window.innerWidth - b.width - 8));
+    let y = r.top - b.height - 8;
+    if (y < 8) y = r.bottom + 8;
+    bulle.style.left = `${x}px`; bulle.style.top = `${y}px`;
+  };
+  const cacher = () => bulle.classList.remove('vu');
+  const brancher = (el) => {
+    el.addEventListener('pointerenter', () => montrer(el));
+    el.addEventListener('pointerleave', cacher);
+    el.addEventListener('focus', () => montrer(el));
+    el.addEventListener('blur', cacher);
+    el.addEventListener('click', () => montrer(el));
+  };
+  window.addEventListener('scroll', cacher, { passive: true });
+
+  const el = (tag, attrs = {}, ...enfants) => {
+    const e = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) { if (k === 'class') e.className = v; else if (k === 'style') e.style.cssText = v; else if (k.startsWith('data-')) e.setAttribute(k, v); else e.setAttribute(k, v); }
+    for (const c of enfants) e.append(c);
+    return e;
+  };
+  const jour = (iso) => { const [a, m, j] = iso.split('-'); return `${j}/${m}/${a}`; };
+
+  // --- Frise : dernière publication et dernière activité ---
+  const DEBUT = Date.parse('2026-10-06'), FIN = Date.parse('2026-11-08');
+  const pos = (iso) => ((Date.parse(iso) - DEBUT) / (FIN - DEBUT)) * 100;
+  const parties = [
+    { nom: 'App Windows', pub: ['2026-10-26', '2.4.0 publiée'], act: ['2026-11-07', '2.5.0 prête, pas déployée'] },
+    { nom: 'App Linux', pub: null, act: ['2026-11-07', 'contrat 0.30 validé, aucun code'] },
+    { nom: 'Scripts Win', pub: ['2026-10-11', 'catalogue 1.6.1 publié'], act: ['2026-11-07', 'catalogue 1.7.0 converti'] },
+    { nom: 'Scripts Linux', pub: null, act: ['2026-11-07', 'catalogue d’outils avec SindryOS 0.11.0'] },
+    { nom: 'OS', pub: null, act: ['2026-11-07', 'SindryOS 0.12.0 en local'] },
+    { nom: 'Médias', pub: ['2026-11-07', 'site publié avec M58'], act: ['2026-11-07', 'M58 déposé'] },
+  ];
+  const frise = document.getElementById('frise');
+  const reperes = ['2026-10-06', '2026-10-13', '2026-10-20', '2026-10-27', '2026-11-03'];
+  for (const p of parties) {
+    const piste = el('div', { class: 'piste' });
+    for (const r of reperes) piste.append(el('span', { class: 'repere', style: `left:${pos(r)}%` }));
+    piste.append(el('span', { class: 'repere auj', style: 'left:100%' }));
+    if (p.pub && p.pub[0] !== p.act[0]) piste.append(el('span', { class: 'ecart', style: `left:${pos(p.pub[0])}%;width:${pos(p.act[0]) - pos(p.pub[0])}%` }));
+    if (!p.pub) piste.append(el('span', { class: 'jamais', style: `right:${100 - pos(p.act[0]) + 3}%` }, 'jamais publié'));
+    if (p.pub) {
+      const b = el('button', { class: 'point pub', type: 'button', style: `left:${pos(p.pub[0])}%`, 'aria-label': `${p.nom}, dernière publication le ${jour(p.pub[0])} : ${p.pub[1]}`, 'data-bulle': `${p.nom} · publié le ${jour(p.pub[0])} : ${p.pub[1]}` }, el('i'));
+      brancher(b); piste.append(b);
+    }
+    const a = el('button', { class: 'point act', type: 'button', style: `left:${pos(p.act[0])}%`, 'aria-label': `${p.nom}, dernière activité le ${jour(p.act[0])} : ${p.act[1]}`, 'data-bulle': `${p.nom} · activité le ${jour(p.act[0])} : ${p.act[1]}` }, el('i'));
+    brancher(a); piste.append(a);
+    frise.append(el('span', { class: 'nom' }, p.nom), piste);
+    document.querySelector('#t-frise tbody').append(el('tr', {}, el('td', {}, p.nom), el('td', {}, p.pub ? `${jour(p.pub[0])} · ${p.pub[1]}` : 'jamais'), el('td', {}, `${jour(p.act[0])} · ${p.act[1]}`)));
+  }
+  const axe = el('div', { class: 'axe' });
+  for (const r of reperes) axe.append(el('span', { class: (FIN - Date.parse(r)) < 8 * 864e5 ? 'proche' : '', style: `left:${pos(r)}%` }, jour(r).slice(0, 5)));
+  axe.append(el('span', { class: 'auj', style: 'left:calc(100% - 22px)' }, '08/11'));
+  frise.append(axe);
+
+  // --- Mockups par projet (une seule série, une seule couleur) ---
+  const projets = [
+    { nom: 'Sindry OS', n: 10, de: 'M40', a: 'M58', der: '07/11' },
+    { nom: 'Sindry App', n: 6, de: 'M34', a: 'M39', der: '25/10' },
+    { nom: 'Sindry Game', n: 5, de: 'M44', a: 'M52', der: '03/11' },
+    { nom: 'Sindry Script', n: 4, de: 'M30', a: 'M33', der: '18/10' },
+    { nom: 'Sindry Icons', n: 4, de: 'M48', a: 'M53', der: '03/11' },
+  ];
+  const max = Math.max(...projets.map((p) => p.n));
+  const barres = document.getElementById('barres');
+  for (const p of projets) {
+    const b = el('button', { class: 'barre', type: 'button', 'data-bulle': `${p.nom} : ${p.n} mockups, de ${p.de} à ${p.a}, le dernier le ${p.der}`, 'aria-label': `${p.nom} : ${p.n} mockups, de ${p.de} à ${p.a}` },
+      el('span', { class: 'nom' }, p.nom), el('span', { class: 'rail' }, el('i', { style: `width:${(p.n / max) * 100}%` })), el('span', { class: 'val' }, String(p.n)));
+    brancher(b); barres.append(b);
+    document.querySelector('#t-barres tbody').append(el('tr', {}, el('td', {}, p.nom), el('td', {}, String(p.n)), el('td', {}, `${p.de} à ${p.a}`), el('td', {}, p.der)));
+  }
+})();
+</script>
+</body>
+</html>
