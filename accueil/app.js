@@ -10,6 +10,7 @@
   const BRANCHE = 'main';
   const PAS_DES_DONNEES = new Set(['outils', 'accueil', 'node_modules']);
   const SECTIONS = {
+    suivi: { titre: 'Avancement', un: 'infographie', des: 'infographies', texte: "Où en est le projet Sindry : versions, tâches, décisions qui t'attendent. La plus récente en tête." },
     mockups: { titre: 'Mockups', un: 'mockup', des: 'mockups', texte: "Les maquettes de tous les projets Sindry, numérotées dans l'ordre de création. La plus récente en tête." },
     'icones-sindry': { titre: 'Icônes de Sindry', un: 'icône de Sindry', des: 'icônes de Sindry', texte: "L'icône de Sindry, ses variantes, ses tailles et ses animations. Les planches qui les comparent sont des mockups.",
       vide: 'Aucune icône de Sindry pour l\'instant. Elles se rangent dans icones-sindry/. ' },
@@ -17,7 +18,7 @@
     images: { titre: 'Images', un: 'image', des: 'images', texte: 'Captures, visuels et exports, rangés par projet.',
       vide: 'Aucune image pour l\'instant. Elles se rangent dans images/<projet>/. ' },
   };
-  const ORDRE = ['mockups', 'icones-sindry', 'icons', 'images'];
+  const ORDRE = ['suivi', 'mockups', 'icones-sindry', 'icons', 'images'];
   const EXT_IMAGES = new Set(['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ico', 'avif', 'bmp']);
   const EXT_PAGES = new Set(['html', 'htm']);
   const ICONE_MAX = 128 * 1024;
@@ -477,7 +478,7 @@
       if (id === 'mockups') sectionMockups(sec, donnees, fichiers);
       else if (id === 'icons') sectionIcones(sec, fichiers);
       else if (id === 'images' || id === 'icones-sindry') sectionImages(sec, fichiers, id);
-      else { sec.compte = fichiers.length; sec.corps.append(listeFichiers(fichiers, `${id}/`)); }
+      else { sec.compte = fichiers.length; sec.corps.append(listeFichiers(id === 'suivi' ? [...fichiers].reverse() : fichiers, `${id}/`)); }
       conteneur.append(sec.noeud);
     }
 
