@@ -294,7 +294,7 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 16px 36px; color: var(--t
       <div class="noeud toi"><div class="rond e-toi"><svg class="ico"><use href="#i-toi"/></svg></div><b>Accepter le bandeau dans Sindry</b><small class="e-toi">Toi, 1 clic</small></div>
       <div class="noeud"><div class="rond e-risque"><svg class="ico"><use href="#i-test"/></svg></div><b>Tester le retour arrière (VM)</b><small class="e-risque">Jamais testé</small></div>
       <div class="noeud toi"><div class="rond e-toi"><svg class="ico"><use href="#i-toi"/></svg></div><b>« déploie » : 2.5.0 en ligne</b><small class="e-toi">Décision 2</small></div>
-      <div class="noeud"><div class="rond e-fait"><svg class="ico"><use href="#i-fait"/></svg></div><b>2.6.0 : fin de WinTool</b><small class="e-fait">Prêt</small></div>
+      <div class="noeud"><div class="rond e-fait"><svg class="ico"><use href="#i-fait"/></svg></div><b>2.6.0 : fin de l’ancien nom</b><small class="e-fait">Prêt</small></div>
     </div>
   </section>
 
@@ -401,7 +401,7 @@ footer { max-width: 1200px; margin: 0 auto; padding: 0 16px 36px; color: var(--t
   const parties = [
     { nom: 'App Windows', sous: 'Sindry', pub: '2.4.0', loc: '2.5.0', dec: [1, 2], e: [['fait', 'Conçue'], ['fait', '2.5.0 construite'], ['partie', 'Retour arrière testé sur banc seulement'], ['toi', '2.5.0 attend le catalogue (1) puis « déploie » (2)']] },
     { nom: 'App Linux', sous: 'Sindry Linux', pub: null, loc: 'contrat 0.30', dec: [4, 5], e: [['partie', 'Interfaces convenues avec SindryOS (contrat 0.30)'], ['rien', 'Aucun code pour l’instant'], ['rien', 'Rien à tester'], ['rien', 'Pas de version']] },
-    { nom: 'Scripts Win', sous: 'catalogue · 640 en pause', pub: '1.6.1', loc: '1.7.0', dec: [1], e: [['fait', '28 scripts'], ['fait', '1.7.0 convertie, plus de WinTool'], ['partie', 'Vérifiée par Sindry App, CI convertie'], ['toi', '1.7.0 attend ton accord (1)']] },
+    { nom: 'Scripts Win', sous: 'catalogue · 640 en pause', pub: '1.6.1', loc: '1.7.0', dec: [1], e: [['fait', '28 scripts'], ['fait', '1.7.0 convertie, plus de l’ancien nom'], ['partie', 'Vérifiée par Sindry App, CI convertie'], ['toi', '1.7.0 attend ton accord (1)']] },
     { nom: 'Scripts Linux', sous: 'outils de SindryOS', pub: null, loc: '21 outils', dec: [6], e: [['fait', 'Une fiche par outil, index signé'], ['fait', '21 outils à paquets'], ['partie', 'Installés en VM seulement'], ['toi', 'Dépôt à nommer (6), puis hébergement']] },
     { nom: 'OS', sous: 'SindryOS · Alpine', pub: null, loc: '0.12.0', dec: [3, 4, 6], e: [['fait', 'Contrat 0.30'], ['fait', '0.11.0 caisse à outils, 0.12.0 journal'], ['toi', 'VM seulement : un vrai Windows attend tes VM (3)'], ['rien', 'Image pas encore hébergée']] },
     { nom: 'Médias', sous: 'médiathèque', pub: 'M58', loc: null, dec: [], e: [['fait', 'Règles de dépôt'], ['fait', '802 fichiers'], ['fait', 'Site publié et vérifié'], ['fait', 'En ligne, à jour le 07/11']] },
